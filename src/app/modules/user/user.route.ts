@@ -23,20 +23,13 @@ router.post(
   UserControllers.setUpUserProfile,
 );
 router.put(
-  "/set-profile/user",
+  "/update-profile",
   auth(UserRole.USER),
   fileUploader.profileImage,
   parseBodyData,
   UserControllers.updateUserProfile,
 );
-
 router.get("/profile", auth(), UserControllers.getProfile);
-router.put(
-  "/:id",
-  validateRequest(userValidation.userUpdateValidationSchema),
-  auth(UserRole.ADMIN),
-  UserControllers.updateUser,
-);
 router.delete("/:id", auth(UserRole.ADMIN), UserControllers.deleteUser);
 
 export const userRoutes = router;

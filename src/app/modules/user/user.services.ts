@@ -5,15 +5,11 @@ import { ObjectId } from "mongodb";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import config from "../../../config";
 import prisma from "../../../shared/prisma";
-import Stripe from "stripe";
 import sendEmail from "../../../helpers/sendEmail";
 import generateOTP from "../../../helpers/generateOtp";
 import { emailBody } from "../../../helpers/EmailBody";
-import { createCustomerStripeAccount } from "../../../helpers/stripe.helper";
 import { Request } from "express";
 import { uploadInSpace } from "../../../shared/UploadHelper";
-
-const stripe = new Stripe(config.stripe.stripe_secret as string);
 
 //create new user
 const createPendingUserIntoDB = async (payload: PendingUser) => {
@@ -130,7 +126,7 @@ const setUpUserProfileIntoDB = async (req: Request) => {
   const profileImage = file ? await processImage(file, "profileImage") : null;
   if (!profileImage) {
     throw new ApiError(404, "Image is required");
-  } 
+  }
 
   await prisma.userProfile.create({
     data: {
@@ -171,7 +167,7 @@ const updateUserProfileIntoDB = async (req: Request) => {
     return uploadInSpace(file, `courses/${folder}`);
   };
 
-  const profileImage = file ? await processImage(file, "profileImage") : null; 
+  const profileImage = file ? await processImage(file, "profileImage") : null;
 
   await prisma.userProfile.update({
     where: { userId },
@@ -183,7 +179,6 @@ const updateUserProfileIntoDB = async (req: Request) => {
       subProfession: payload.subProfession || user.userProfile?.subProfession,
       education: payload.education || user.userProfile?.education,
       skills: payload.skills || user.userProfile?.skills,
-
     },
   });
 
@@ -201,29 +196,28 @@ const updateUserProfileIntoDB = async (req: Request) => {
 const getProfileFromDB = async (id: string) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: { id },
-    include: {
-      userProfile: true,
+    select: {
+      id: true,
+      userName: true,
+      email: true,
+      profileImage: true,
+      userProfile: {
+        select: {
+          bio: true,
+          city: true,
+          profession: true,
+          subProfession: true,
+          education: true,
+          skills: true,
+          attendance: true,
+          followers: true,
+          hosted: true,
+        },
+      },
     },
   });
 
-  const { password, ...sanitizedUser } = user;
-  return sanitizedUser;
-};
-
-//update user
-const updateUserIntoDB = async (id: string, userData: any) => {
-  if (!ObjectId.isValid(id)) {
-    throw new ApiError(400, "Invalid user ID format");
-  }
-
-  const updatedUser = await prisma.user.update({
-    where: { id },
-    data: userData,
-  });
-
-  const { password, ...sanitizedUser } = updatedUser;
-
-  return sanitizedUser;
+  return user;
 };
 
 //delete user
@@ -246,9 +240,7 @@ export const userService = {
   createUserIntoDB,
   createPendingUserIntoDB,
   setUpUserProfileIntoDB,
-
   getProfileFromDB,
-  updateUserIntoDB,
   deleteUserIntoDB,
   updateUserProfileIntoDB,
 };

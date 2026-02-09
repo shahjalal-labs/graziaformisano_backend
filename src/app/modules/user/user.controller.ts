@@ -52,20 +52,6 @@ const getProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-//update user
-const updateUser = catchAsync(async (req: Request, res: Response) => {
-  const updatedUser = await userService.updateUserIntoDB(
-    req.params.id,
-    req.body,
-  );
-  sendResponse(res, {
-    success: true,
-    statusCode: 200,
-    message: "user updated successfully",
-    data: updatedUser,
-  });
-});
-
 //delete user
 const deleteUser = catchAsync(async (req: any, res: Response) => {
   const userId = req.params.id;
@@ -82,7 +68,6 @@ export const UserControllers = {
   createUser,
   createPendingUser,
   getProfile,
-  updateUser,
   deleteUser,
   setUpUserProfile,
   updateUserProfile,
