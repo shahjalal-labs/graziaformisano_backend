@@ -10,19 +10,18 @@ generator client {
 model User {
   id              String         @id @default(auto()) @map("_id") @db.ObjectId
   userName        String
-  email           String         @unique
+  email           String   @unique
+  appleId         String?
   password        String
   profileImage    String?
   fcmToken        String?
-  stripeAccountId    String?
+  stripeAccountId String?
   isSetup         Boolean        @default(false)
-  avgRating       Float          @default(0)
-  totalReview     Int            @default(0)
   role            UserRole       @default(USER)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   userLocation    UserLocation[]
-  userProfile     UserProfile? 
+  userProfile     UserProfile?
 
   @@map("users")
 }
@@ -31,7 +30,6 @@ model PendingUser {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userName  String
   email     String   @unique
-  role      UserRole @default(USER)
   password  String
   otpCode   String
   expiresAt DateTime
@@ -43,11 +41,12 @@ model PendingUser {
 model UserProfile {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   userId        String   @unique @db.ObjectId
-  gender        Gender
-  age           Int
-  walletBalance Float    @default(0)
-  netSpent      Float    @default(0)
-  ethnicity     String
+  profession    String
+  subProfession String
+  city          String
+  bio           String
+  education     String?
+  skills        String[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   user          User?    @relation(fields: [userId], references: [id])

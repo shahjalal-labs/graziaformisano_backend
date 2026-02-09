@@ -87,20 +87,12 @@ const createUserIntoDB = async (email: string, otp: string) => {
     },
   });
 
-  let stripeAccountId = "";
-
-  if (userPending.role == "USER") {
-    const stripeAccount = await createCustomerStripeAccount(userName, email);
-    stripeAccountId = stripeAccount.id;
-  }
-
   const user = await prisma.user.create({
     data: {
       email: email,
       password: userPending.password,
       userName: userName,
-      stripeAccountId: stripeAccountId || null,
-      role: userPending.role as UserRole,
+      role: "USER",
     },
   });
 
@@ -138,16 +130,17 @@ const setUpUserProfileIntoDB = async (req: Request) => {
   const profileImage = file ? await processImage(file, "profileImage") : null;
   if (!profileImage) {
     throw new ApiError(404, "Image is required");
-  }
-
-  const age = parseInt(payload.age);
+  } 
 
   await prisma.userProfile.create({
     data: {
       userId,
-      age: age,
-      ethnicity: payload.ethnicity,
-      gender: payload.gender,
+      bio: payload.bio,
+      city: payload.city,
+      profession: payload.profession,
+      subProfession: payload.subProfession,
+      education: payload.education,
+      skills: payload.skills,
     },
   });
 
@@ -178,17 +171,19 @@ const updateUserProfileIntoDB = async (req: Request) => {
     return uploadInSpace(file, `courses/${folder}`);
   };
 
-  const profileImage = file ? await processImage(file, "profileImage") : null;
-
-  const age = parseInt(payload.age);
+  const profileImage = file ? await processImage(file, "profileImage") : null; 
 
   await prisma.userProfile.update({
     where: { userId },
     data: {
       userId,
-      age: age || user.userProfile?.age,
-      ethnicity: payload.ethnicity || user.userProfile?.ethnicity,
-      gender: payload.gender || user.userProfile?.gender,
+      bio: payload.bio || user.userProfile?.bio,
+      city: payload.city || user.userProfile?.city,
+      profession: payload.profession || user.userProfile?.profession,
+      subProfession: payload.subProfession || user.userProfile?.subProfession,
+      education: payload.education || user.userProfile?.education,
+      skills: payload.skills || user.userProfile?.skills,
+
     },
   });
 

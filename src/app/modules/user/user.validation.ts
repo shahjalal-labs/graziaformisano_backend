@@ -13,10 +13,7 @@ const userUpdateValidationSchema = z.object({
   gender: genderEnum.optional(),
 });
 
-const userProfileSchema = z.object({
-  gender: genderEnum, 
-  ethnicity: z.string(),
-});
+
 
 const workerProfileSchema = z.object({
   gender: genderEnum,
@@ -32,6 +29,5 @@ const workerProfileSchema = z.object({
 export const userValidation = {
   userRegisterValidationSchema,
   userUpdateValidationSchema,
-  userProfileSchema,
   workerProfileSchema,
 };

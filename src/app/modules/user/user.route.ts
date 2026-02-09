@@ -16,11 +16,10 @@ router.post(
 );
 router.post("/verify-account", UserControllers.createUser);
 router.post(
-  "/set-profile/user",
+  "/set-profile",
   auth(UserRole.USER),
   fileUploader.profileImage,
-  parseBodyData,
-  validateRequest(userValidation.userProfileSchema),
+  parseBodyData, 
   UserControllers.setUpUserProfile,
 );
 router.put(
@@ -28,7 +27,6 @@ router.put(
   auth(UserRole.USER),
   fileUploader.profileImage,
   parseBodyData,
-  validateRequest(userValidation.userProfileSchema),
   UserControllers.updateUserProfile,
 );
 

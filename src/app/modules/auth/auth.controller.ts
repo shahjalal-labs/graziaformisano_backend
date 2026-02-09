@@ -20,15 +20,24 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const authLogin = catchAsync(async (req: Request, res: Response) => {
+  const result = await authService.authLoginIntoDB(req.body);
 
-const updateUserLocation = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.user;
-  const updatedUser = await authService.userLocationUpdateInDB(id, req.body);
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "User location added successfully",
-    data: updatedUser,
+    message: "User successfully logged in",
+    data: result,
+  });
+});
+
+const updateUserLocation = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.user;
+  await authService.userLocationUpdateInDB(id, req.body);
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "location updated successfully",
   });
 });
 
@@ -85,13 +94,12 @@ const changePassword = catchAsync(async (req: any, res: Response) => {
   });
 });
 
-
 export const authController = {
   loginUser,
+  authLogin,
   updateUserLocation,
   sendForgotPasswordOtp,
   verifyForgotPasswordOtpCode,
   resetPassword,
   changePassword,
-
 };

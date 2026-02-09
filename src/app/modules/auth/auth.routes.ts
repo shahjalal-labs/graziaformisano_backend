@@ -14,6 +14,10 @@ router.post(
   authController.loginUser,
 );
 router.post(
+  "/social-login",
+  authController.authLogin,
+);
+router.post(
   "/update/user-location",
   auth(),
   validateRequest(authValidation.userLocationSchema),

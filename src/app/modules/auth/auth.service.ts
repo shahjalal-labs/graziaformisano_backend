@@ -6,17 +6,18 @@ import config from "../../../config";
 import { UserLocation } from "@prisma/client";
 import generateOTP from "../../../helpers/generateOtp";
 import sendEmail from "../../../helpers/sendEmail";
-import Stripe from "stripe";
-
-const stripe = new Stripe(config.stripe.stripe_secret as string);
 
 //login user
 const loginUserIntoDB = async (payload: any) => {
-  const user = await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUnique({
     where: {
       email: payload.email,
     },
   });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
   const isPasswordValid = await bcrypt.compare(
     payload.password,
@@ -47,8 +48,57 @@ const loginUserIntoDB = async (payload: any) => {
     accessToken,
     id: user.id,
     isSetup: user.isSetup,
-    role: user.role,
   };
+};
+
+const authLoginIntoDB = async (payload: any) => {
+  if (!payload.email && !payload.appleId) {
+    throw new ApiError(400, "Email or Apple ID is required");
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [{ email: payload.email }, { appleId: payload.appleId }],
+    },
+  });
+  if (user) {
+    const accessToken = jwtHelpers.generateToken(
+      { id: user.id, email: user.email, role: user.role },
+      config.jwt.jwt_secret as string,
+      config.jwt.expires_in as string,
+    );
+    const { password, createdAt, updatedAt, ...userInfo } = user;
+
+    return {
+      accessToken,   
+      isSetup: user.isSetup,
+    };
+  } else {
+    if (!payload.email || !payload.userName) {
+      throw new ApiError(404, "Email and User Name is required");
+    }
+
+    const plainPassword = "12345Aa@";
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+    const user = await prisma.user.create({
+      data: {
+        ...payload,
+        password: hashedPassword,
+      },
+    });
+
+    const accessToken = jwtHelpers.generateToken(
+      { id: user.id, email: user.email, role: user.role },
+      config.jwt.jwt_secret as string,
+      config.jwt.expires_in as string,
+    );
+    const { password, createdAt, updatedAt, ...userInfo } = user;
+
+    return {
+      accessToken,     
+      isSetup: user.isSetup,
+    };
+  }
 };
 
 //update or add user location
@@ -76,11 +126,15 @@ const userLocationUpdateInDB = async (
 };
 //send forgot password otp
 const sendForgotPasswordOtpDB = async (email: string) => {
-  const existringUser = await prisma.user.findUniqueOrThrow({
+  const existringUser = await prisma.user.findUnique({
     where: {
       email: email,
     },
   });
+
+  if (!existringUser) {
+    throw new ApiError(404, "User not found");
+  }
 
   // Generate OTP and expiry time
   const otp = generateOTP(); // 4-digit OTP
@@ -117,7 +171,11 @@ const verifyForgotPasswordOtpCodeDB = async (payload: any) => {
     throw new ApiError(400, "Email and OTP are required.");
   }
 
-  const user = await prisma.user.findUniqueOrThrow({ where: { email: email } });
+  const user = await prisma.user.findUnique({ where: { email: email } });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
   const userId = user.id;
 
@@ -214,7 +272,6 @@ const changePasswordFromDB = async (
   return;
 };
 
-
 export const authService = {
   loginUserIntoDB,
   userLocationUpdateInDB,
@@ -222,5 +279,5 @@ export const authService = {
   verifyForgotPasswordOtpCodeDB,
   resetForgotPasswordDB,
   changePasswordFromDB,
-  
+  authLoginIntoDB
 };
