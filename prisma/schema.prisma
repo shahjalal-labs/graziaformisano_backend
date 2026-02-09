@@ -1,0 +1,96 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  userName        String
+  email           String         @unique
+  password        String
+  profileImage    String?
+  fcmToken        String?
+  stripeAccountId    String?
+  isSetup         Boolean        @default(false)
+  avgRating       Float          @default(0)
+  totalReview     Int            @default(0)
+  role            UserRole       @default(USER)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  userLocation    UserLocation[]
+  userProfile     UserProfile? 
+
+  @@map("users")
+}
+
+model PendingUser {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userName  String
+  email     String   @unique
+  role      UserRole @default(USER)
+  password  String
+  otpCode   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("pendingUsers")
+}
+
+model UserProfile {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @unique @db.ObjectId
+  gender        Gender
+  age           Int
+  walletBalance Float    @default(0)
+  netSpent      Float    @default(0)
+  ethnicity     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User?    @relation(fields: [userId], references: [id])
+
+  @@map("userProfiles")
+}
+
+model UserLocation {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @db.ObjectId
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("user_locations")
+}
+
+model Otp {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  otpCode   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("otps")
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
