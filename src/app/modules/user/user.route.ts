@@ -19,15 +19,20 @@ router.post(
   "/set-profile",
   auth(UserRole.USER),
   fileUploader.profileImage,
-  parseBodyData, 
+  parseBodyData,
   UserControllers.setUpUserProfile,
 );
 router.put(
   "/update-profile",
   auth(UserRole.USER),
+  UserControllers.updateUserProfile,
+);
+router.put(
+  "/update-profile-image",
+  auth(UserRole.USER),
   fileUploader.profileImage,
   parseBodyData,
-  UserControllers.updateUserProfile,
+  UserControllers.updateProfileImage,
 );
 router.get("/profile", auth(), UserControllers.getProfile);
 router.delete("/:id", auth(UserRole.ADMIN), UserControllers.deleteUser);

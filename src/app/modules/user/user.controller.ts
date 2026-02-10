@@ -26,19 +26,28 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const setUpUserProfile = catchAsync(async (req: Request, res: Response) => {
-  await userService.setUpUserProfileIntoDB(req);
+  const result = await userService.setUpUserProfileIntoDB(req);
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Profile setup completed",
+    data: result,
   });
 });
 const updateUserProfile = catchAsync(async (req: Request, res: Response) => {
-  await userService.updateUserProfileIntoDB(req);
+  await userService.updateUserProfileIntoDB(req.user.id, req.body);
   sendResponse(res, {
     success: true,
     statusCode: 200,
     message: "Profile update completed",
+  });
+});
+const updateProfileImage = catchAsync(async (req: Request, res: Response) => {
+  await userService.updateProfileImageInDB(req);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Profile image update completed",
   });
 });
 //get single user
@@ -71,4 +80,5 @@ export const UserControllers = {
   deleteUser,
   setUpUserProfile,
   updateUserProfile,
+  updateProfileImage
 };
