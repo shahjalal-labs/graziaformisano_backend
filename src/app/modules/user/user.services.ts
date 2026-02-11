@@ -248,15 +248,7 @@ const getProfileFromDB = async (id: string) => {
 };
 
 //delete user
-const deleteUserIntoDB = async (userId: string, loggedId: string) => {
-  if (!ObjectId.isValid(userId)) {
-    throw new ApiError(400, "Invalid user ID format");
-  }
-
-  if (userId === loggedId) {
-    throw new ApiError(403, "You can't delete your own account!");
-  }
-
+const deleteUserIntoDB = async (userId: string) => {
   await prisma.user.delete({
     where: { id: userId },
   });

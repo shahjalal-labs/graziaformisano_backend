@@ -31,7 +31,7 @@ const fileUrl = upload.single("fileUrl");
 // upload multiple image
 const uploadMultiple = upload.fields([
   { name: "profileImage", maxCount: 1 },
-  { name: "mediaUrl", maxCount: 1 },
+  { name: "mediaUrls", maxCount: 5 },
   { name: "fileUrl", maxCount: 10 },
   { name: "certificateUrl", maxCount: 1 },
   { name: "immunizationUrl", maxCount: 1 },

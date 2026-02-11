@@ -35,6 +35,6 @@ router.put(
   UserControllers.updateProfileImage,
 );
 router.get("/profile", auth(), UserControllers.getProfile);
-router.delete("/:id", auth(UserRole.ADMIN), UserControllers.deleteUser);
+router.delete("/delete-account", auth(), UserControllers.deleteUser);
 
 export const userRoutes = router;
