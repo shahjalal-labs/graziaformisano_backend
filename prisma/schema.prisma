@@ -25,8 +25,10 @@ model User {
   posts           Post[]
   comments        Comment[]
   replies         Reply[]
-  follower       Follower[]     @relation("UserFollowers")
+  follower        Follower[]     @relation("UserFollowers")
   following       Follower[]     @relation("UserFollowing")
+  sender          Room[]         @relation("user1Relation")
+  receiver        Room[]         @relation("user2Relation")
 
   @@map("users")
 }
@@ -140,6 +142,50 @@ model Follower {
 
   @@unique([userId, followerId])
   @@map("followers")
+}
+
+model Room {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String?  @db.ObjectId
+  receiverId String?  @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user1      User?    @relation("user1Relation", fields: [senderId], references: [id])
+  user2      User?    @relation("user2Relation", fields: [receiverId], references: [id])
+
+  message Message[]
+
+  @@unique([senderId, receiverId])
+  @@map("rooms")
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  roomId    String   @db.ObjectId
+  user1Id   String   @db.ObjectId
+  user2Id   String   @db.ObjectId
+  content   String?
+  fileUrl   String[]
+  user1Read Boolean  @default(false)
+  user2Read Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  room      Room     @relation(fields: [roomId], references: [id])
+
+  @@map("messages")
+}
+
+model Notification {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  receiverId String?  @db.ObjectId
+  senderId   String?  @db.ObjectId
+  title      String?
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("notifications")
 }
 
 enum UserStatus {

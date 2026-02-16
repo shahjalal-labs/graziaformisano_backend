@@ -73,6 +73,16 @@ const deleteUser = catchAsync(async (req: any, res: Response) => {
   });
 });
 
+const generateFileUrl = catchAsync(async (req, res) => {
+  const fileUrl = await userService.urlGenerate(req);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "File URL generated successfully",
+    data: fileUrl,
+  });
+});
+
 export const UserControllers = {
   createUser,
   createPendingUser,
@@ -80,5 +90,6 @@ export const UserControllers = {
   deleteUser,
   setUpUserProfile,
   updateUserProfile,
-  updateProfileImage
+  updateProfileImage,
+  generateFileUrl,
 };

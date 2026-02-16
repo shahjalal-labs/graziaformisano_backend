@@ -1,7 +1,7 @@
 import { Server } from "http";
 import app from "./app";
 import config from "./config";
-// import { setupWebSocketServer } from "./app/modules/socket/socket.controller";
+import { setupWebSocketServer } from "./app/modules/socket/socket.controller";
 import seedSuperAdmin from "./config/seedAdmin";
 
 let server: Server;
@@ -12,7 +12,7 @@ async function main() {
     seedSuperAdmin();
   });
 
-  // setupWebSocketServer(server);
+  setupWebSocketServer(server);
 
   const exitHandler = () => {
     if (server) {

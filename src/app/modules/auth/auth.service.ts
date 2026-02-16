@@ -151,7 +151,7 @@ const sendForgotPasswordOtpDB = async (email: string) => {
     <p>Thanks, <br>The Support Team</p>
   </div>
 `;
-  // await sendEmail(email, subject, html);
+  await sendEmail(email, subject, html);
   await prisma.otp.upsert({
     where: {
       email: email,

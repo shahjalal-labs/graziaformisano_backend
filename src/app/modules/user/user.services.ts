@@ -1,7 +1,6 @@
 import { PendingUser, User, UserProfile, UserRole } from "@prisma/client";
 import ApiError from "../../../errors/ApiErrors";
 import bcrypt from "bcryptjs";
-import { ObjectId } from "mongodb";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import config from "../../../config";
 import prisma from "../../../shared/prisma";
@@ -28,7 +27,7 @@ const createPendingUserIntoDB = async (payload: PendingUser) => {
   const subject = "Your Account Verification OTP";
   const html = emailBody(payload.userName, otp);
 
-  // await sendEmail(payload.email, subject, html);
+  await sendEmail(payload.email, subject, html);
   await prisma.pendingUser.upsert({
     where: {
       email: payload.email,
@@ -255,6 +254,21 @@ const deleteUserIntoDB = async (userId: string) => {
   return;
 };
 
+const urlGenerate = async (req: Request) => {
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+  const processImages = async (files?: Express.Multer.File[]) => {
+    if (!files || files.length === 0) return null;
+    return Promise.all(
+      files.map((file) => uploadInSpace(file, "messages/files"))
+    );
+  };
+
+  const [fileUrl] = await Promise.all([processImages(files["fileUrl"])]);
+
+  return fileUrl;
+};
+
 export const userService = {
   createUserIntoDB,
   createPendingUserIntoDB,
@@ -263,4 +277,5 @@ export const userService = {
   deleteUserIntoDB,
   updateUserProfileIntoDB,
   updateProfileImageInDB,
+  urlGenerate
 };

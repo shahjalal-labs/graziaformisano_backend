@@ -2,6 +2,7 @@ import { Request } from "express";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
+import { sendSingleNotification } from "../notifications/notification.services";
 
 const createPostInDB = async (req: Request) => {
   const userId = req.user.id;
@@ -72,8 +73,8 @@ const getAllPostsFromDB = async (userId: string) => {
             select: {
               id: true,
               isAccepted: true,
-            }
-          }
+            },
+          },
         },
       },
     },
@@ -114,7 +115,7 @@ const createCommentInDB = async (userId: string, payload: any) => {
     where: { id: userId },
   });
 
-  await prisma.post.findUniqueOrThrow({
+  const post = await prisma.post.findUniqueOrThrow({
     where: { id: payload.postId },
   });
 
@@ -134,6 +135,17 @@ const createCommentInDB = async (userId: string, payload: any) => {
       },
     },
   });
+
+  try {
+    await sendSingleNotification(
+      post.userId,
+      `${payload.content}`,
+      userId,
+      "New Comment!",
+    );
+  } catch (notificationError) {
+    console.error("Notification failed:", notificationError);
+  }
 };
 
 const getPostCommentsFromDB = async (userId: string, postId: string) => {
