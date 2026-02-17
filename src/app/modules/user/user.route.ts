@@ -40,7 +40,9 @@ router.delete("/delete-account", auth(), UserControllers.deleteUser);
 router.post(
   "/generate-url",
   fileUploader.uploadMultiple,
-  UserControllers.generateFileUrl
+  UserControllers.generateFileUrl,
 );
+router.get("/all", auth(), UserControllers.getUsers);
+router.get("/details/:id", auth(), UserControllers.userDetails);
 
 export const userRoutes = router;

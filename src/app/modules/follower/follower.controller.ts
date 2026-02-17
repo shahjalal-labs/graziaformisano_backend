@@ -8,8 +8,8 @@ const followUnfollow = catchAsync(async (req: Request, res: Response) => {
   const followerId = req.params.id;
 
   const result = await followerService.followUnfollowToggleInDB(
-    userId,
     followerId,
+    userId,
   );
   sendResponse(res, {
     success: true,

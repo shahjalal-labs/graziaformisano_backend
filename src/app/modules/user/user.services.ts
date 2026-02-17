@@ -9,6 +9,7 @@ import generateOTP from "../../../helpers/generateOtp";
 import { emailBody } from "../../../helpers/EmailBody";
 import { Request } from "express";
 import { uploadInSpace } from "../../../shared/UploadHelper";
+import { calculateDistance } from "../../../helpers/distanceCalculator";
 
 //create new user
 const createPendingUserIntoDB = async (payload: PendingUser) => {
@@ -260,13 +261,116 @@ const urlGenerate = async (req: Request) => {
   const processImages = async (files?: Express.Multer.File[]) => {
     if (!files || files.length === 0) return null;
     return Promise.all(
-      files.map((file) => uploadInSpace(file, "messages/files"))
+      files.map((file) => uploadInSpace(file, "messages/files")),
     );
   };
 
   const [fileUrl] = await Promise.all([processImages(files["fileUrl"])]);
 
   return fileUrl;
+};
+
+const getUsersFromDB = async (
+  userId: string,
+  profession?: string,
+  subProfession?: string,
+  maxDistance?: number,
+) => {
+  const userLocation = await prisma.userLocation.findFirst({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!userLocation) {
+    throw new ApiError(404, "User location not found");
+  }
+
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      userName: true,
+      profileImage: true,
+      userProfile: {
+        select: {
+          city: true,
+          profession: true,
+        },
+      },
+      follower: {
+        where: { followerId: userId },
+        select: {
+          id: true,
+          isAccepted: true,
+        },
+      },
+      userLocation: {
+        select: {
+          latitude: true,
+          longitude: true,
+        },
+      },
+    },
+    where: {
+      id: { not: userId },
+      userProfile: {
+        profession: profession ? profession : undefined,
+        subProfession: subProfession ? subProfession : undefined,
+      },
+    },
+  });
+
+  const usersWithDistance = users
+    .map((user) => {
+      const location = user.userLocation?.[0];
+      if (!location) return null;
+
+      const distance = calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        location.latitude,
+        location.longitude,
+      );
+
+      return {
+        ...user,
+        distance,
+      };
+    })
+    .filter(
+      (user): user is NonNullable<typeof user> =>
+        !!user &&
+        (typeof maxDistance !== "number" || user.distance <= maxDistance),
+    )
+    .sort((a, b) => a.distance - b.distance);
+
+  return usersWithDistance;
+};
+
+const getUserDetailsFromDB = async (userId: string) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+    select: {
+      id: true,
+      userName: true,
+      email: true,
+      profileImage: true,
+      userProfile: {
+        select: {
+          bio: true,
+          city: true,
+          profession: true,
+          subProfession: true,
+          hosted: true,
+          attendance: true,
+          followers: true,
+          education: true,
+          skills: true,
+        },
+      },
+    },
+  });
+
+  return user;
 };
 
 export const userService = {
@@ -277,5 +381,7 @@ export const userService = {
   deleteUserIntoDB,
   updateUserProfileIntoDB,
   updateProfileImageInDB,
-  urlGenerate
+  urlGenerate,
+  getUsersFromDB,
+  getUserDetailsFromDB,
 };

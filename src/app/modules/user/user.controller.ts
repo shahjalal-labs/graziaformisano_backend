@@ -64,7 +64,7 @@ const getProfile = catchAsync(async (req: Request, res: Response) => {
 //delete user
 const deleteUser = catchAsync(async (req: any, res: Response) => {
   const userId = req.user.id;
-  
+
   await userService.deleteUserIntoDB(userId);
   sendResponse(res, {
     success: true,
@@ -82,6 +82,37 @@ const generateFileUrl = catchAsync(async (req, res) => {
     data: fileUrl,
   });
 });
+const getUsers = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const profession = req.query.profession as string | undefined;
+  const subProfession = req.query.subProfession as string | undefined;
+  const maxDistance = req.query.maxDistance
+    ? parseFloat(req.query.maxDistance as string)
+    : undefined;
+
+  const users = await userService.getUsersFromDB(
+    userId,
+    profession,
+    subProfession,
+    maxDistance,
+  );
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Users retrieved successfully",
+    data: users,
+  });
+});
+
+const userDetails = catchAsync(async (req, res) => {
+  const userDetails = await userService.getUserDetailsFromDB(req.params.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User details retrieved successfully",
+    data: userDetails,
+  });
+});
 
 export const UserControllers = {
   createUser,
@@ -92,4 +123,6 @@ export const UserControllers = {
   updateUserProfile,
   updateProfileImage,
   generateFileUrl,
+  getUsers,
+  userDetails
 };
