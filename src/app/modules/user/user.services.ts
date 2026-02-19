@@ -272,6 +272,7 @@ const urlGenerate = async (req: Request) => {
 
 const getUsersFromDB = async (
   userId: string,
+  search?: string,
   profession?: string,
   subProfession?: string,
   maxDistance?: number,
@@ -312,6 +313,22 @@ const getUsersFromDB = async (
     },
     where: {
       id: { not: userId },
+      ...(search && {
+        OR: [
+          { userName: { contains: search, mode: "insensitive" } },
+          { email: { contains: search, mode: "insensitive" } },
+          {
+            userProfile: {
+              profession: { contains: search, mode: "insensitive" },
+            },
+          },
+          {
+            userProfile: {
+              subProfession: { contains: search, mode: "insensitive" },
+            },
+          },
+        ],
+      }),
       userProfile: {
         profession: profession ? profession : undefined,
         subProfession: subProfession ? subProfession : undefined,

@@ -8,27 +8,30 @@ generator client {
 }
 
 model User {
-  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
   userName        String
-  email           String         @unique
+  email           String          @unique
   appleId         String?
   password        String
   profileImage    String?
   fcmToken        String?
   stripeAccountId String?
-  isSetup         Boolean        @default(false)
-  role            UserRole       @default(USER)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  isSetup         Boolean         @default(false)
+  role            UserRole        @default(USER)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   userLocation    UserLocation[]
   userProfile     UserProfile?
   posts           Post[]
   comments        Comment[]
   replies         Reply[]
-  follower        Follower[]     @relation("UserFollowers")
-  following       Follower[]     @relation("UserFollowing")
-  sender          Room[]         @relation("user1Relation")
-  receiver        Room[]         @relation("user2Relation")
+  follower        Follower[]      @relation("UserFollowers")
+  following       Follower[]      @relation("UserFollowing")
+  sender          Room[]          @relation("user1Relation")
+  receiver        Room[]          @relation("user2Relation")
+  events          Event[]
+  eventAttendees  EventAttendee[]
+  stories         Story[]
 
   @@map("users")
 }
@@ -87,6 +90,43 @@ model Otp {
   @@map("otps")
 }
 
+model Event {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String          @db.ObjectId
+  eventName      String
+  eventType      TEventType
+  eventCategory  TEventCategory
+  eventPlace     TEventPlace
+  eventDate      DateTime
+  eventTime      String
+  description    String
+  agenda         String[]
+  maxAttendence  Int
+  attendeesCount Int             @default(0)
+  latitude       Float
+  longitude      Float
+  address        String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventAttendees EventAttendee[]
+
+  @@map("events")
+}
+
+model EventAttendee {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  eventId   String   @db.ObjectId
+  status    TStatus  @default(Accepted)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("eventAttendees")
+}
+
 model Post {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   userId       String    @db.ObjectId
@@ -100,6 +140,20 @@ model Post {
   comments     Comment[]
 
   @@map("posts")
+}
+
+model Story {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  content   String?
+  fileUrl   String?
+  likes     String[]
+  viewedBy  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("stories")
 }
 
 model Comment {
@@ -203,4 +257,25 @@ enum Gender {
 enum UserRole {
   ADMIN
   USER
+}
+
+enum TEventType {
+  Public
+  Private
+}
+
+enum TEventPlace {
+  Meeting
+  Remote
+}
+
+enum TStatus {
+  Pending
+  Accepted
+}
+
+enum TEventCategory {
+  Lunch
+  Dinner
+  Breakfast
 }
