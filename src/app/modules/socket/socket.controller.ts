@@ -88,7 +88,7 @@ export function setupWebSocketServer(server: any) {
 
           redisMessages.sort(
             (a: any, b: any) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
           );
 
           const latestRedisMsg = redisMessages[0];
@@ -112,20 +112,20 @@ export function setupWebSocketServer(server: any) {
           lastMessage: latestMessage,
           unreadCount,
         };
-      })
+      }),
     );
 
     ws.send(
       JSON.stringify({
         type: "member-conversation",
         conversations: formattedConversations,
-      })
+      }),
     );
 
     ws.on("message", async (message: any) => {
       try {
         const { type, receiverId, content, fileUrl } = JSON.parse(
-          message.toString()
+          message.toString(),
         );
 
         const getConversationsForUser = async (targetUserId: string) => {
@@ -135,8 +135,12 @@ export function setupWebSocketServer(server: any) {
             },
             orderBy: { updatedAt: "desc" },
             include: {
-              user1: { select: { id: true, userName: true, profileImage: true } },
-              user2: { select: { id: true, userName: true, profileImage: true } },
+              user1: {
+                select: { id: true, userName: true, profileImage: true },
+              },
+              user2: {
+                select: { id: true, userName: true, profileImage: true },
+              },
             },
           });
 
@@ -176,7 +180,7 @@ export function setupWebSocketServer(server: any) {
                   : null,
                 unreadCount,
               };
-            })
+            }),
           );
         };
 
@@ -185,7 +189,10 @@ export function setupWebSocketServer(server: any) {
           case "member-subscribe": {
             if (!receiverId) {
               return ws.send(
-                JSON.stringify({ type: "error", message: "receiverId is required" })
+                JSON.stringify({
+                  type: "error",
+                  message: "receiverId is required",
+                }),
               );
             }
 
@@ -221,15 +228,20 @@ export function setupWebSocketServer(server: any) {
 
             const redisKey = `room:${roomId}:messages`;
             const redisRaw = await redisClient.lRange(redisKey, -30, -1);
-            const messages = redisRaw.reverse().map((msg: any) => JSON.parse(msg));
+            const messages = redisRaw
+              .reverse()
+              .map((msg: any) => JSON.parse(msg));
 
             ws.send(
-              JSON.stringify({ type: "past-messages", roomId, messages })
+              JSON.stringify({ type: "past-messages", roomId, messages }),
             );
 
             const senderConversations = await getConversationsForUser(userId);
             ws.send(
-              JSON.stringify({ type: "member-conversation", conversations: senderConversations })
+              JSON.stringify({
+                type: "member-conversation",
+                conversations: senderConversations,
+              }),
             );
 
             break;
@@ -238,7 +250,10 @@ export function setupWebSocketServer(server: any) {
           case "member-send-message": {
             if (!roomId) {
               return ws.send(
-                JSON.stringify({ type: "error", message: "You are not subscribed to any room" })
+                JSON.stringify({
+                  type: "error",
+                  message: "You are not subscribed to any room",
+                }),
               );
             }
 
@@ -248,7 +263,9 @@ export function setupWebSocketServer(server: any) {
             });
 
             if (!roomInfo) {
-              return ws.send(JSON.stringify({ type: "error", message: "Room not found" }));
+              return ws.send(
+                JSON.stringify({ type: "error", message: "Room not found" }),
+              );
             }
 
             const messagePayload = {
@@ -268,8 +285,14 @@ export function setupWebSocketServer(server: any) {
             const count = await redisClient.lLen(redisKey);
 
             if (count >= 30) {
-              const messagesToSaveRaw = await redisClient.lRange(redisKey, 0, 14);
-              const messagesToSave = messagesToSaveRaw.map((msg: any) => JSON.parse(msg));
+              const messagesToSaveRaw = await redisClient.lRange(
+                redisKey,
+                0,
+                14,
+              );
+              const messagesToSave = messagesToSaveRaw.map((msg: any) =>
+                JSON.parse(msg),
+              );
               await prisma.message.createMany({ data: messagesToSave });
               await redisClient.lTrim(redisKey, 15, -1);
             }
@@ -281,21 +304,38 @@ export function setupWebSocketServer(server: any) {
 
             roomUsers.get(roomId)?.forEach((client) => {
               if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ type: "member-new-message", message: messagePayload, roomId }));
+                client.send(
+                  JSON.stringify({
+                    type: "member-new-message",
+                    message: messagePayload,
+                    roomId,
+                  }),
+                );
               }
             });
 
             const target = Array.from(connectedUsers).find(
-              (client) => client.userId === receiverId
+              (client) => client.userId === receiverId,
             );
 
             if (target) {
-              const receiverConversations = await getConversationsForUser(receiverId);
-              target.send(JSON.stringify({ type: "member-conversation", conversations: receiverConversations }));
+              const receiverConversations =
+                await getConversationsForUser(receiverId);
+              target.send(
+                JSON.stringify({
+                  type: "member-conversation",
+                  conversations: receiverConversations,
+                }),
+              );
             }
 
             const senderConversations = await getConversationsForUser(userId);
-            ws.send(JSON.stringify({ type: "member-conversation", conversations: senderConversations }));
+            ws.send(
+              JSON.stringify({
+                type: "member-conversation",
+                conversations: senderConversations,
+              }),
+            );
 
             break;
           }
@@ -305,8 +345,12 @@ export function setupWebSocketServer(server: any) {
               where: { OR: [{ senderId: userId }, { receiverId: userId }] },
               orderBy: { updatedAt: "desc" },
               include: {
-                user1: { select: { id: true, userName: true, profileImage: true } },
-                user2: { select: { id: true, userName: true, profileImage: true } },
+                user1: {
+                  select: { id: true, userName: true, profileImage: true },
+                },
+                user2: {
+                  select: { id: true, userName: true, profileImage: true },
+                },
               },
             });
 
@@ -316,30 +360,124 @@ export function setupWebSocketServer(server: any) {
 
             const formattedConversations = await Promise.all(
               conversations.map(async (room) => {
-                const partner = room.senderId === userId ? room.user2 : room.user1;
-                const isActive = connectedUserIds.includes(partner?.id as string);
+                const partner =
+                  room.senderId === userId ? room.user2 : room.user1;
+                const isActive = connectedUserIds.includes(
+                  partner?.id as string,
+                );
 
                 const redisKey = `room:${room.id}:messages`;
                 const unreadKey = `room:${room.id}:unread:${userId}`;
 
                 const latestRaw = await redisClient.lRange(redisKey, -1, -1);
-                const latestMsg = latestRaw.length > 0 ? JSON.parse(latestRaw[0]) : null;
+                const latestMsg =
+                  latestRaw.length > 0 ? JSON.parse(latestRaw[0]) : null;
 
                 const unreadCountStr = await redisClient.get(unreadKey);
                 const unreadCount = parseInt(unreadCountStr || "0", 30);
 
                 const latestMessage = latestMsg
                   ? {
-                      content: latestMsg.content ?? (latestMsg.fileUrl ? "sent file" : null),
+                      content:
+                        latestMsg.content ??
+                        (latestMsg.fileUrl ? "sent file" : null),
                       createdAt: latestMsg.createdAt,
                     }
                   : null;
 
-                return { roomId: room.id, partner: { id: partner?.id, userName: partner?.userName, profileImage: partner?.profileImage, isActive }, lastMessage: latestMessage, unreadCount };
-              })
+                return {
+                  roomId: room.id,
+                  partner: {
+                    id: partner?.id,
+                    userName: partner?.userName,
+                    profileImage: partner?.profileImage,
+                    isActive,
+                  },
+                  lastMessage: latestMessage,
+                  unreadCount,
+                };
+              }),
             );
 
-            ws.send(JSON.stringify({ type: "member-conversation", conversations: formattedConversations }));
+            ws.send(
+              JSON.stringify({
+                type: "member-conversation",
+                conversations: formattedConversations,
+              }),
+            );
+
+            break;
+          }
+
+          case "event-subscribe": {
+            const { eventId } = JSON.parse(message.toString());
+
+            // 1. verify user belongs to event
+            // const attendee = await prisma.eventAttendee.findFirst({
+            //   where: { eventId, userId },
+            // });
+
+            // if (!attendee) {
+            //   return ws.send(
+            //     JSON.stringify({ type: "error", message: "Not an attendee" }),
+            //   );
+            // }
+
+            // 2. find or create event room
+            let eventRoom = await prisma.eventRoom.findFirst({
+              where: { eventId },
+            });
+
+            if (!eventRoom) {
+              eventRoom = await prisma.eventRoom.create({ data: { eventId } });
+            }
+
+            const eventRoomId = eventRoom.id;
+
+            // 3. add socket to event group
+            if (!groupUsers.has(eventRoomId))
+              groupUsers.set(eventRoomId, new Set());
+            groupUsers.get(eventRoomId)?.add(ws);
+
+            // 4. load history (redis/db same pattern as rooms)
+            const redisKey = `event:${eventRoomId}:messages`;
+            const redisRaw = await redisClient.lRange(redisKey, -50, -1);
+            const messages = redisRaw.map((m) => JSON.parse(m));
+
+            ws.send(
+              JSON.stringify({
+                type: "event-history",
+                eventRoomId,
+                messages,
+              }),
+            );
+
+            break;
+          }
+
+          case "event-send-message": {
+            const { eventRoomId, content } = JSON.parse(message.toString());
+
+            const payload = {
+              senderId: userId,
+              eventRoomId,
+              content,
+              createdAt: new Date().toISOString(),
+            };
+
+            const redisKey = `event:${eventRoomId}:messages`;
+            await redisClient.rPush(redisKey, JSON.stringify(payload));
+
+            groupUsers.get(eventRoomId)?.forEach((client) => {
+              if (client.readyState === WebSocket.OPEN) {
+                client.send(
+                  JSON.stringify({
+                    type: "event-new-message",
+                    message: payload,
+                  }),
+                );
+              }
+            });
 
             break;
           }
@@ -350,7 +488,8 @@ export function setupWebSocketServer(server: any) {
             const { roomId } = JSON.parse(message.toString());
             if (!roomId) return;
 
-            if (!adminRoomWatchers.has(roomId)) adminRoomWatchers.set(roomId, new Set());
+            if (!adminRoomWatchers.has(roomId))
+              adminRoomWatchers.set(roomId, new Set());
             adminRoomWatchers.get(roomId)?.add(ws);
 
             const dbMessages = await prisma.message.findMany({
@@ -363,17 +502,26 @@ export function setupWebSocketServer(server: any) {
             const redisMessages = redisRaw.map((m) => JSON.parse(m));
 
             const messages = [...dbMessages, ...redisMessages].sort(
-              (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime(),
             );
 
-            ws.send(JSON.stringify({ type: "admin-room-messages", roomId, messages }));
+            ws.send(
+              JSON.stringify({ type: "admin-room-messages", roomId, messages }),
+            );
 
             break;
           }
           // --- ADMIN LOGIC END ---
-          
+
           default:
-            ws.send(JSON.stringify({ type: "error", message: "Invalid message type" }));
+            ws.send(
+              JSON.stringify({
+                type: "error",
+                message: "Invalid message type",
+              }),
+            );
         }
       } catch (err: unknown) {
         if (err instanceof SyntaxError) {
@@ -381,7 +529,9 @@ export function setupWebSocketServer(server: any) {
         } else if (err instanceof Error) {
           ws.send(JSON.stringify({ type: "error", message: err }));
         } else {
-          ws.send(JSON.stringify({ type: "error", message: "Unexpected error" }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Unexpected error" }),
+          );
         }
       }
     });

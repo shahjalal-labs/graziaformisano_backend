@@ -110,6 +110,7 @@ model Event {
   updatedAt      DateTime        @updatedAt
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   eventAttendees EventAttendee[]
+  eventRooms     EventRoom[]
 
   @@map("events")
 }
@@ -213,18 +214,28 @@ model Room {
   @@map("rooms")
 }
 
-model Message {
+model EventRoom {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  roomId    String   @db.ObjectId
-  user1Id   String   @db.ObjectId
-  user2Id   String   @db.ObjectId
-  content   String?
-  fileUrl   String[]
-  user1Read Boolean  @default(false)
-  user2Read Boolean  @default(false)
+  eventId   String   @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  room      Room     @relation(fields: [roomId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
+
+  @@map("event_rooms")
+}
+
+model Message {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  roomId      String     @db.ObjectId
+  user1Id     String     @db.ObjectId
+  user2Id     String     @db.ObjectId
+  content     String?
+  fileUrl     String[]
+  user1Read   Boolean    @default(false)
+  user2Read   Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  room        Room       @relation(fields: [roomId], references: [id])  
 
   @@map("messages")
 }

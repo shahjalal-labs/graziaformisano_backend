@@ -2,6 +2,7 @@ import { Request } from "express";
 import ApiError from "../../../errors/ApiErrors";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import prisma from "../../../shared/prisma";
+import { profile } from "console";
 
 const createStoryInDB = async (req: Request) => {
   const userId = req.user.id;
@@ -24,16 +25,18 @@ const createStoryInDB = async (req: Request) => {
       userId,
       content: payload.content,
       fileUrl: fileUrl,
+      viewedBy: ["sdfdfsdf"],
     },
   });
 
   return;
 };
 
-const getAvailableStoriesForUser = async () => {
+const getAvailableStoriesForUser = async (userId: string) => {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  const storyCounts = await prisma.story.groupBy({
+  // Get all users who have stories in the last 24 hours
+  const allStoryCounts = await prisma.story.groupBy({
     by: ["userId"],
     where: {
       createdAt: { gte: since },
@@ -43,23 +46,112 @@ const getAvailableStoriesForUser = async () => {
     },
   });
 
-  const userIds = storyCounts.map((item) => item.userId);
+  // Get count of unviewed stories per user
+  const unviewedStoryCounts = await prisma.story.groupBy({
+    by: ["userId"],
+    where: {
+      createdAt: { gte: since },
+      NOT: {
+        viewedBy: { has: userId },
+      },
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  const userIds = allStoryCounts.map((item) => item.userId);
 
   const users = await prisma.user.findMany({
     where: { id: { in: userIds } },
-    select: { id: true, userName: true },
+    select: { id: true, userName: true, profileImage: true },
   });
 
   const userMap = new Map(users.map((user) => [user.id, user.userName]));
+  const unviewedCountMap = new Map(
+    unviewedStoryCounts.map((item) => [item.userId, item._count._all]),
+  );
 
-  return storyCounts.map((item) => ({
+  return allStoryCounts.map((item) => ({
     userId: item.userId,
     userName: userMap.get(item.userId) || "",
-    storyCount: item._count._all,
+    profileImage: users.find((user) => user.id === item.userId)?.profileImage || "",
+    storyCount: unviewedCountMap.get(item.userId) || 0,
   }));
+};
+
+const getUserWiseStoriesFromDB = async (
+  userId: string,
+  storyPosterId: string,
+) => {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  const stories = await prisma.story.findMany({
+    where: {
+      userId: storyPosterId,
+      createdAt: { gte: since },
+    },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      content: true,
+      fileUrl: true,
+      likes: true,
+    },
+  });
+
+  const res = await prisma.story.updateMany({
+    where: {
+      userId: storyPosterId,
+      createdAt: { gte: since },
+      NOT: { viewedBy: { has: userId } },
+    },
+    data: { viewedBy: { push: userId } },
+  });
+  console.log(res);
+
+  return stories.map((story) => ({
+    id: story.id,
+    content: story.content,
+    fileUrl: story.fileUrl,
+    isLiked: story.likes.includes(userId),
+  }));
+};
+
+const likeUnlikeStoryInDB = async (userId: string, storyId: string) => {
+  await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  const story = await prisma.story.findUniqueOrThrow({
+    where: { id: storyId },
+  });
+
+  const isLiked = story.likes.includes(userId);
+
+  if (isLiked) {
+    await prisma.story.update({
+      where: { id: storyId },
+      data: {
+        likes: {
+          set: story.likes.filter((id) => id !== userId),
+        },
+      },
+    });
+    return { message: "Story unliked successfully" };
+  } else {
+    await prisma.story.update({
+      where: { id: storyId },
+      data: {
+        likes: {
+          push: userId,
+        },
+      },
+    });
+    return { message: "Story liked successfully" };
+  }
 };
 
 export const storyService = {
   createStoryInDB,
   getAvailableStoriesForUser,
+  getUserWiseStoriesFromDB,
+  likeUnlikeStoryInDB,
 };

@@ -11,7 +11,7 @@ const createStory = catchAsync(async (req, res) => {
   });
 });
 const getAvailableStoriesForUser = catchAsync(async (req, res) => {
-  const stories = await storyService.getAvailableStoriesForUser();
+  const stories = await storyService.getAvailableStoriesForUser(req.user.id);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -19,8 +19,31 @@ const getAvailableStoriesForUser = catchAsync(async (req, res) => {
     data: stories,
   });
 });
+const getUserWiseStories = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const storyPosterId = req.params.id;
+  const stories = await storyService.getUserWiseStoriesFromDB(userId, storyPosterId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Stories retrieved successfully",
+    data: stories,
+  });
+});
+const likeUnlikeStory = catchAsync(async (req, res) => {
+  const storyId = req.params.id;
+  const userId = req.user.id;
+  const result = await storyService.likeUnlikeStoryInDB(userId, storyId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: result.message,
+  });
+});
 
 export const storyController = {
   createStory,
   getAvailableStoriesForUser,
+  likeUnlikeStory,
+  getUserWiseStories,
 };

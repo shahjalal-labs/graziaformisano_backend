@@ -9,10 +9,16 @@ const createEventInDB = async (userId: string, payload: Event) => {
     where: { id: userId },
   });
 
-  await prisma.event.create({
+  const event = await prisma.event.create({
     data: {
       ...payload,
       userId,
+    },
+  });
+
+  await prisma.eventRoom.create({
+    data: {
+      eventId: event.id,
     },
   });
 

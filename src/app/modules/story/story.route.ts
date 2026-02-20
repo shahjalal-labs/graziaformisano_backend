@@ -18,5 +18,15 @@ router.get(
   auth(),
   storyController.getAvailableStoriesForUser,
 );
+router.get(
+  "/user/:id",
+  auth(),
+  storyController.getUserWiseStories,
+);
+router.patch(
+  "/like-unlike/:id",
+  auth(),
+  storyController.likeUnlikeStory,
+);
 
 export const storyRoutes = router;
