@@ -8,30 +8,34 @@ generator client {
 }
 
 model User {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  userName        String
-  email           String          @unique
-  appleId         String?
-  password        String
-  profileImage    String?
-  fcmToken        String?
-  stripeAccountId String?
-  isSetup         Boolean         @default(false)
-  role            UserRole        @default(USER)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  userLocation    UserLocation[]
-  userProfile     UserProfile?
-  posts           Post[]
-  comments        Comment[]
-  replies         Reply[]
-  follower        Follower[]      @relation("UserFollowers")
-  following       Follower[]      @relation("UserFollowing")
-  sender          Room[]          @relation("user1Relation")
-  receiver        Room[]          @relation("user2Relation")
-  events          Event[]
-  eventAttendees  EventAttendee[]
-  stories         Story[]
+  id                String             @id @default(auto()) @map("_id") @db.ObjectId
+  userName          String
+  email             String             @unique
+  appleId           String?
+  password          String
+  profileImage      String?
+  fcmToken          String?
+  stripeAccountId   String?
+  subscriptionId    String?
+  isSetup           Boolean            @default(false)
+  isSubscribed      Boolean            @default(false)
+  role              UserRole           @default(USER)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  userLocation      UserLocation[]
+  userProfile       UserProfile?
+  posts             Post[]
+  status            UserStatus         @default(Active)
+  comments          Comment[]
+  replies           Reply[]
+  follower          Follower[]         @relation("UserFollowers")
+  following         Follower[]         @relation("UserFollowing")
+  sender            Room[]             @relation("user1Relation")
+  receiver          Room[]             @relation("user2Relation")
+  events            Event[]
+  eventAttendees    EventAttendee[]
+  stories           Story[]
+  userSubscriptions UserSubscription[]
 
   @@map("users")
 }
@@ -49,20 +53,22 @@ model PendingUser {
 }
 
 model UserProfile {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String   @unique @db.ObjectId
-  profession    String
-  subProfession String
-  city          String
-  followers     Int      @default(0)
-  hosted        Int      @default(0)
-  attendance    Int      @default(0)
-  bio           String
-  education     String?
-  skills        String[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String   @unique @db.ObjectId
+  profession       String
+  subProfession    String
+  city             String
+  followers        Int      @default(0)
+  hosted           Int      @default(0)
+  attendance       Int      @default(0)
+  bio              String
+  education        String?
+  stripeCustomerId String?
+  stripeAccountId  String?
+  skills           String[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("userProfiles")
 }
@@ -205,8 +211,8 @@ model Room {
   receiverId String?  @db.ObjectId
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  user1      User?    @relation("user1Relation", fields: [senderId], references: [id])
-  user2      User?    @relation("user2Relation", fields: [receiverId], references: [id])
+  user1      User?    @relation("user1Relation", fields: [senderId], references: [id], onDelete: Cascade)
+  user2      User?    @relation("user2Relation", fields: [receiverId], references: [id], onDelete: Cascade)
 
   message Message[]
 
@@ -219,23 +225,58 @@ model EventRoom {
   eventId   String   @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  event     Event    @relation(fields: [eventId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@map("event_rooms")
 }
 
+model Subscription {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  title                 String                @unique
+  subscriptionTitleType SubscriptionTitleType @unique
+  priceId               String                @unique
+  productId             String                @unique
+  features              Json
+  type                  SubscriptionType
+  interval              String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  userSubscription      UserSubscription[]
+
+  @@map("subscription")
+}
+
+model UserSubscription {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  subscriptionTitleType SubscriptionTitleType
+  userId                String                @db.ObjectId
+  subscriptionId        String                @db.ObjectId
+  priceId               String
+  subscriptionPayId     String
+  features              Json
+  status                PaymentStatus         @default(ACTIVE)
+  subscription          Subscription?         @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  user                  User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  @@unique([userId, subscriptionId])
+  @@unique([userId, priceId])
+  @@map("userSubscription")
+}
+
 model Message {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  roomId      String     @db.ObjectId
-  user1Id     String     @db.ObjectId
-  user2Id     String     @db.ObjectId
-  content     String?
-  fileUrl     String[]
-  user1Read   Boolean    @default(false)
-  user2Read   Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  room        Room       @relation(fields: [roomId], references: [id])  
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  roomId    String   @db.ObjectId
+  user1Id   String   @db.ObjectId
+  user2Id   String   @db.ObjectId
+  content   String?
+  fileUrl   String[]
+  user1Read Boolean  @default(false)
+  user2Read Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@map("messages")
 }
@@ -254,9 +295,9 @@ model Notification {
 }
 
 enum UserStatus {
-  ACTIVE
-  BLOCKED
-  DELETED
+  Active
+  Blocked
+  Deleted
 }
 
 enum Gender {
@@ -275,6 +316,16 @@ enum TEventType {
   Private
 }
 
+enum PaymentStatus {
+  ACTIVE
+  DEACTIVE
+}
+
+enum SubscriptionTitleType {
+  MONTHLY
+  YEARLY
+}
+
 enum TEventPlace {
   Meeting
   Remote
@@ -283,6 +334,14 @@ enum TEventPlace {
 enum TStatus {
   Pending
   Accepted
+}
+
+enum SubscriptionType {
+  FREE
+  ONETIME
+  SUBSCRIPTION
+  MONTHLY
+  YEARLY
 }
 
 enum TEventCategory {

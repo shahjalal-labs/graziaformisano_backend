@@ -7,6 +7,7 @@ import GlobalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 import redisClient from "./helpers/redis";
+import handleWebHook from "./helpers/stripe.webhook";
 
 const app: Application = express();
 const prisma = new PrismaClient();
@@ -32,6 +33,10 @@ const prisma = new PrismaClient();
 })();
 
 app.use(cors());
+
+
+app.use("/webhook/stripe", express.json({ type: "*/*" }), handleWebHook);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));

@@ -6,6 +6,8 @@ import { followerRoutes } from "../modules/follower/follower.route";
 import { notificationsRoute } from "../modules/notifications/notification.route";
 import { eventRoutes } from "../modules/event/event.route";
 import { storyRoutes } from "../modules/story/story.route";
+import { adminRoute } from "../modules/admin/admin.route";
+import { stripeRoutes } from "../modules/stripe/stripe.routes";
 
 const router = express.Router();
 
@@ -19,12 +21,20 @@ const moduleRoutes = [
     route: authRoute,
   },
   {
+    path: "/admin",
+    route: adminRoute,
+  },
+  {
     path: "/event",
     route: eventRoutes,
   },
   {
     path: "/post",
     route: postRoutes,
+  },
+  {
+    path: "/subscription",
+    route: stripeRoutes,
   },
   {
     path: "/story",

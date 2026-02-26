@@ -19,6 +19,13 @@ const loginUserIntoDB = async (payload: any) => {
     throw new ApiError(404, "User not found");
   }
 
+  if (user.status == "Deleted") {
+    throw new ApiError(
+      403,
+      "Your account has been deleted. Please contact support for more information.",
+    );
+  }
+
   const isPasswordValid = await bcrypt.compare(
     payload.password,
     user?.password,
@@ -70,7 +77,7 @@ const authLoginIntoDB = async (payload: any) => {
     const { password, createdAt, updatedAt, ...userInfo } = user;
 
     return {
-      accessToken,   
+      accessToken,
       isSetup: user.isSetup,
     };
   } else {
@@ -95,7 +102,7 @@ const authLoginIntoDB = async (payload: any) => {
     const { password, createdAt, updatedAt, ...userInfo } = user;
 
     return {
-      accessToken,     
+      accessToken,
       isSetup: user.isSetup,
     };
   }
@@ -279,5 +286,5 @@ export const authService = {
   verifyForgotPasswordOtpCodeDB,
   resetForgotPasswordDB,
   changePasswordFromDB,
-  authLoginIntoDB
+  authLoginIntoDB,
 };

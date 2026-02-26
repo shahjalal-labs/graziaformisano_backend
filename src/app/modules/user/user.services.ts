@@ -10,6 +10,7 @@ import { emailBody } from "../../../helpers/EmailBody";
 import { Request } from "express";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import { calculateDistance } from "../../../helpers/distanceCalculator";
+import { createCustomerStripeAccount } from "../../../helpers/stripe.helper";
 
 //create new user
 const createPendingUserIntoDB = async (payload: PendingUser) => {
@@ -127,6 +128,8 @@ const setUpUserProfileIntoDB = async (req: Request) => {
   if (!profileImage) {
     throw new ApiError(404, "Image is required");
   }
+  
+  const account = await createCustomerStripeAccount(user.userName, user.email);
 
   await prisma.userProfile.create({
     data: {
@@ -137,6 +140,7 @@ const setUpUserProfileIntoDB = async (req: Request) => {
       subProfession: payload.subProfession,
       education: payload.education,
       skills: payload.skills,
+      stripeCustomerId: account.id,
     },
   });
 
