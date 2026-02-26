@@ -45,6 +45,7 @@ const getAllEventsFromDB = async (
   const events = await prisma.event.findMany({
     where: {
       eventType: "Public",
+      NOT: [userId ? { userId } : {}],
       ...(search && {
         OR: [
           { eventName: { contains: search, mode: "insensitive" } },
