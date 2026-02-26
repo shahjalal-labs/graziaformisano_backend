@@ -35,7 +35,7 @@ const prisma = new PrismaClient();
 app.use(cors());
 
 
-app.use("/webhook/stripe", express.json({ type: "*/*" }), handleWebHook);
+app.use("/webhook/stripe", express.raw({ type: 'application/json' }), handleWebHook);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
