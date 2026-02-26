@@ -43,7 +43,7 @@ const handleWebHook = catchAsync(async (req: any, res: any) => {
       console.log("External account created:", event.data.object);
       break;
 
-    //  Subscription & Recurring Payments
+    // Subscription & Recurring Payments
     case "invoice.payment_succeeded":
       const invoice: any = event.data.object as Stripe.Invoice;
       const metadata = invoice.lines?.data?.[0]?.metadata || {};
@@ -57,6 +57,7 @@ const handleWebHook = catchAsync(async (req: any, res: any) => {
         subscriptionPayId
       );
       break;
+
     case "invoice.payment_failed":
       const failedInvoice = event.data.object as Stripe.Invoice;
       const failedMetadata = failedInvoice.lines?.data?.[0]?.metadata || {};
@@ -68,15 +69,32 @@ const handleWebHook = catchAsync(async (req: any, res: any) => {
         "DEACTIVE"
       );
       break;
+
+    // Updated: customer.subscription.created case
     case "customer.subscription.created":
       console.log("New subscription created:", event.data.object);
+
+      // Extracting priceId, userId, and subscriptionPayId
+      const subscription = event.data.object as Stripe.Subscription;
+      const priceIdFromSub = subscription.items.data[0].price.id; // priceId from subscription items
+      const userIdFromSub = subscription.metadata.userId; // userId from metadata
+      const subscriptionPayIdFromSub = subscription.id; // subscription ID as subscriptionPayId
+
+      // Call handleSubscriptionCreated with the extracted values
+      await stripeService.handleSubscriptionCreated(
+        priceIdFromSub,
+        userIdFromSub,
+        subscriptionPayIdFromSub
+      );
       break;
+
     case "customer.subscription.updated":
       console.log("Subscription updated:", event.data.object);
       break;
+
     case "customer.subscription.deleted":
-      const subscription = event.data.object as Stripe.Subscription;
-      const subscriptionMetadata = subscription.metadata || {};
+      const subscriptionToDelete = event.data.object as Stripe.Subscription;
+      const subscriptionMetadata = subscriptionToDelete.metadata || {};
       const deletedPriceId = subscriptionMetadata.priceId as string;
       const deletedUserId = subscriptionMetadata.userId as string;
       await stripeService.handleSubscriptionStatusUpdate(
@@ -97,7 +115,7 @@ const handleWebHook = catchAsync(async (req: any, res: any) => {
       console.log("Charge failed:", event.data.object);
       break;
 
-    //  Refunds
+    // Refunds
     case "charge.refunded":
     case "charge.refund.updated":
       console.log("Charge refunded:", event.data.object);
