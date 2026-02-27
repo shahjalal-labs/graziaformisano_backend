@@ -50,6 +50,18 @@ const allEvents = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const allSubscribers = catchAsync(async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+
+  const result = await adminService.getAllSubscribersFromDB(page);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "All subscribers retrieved successfully",
+    data: result,
+  });
+});
 const userDetails = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.id;
   const result = await adminService.getUserDetailsFromDB(userId);
@@ -92,6 +104,26 @@ const deleteEvent = catchAsync(async (req: Request, res: Response) => {
     message: "Event deleted successfully",
   });
 });
+const getStats = catchAsync(async (req: Request, res: Response) => {
+  const stats = await adminService.getDashboardStatsFromDB();
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Dashboard stats retrieved successfully",
+    data: stats,
+  });
+});
+const topProfessionals = catchAsync(async (req: Request, res: Response) => {
+  const topProfessionals = await adminService.getTopProfessionalsFromDB();
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Top professionals retrieved successfully",
+    data: topProfessionals,
+  });
+});
 
 export const adminController = {
   loginAdmin,
@@ -100,6 +132,9 @@ export const adminController = {
   allEvents,
   eventDetails,
   userDetails,
+  getStats,
   deleteUser,
-  deleteEvent
+  deleteEvent,
+  allSubscribers,
+  topProfessionals,
 };

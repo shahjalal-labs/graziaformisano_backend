@@ -24,10 +24,25 @@ router.put(
 );
 
 router.get("/users", auth(UserRole.ADMIN), adminController.allUsers);
+router.get(
+  "/top-professionals",
+  auth(UserRole.ADMIN),
+  adminController.topProfessionals,
+);
 router.get("/events", auth(UserRole.ADMIN), adminController.allEvents);
+router.get(
+  "/subscribers",
+  auth(UserRole.ADMIN),
+  adminController.allSubscribers,
+);
+router.get("/overview", auth(UserRole.ADMIN), adminController.getStats);
 router.get("/events/:id", auth(UserRole.ADMIN), adminController.eventDetails);
 router.get("/users/:id", auth(UserRole.ADMIN), adminController.userDetails);
 router.patch("/delete/:id", auth(UserRole.ADMIN), adminController.deleteUser);
-router.delete("/delete-event/:id", auth(UserRole.ADMIN), adminController.deleteEvent);
+router.delete(
+  "/delete-event/:id",
+  auth(UserRole.ADMIN),
+  adminController.deleteEvent,
+);
 
 export const adminRoute = router;

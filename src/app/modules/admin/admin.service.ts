@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import { Request } from "express";
 import { Prisma } from "@prisma/client";
+import { get } from "http";
 
 const loginAdminIntoDB = async (payload: any) => {
   const admin = await prisma.user.findUniqueOrThrow({
@@ -130,6 +131,56 @@ const getAllUsersFromDB = async (page: number = 1, search?: string) => {
       currentPage: page,
     },
     users,
+  };
+};
+const getAllSubscribersFromDB = async (page: number = 1) => {
+  const totalSubscribers = await prisma.userSubscription.count({
+    where: { status: "ACTIVE" },
+  });
+
+  const filteredSubscribersCount = await prisma.userSubscription.count({
+    where: { status: "ACTIVE" },
+  });
+
+  const totalPages = Math.ceil(filteredSubscribersCount / 10);
+
+  const subscribers = await prisma.userSubscription.findMany({
+    where: { status: "ACTIVE" },
+    skip: (page - 1) * 10,
+    take: 10,
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      subscriptionPayId: true,
+      subscriptionId: true,
+      subscriptionTitleType: true,
+      user: {
+        select: {
+          userName: true,
+          email: true,
+
+          profileImage: true,
+          userProfile: {
+            select: {
+              profession: true,
+            },
+          },
+        },
+      },
+      createdAt: true,
+    },
+  });
+
+  return {
+    meta: {
+      totalSubscribers,
+      filteredSubscribers: filteredSubscribersCount,
+      totalPages,
+      currentPage: page,
+    },
+    subscribers,
   };
 };
 const getAllEventsFromDB = async (page: number = 1, search?: string) => {
@@ -273,7 +324,7 @@ const deleteEventFromDB = async (eventId: string) => {
     59,
     999,
   );
- 
+
   if (event.eventDate <= endOfToday) {
     throw new ApiError(400, "Only future events can be deleted");
   }
@@ -282,7 +333,50 @@ const deleteEventFromDB = async (eventId: string) => {
     where: { id: eventId },
   });
 
-  return
+  return;
+};
+
+const getDashboardStatsFromDB = async () => {
+  const totalUsers = await prisma.user.count({
+    where: { role: "USER" },
+  });
+  const totalPrivateEvents = await prisma.event.count({
+    where: { eventType: "Private" },
+  });
+  const totalPublicEvents = await prisma.event.count({
+    where: { eventType: "Public" },
+  });
+  const totalPosts = await prisma.post.count({});
+
+  return {
+    totalUsers,
+    totalPrivateEvents,
+    totalPublicEvents,
+    totalPosts,
+  };
+};
+
+const getTopProfessionalsFromDB = async () => {
+  const topProfessionals = await prisma.user.findMany({
+    select: {
+      id: true,
+      userName: true,
+      profileImage: true,
+      userProfile: {
+        select: {
+          followers: true,
+        },
+      },
+    },
+    orderBy: {
+      userProfile: {
+        followers: "desc",
+      },
+    },
+    take: 4,
+  });
+
+  return topProfessionals;
 };
 
 export const adminService = {
@@ -291,7 +385,10 @@ export const adminService = {
   getAllUsersFromDB,
   getAllEventsFromDB,
   getUserDetailsFromDB,
+  getDashboardStatsFromDB,
   getEventDetailsFromDB,
   deleteUserFromDB,
-  deleteEventFromDB
+  deleteEventFromDB,
+  getAllSubscribersFromDB,
+  getTopProfessionalsFromDB,
 };
