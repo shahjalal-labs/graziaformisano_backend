@@ -19,7 +19,7 @@ const sendEmail = async (
 
   // Email options
   const mailOptions = {
-    from: `"Home Health" <${config.emailSender.email}>`,
+    from: `"Biz Meet" <${config.emailSender.email}>`,
   
     to,
     subject,
