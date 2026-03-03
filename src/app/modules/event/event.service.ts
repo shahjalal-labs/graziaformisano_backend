@@ -3,6 +3,10 @@ import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
 import { calculateDistance } from "../../../helpers/distanceCalculator";
 import { get } from "http";
+import {
+  sendNotifications,
+  sendSingleNotification,
+} from "../notifications/notification.services";
 
 const createEventInDB = async (userId: string, payload: Event) => {
   await prisma.user.findUniqueOrThrow({
@@ -21,6 +25,17 @@ const createEventInDB = async (userId: string, payload: Event) => {
       eventId: event.id,
     },
   });
+
+  try {
+    await sendSingleNotification(
+      `${payload.eventName} is now live. Tap to explore and secure your spot before it fills up`,
+      `🎉 New Event Just Dropped!`,
+    );
+    return;
+  } catch (notificationError) {
+    console.error("Notification failed:", notificationError);
+    return;
+  }
 
   return;
 };
