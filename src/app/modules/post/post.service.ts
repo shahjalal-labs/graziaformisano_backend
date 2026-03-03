@@ -45,7 +45,7 @@ const createPostInDB = async (req: Request) => {
   return;
 };
 
-const getAllPostsFromDB = async (userId: string, type?: any) => {
+const getAllPostsFromDB = async (userId: string, type?: any, search?:string) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
@@ -54,6 +54,12 @@ const getAllPostsFromDB = async (userId: string, type?: any) => {
     throw new ApiError(400, "Invalid sort type");
   }
   const posts = await prisma.post.findMany({
+    where: {
+      content: {
+        contains: search,
+        mode: "insensitive",
+      },
+    },
     orderBy: { createdAt: type ?? "desc" },
     select: {
       id: true,
