@@ -35,13 +35,23 @@ const rejectFollowRequest = catchAsync(async (req: Request, res: Response) => {
     message: "Follow request rejected successfully",
   });
 });
-const followerList = catchAsync(async (req: Request, res: Response) => {
+const followerRequestList = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
+  const followers = await followerService.getFollowerRequestListFromDB(userId);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Follower list retrieved successfully",
+    data: followers,
+  });
+});
+const followersList = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.id;
   const followers = await followerService.getFollowerListFromDB(userId);
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "Follower list retrieved successfully",
+    message: "Followers retrieved successfully",
     data: followers,
   });
 });
@@ -50,5 +60,6 @@ export const followerController = {
   followUnfollow,
   acceptFollowRequest,
   rejectFollowRequest,
-  followerList,
+  followerRequestList,
+  followersList,
 };

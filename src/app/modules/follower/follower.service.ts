@@ -145,9 +145,31 @@ const rejectFollowRequestInDB = async (followId: string) => {
   return;
 };
 
-const getFollowerListFromDB = async (userId: string) => {
+const getFollowerRequestListFromDB = async (userId: string) => {
   const followers = await prisma.follower.findMany({
     where: { userId, isAccepted: false },
+    select: {
+      id: true,
+      follower: {
+        select: {
+          userName: true,
+          profileImage: true,
+          userProfile: {
+            select: {
+              profession: true,
+              city: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return followers;
+};
+const getFollowerListFromDB = async (userId: string) => {
+  const followers = await prisma.follower.findMany({
+    where: { userId, isAccepted: true },
     select: {
       id: true,
       follower: {
@@ -172,5 +194,6 @@ export const followerService = {
   followUnfollowToggleInDB,
   acceptFollowRequestInDB,
   rejectFollowRequestInDB,
+  getFollowerRequestListFromDB,
   getFollowerListFromDB,
 };
