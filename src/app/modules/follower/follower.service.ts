@@ -1,12 +1,13 @@
 import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
+import { sendSingleNotification } from "../notifications/notification.services";
 
 const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
   if (userId === followerId) {
     throw new ApiError(400, "You cannot follow yourself");
   }
 
-  await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
 
@@ -19,6 +20,16 @@ const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
       userId_followerId: {
         userId,
         followerId,
+      },
+    },
+    select: {
+      isAccepted: true,
+      userId: true,
+      followerId: true,
+      user: {
+        select: {
+          userName: true,
+        },
       },
     },
   });
@@ -52,12 +63,30 @@ const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
     },
   });
 
+  try {
+    await sendSingleNotification(
+      followerId,
+      `${user.userName} sent you a follow request`,
+      userId,
+      "New Follow Request!",
+    );
+  } catch (notificationError) {
+    console.error("Notification failed:", notificationError);
+  }
+
   return { message: "Follow request created successfully" };
 };
 
 const acceptFollowRequestInDB = async (followId: string) => {
   const followRequest = await prisma.follower.findUniqueOrThrow({
     where: { id: followId, isAccepted: false },
+    include: {
+      follower: {
+        select: {
+          userName: true,
+        },
+      },
+    },
   });
 
   await prisma.follower.update({
@@ -72,17 +101,46 @@ const acceptFollowRequestInDB = async (followId: string) => {
     },
   });
 
+  try {
+    await sendSingleNotification(
+      followRequest.userId,
+      `${followRequest.follower.userName} accepted your follow request`,
+      followRequest.followerId,
+      "Follow Request Accepted!",
+    );
+  } catch (notificationError) {
+    console.error("Notification failed:", notificationError);
+  }
+
   return;
 };
 
 const rejectFollowRequestInDB = async (followId: string) => {
-  await prisma.follower.findUniqueOrThrow({
+  const followRequest = await prisma.follower.findUniqueOrThrow({
     where: { id: followId, isAccepted: false },
+    include: {
+      follower: {
+        select: {
+          userName: true,
+        },
+      },
+    },
   });
 
   await prisma.follower.delete({
     where: { id: followId },
   });
+
+  try {
+    await sendSingleNotification(
+      followRequest.userId,
+      `${followRequest.follower.userName} rejected your follow request`,
+      followRequest.followerId,
+      "Follow Request Rejected!",
+    );
+  } catch (notificationError) {
+    console.error("Notification failed:", notificationError);
+  }
 
   return;
 };
@@ -98,10 +156,10 @@ const getFollowerListFromDB = async (userId: string) => {
           profileImage: true,
           userProfile: {
             select: {
-                profession:true,
-                city:true,
-            }
-          }
+              profession: true,
+              city: true,
+            },
+          },
         },
       },
     },

@@ -553,14 +553,14 @@
 
 // export const socket = { wss, roomUsers, adminRoomWatchers };
 
-
-// shahjalal changed this 
+// shahjalal changed this
 import { WebSocket, WebSocketServer } from "ws";
 import { Request } from "express";
 import prisma from "../../../shared/prisma";
 import { verifyWebSocketToken } from "./socket.service";
 import { parse } from "url";
 import redisClient from "../../../helpers/redis";
+import { sendSingleNotification } from "../notifications/notification.services";
 
 interface CustomWebSocket extends WebSocket {
   userId?: string;
@@ -833,10 +833,24 @@ export function setupWebSocketServer(server: any) {
               );
             }
 
+            const targetReceiverId =
+              roomInfo.senderId === userId
+                ? roomInfo.receiverId
+                : roomInfo.senderId;
+
+            if (!targetReceiverId) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "Receiver not found",
+                }),
+              );
+            }
+
             const messagePayload = {
               content,
               senderId: userId,
-              receiverId,
+              receiverId: targetReceiverId,
               roomId,
               fileUrl: fileUrl ?? [""],
               createdAt: new Date().toISOString(),
@@ -845,7 +859,7 @@ export function setupWebSocketServer(server: any) {
             const redisKey = `room:${roomId}:messages`;
             await redisClient.rPush(redisKey, JSON.stringify(messagePayload));
 
-            const unreadKey = `room:${roomId}:unread:${receiverId}`;
+            const unreadKey = `room:${roomId}:unread:${targetReceiverId}`;
             await redisClient.incr(unreadKey);
             const count = await redisClient.lLen(redisKey);
 
@@ -880,12 +894,12 @@ export function setupWebSocketServer(server: any) {
             });
 
             const target = Array.from(connectedUsers).find(
-              (client) => client.userId === receiverId,
+              (client) => client.userId === targetReceiverId,
             );
 
             if (target) {
               const receiverConversations =
-                await getConversationsForUser(receiverId);
+                await getConversationsForUser(targetReceiverId);
               target.send(
                 JSON.stringify({
                   type: "member-conversation",
@@ -893,6 +907,15 @@ export function setupWebSocketServer(server: any) {
                 }),
               );
             }
+
+            try {
+              await sendSingleNotification(
+                targetReceiverId,
+                content || "You received a new message",
+                userId,
+                "New Message",
+              );
+            } catch {}
 
             const senderConversations = await getConversationsForUser(userId);
             ws.send(
@@ -1020,7 +1043,8 @@ export function setupWebSocketServer(server: any) {
               }),
             );
 
-            const userEventConversations = await getEventConversationsForUser(userId);
+            const userEventConversations =
+              await getEventConversationsForUser(userId);
             ws.send(
               JSON.stringify({
                 type: "event-conversation",
@@ -1046,8 +1070,14 @@ export function setupWebSocketServer(server: any) {
 
             const count = await redisClient.lLen(redisKey);
             if (count >= 30) {
-              const messagesToSaveRaw = await redisClient.lRange(redisKey, 0, 14);
-              const messagesToSave = messagesToSaveRaw.map((msg: any) => JSON.parse(msg));
+              const messagesToSaveRaw = await redisClient.lRange(
+                redisKey,
+                0,
+                14,
+              );
+              const messagesToSave = messagesToSaveRaw.map((msg: any) =>
+                JSON.parse(msg),
+              );
               // Note: No EventMessage model, so skipping DB save for now
               // await prisma.eventMessage.createMany({ data: messagesToSave });
               await redisClient.lTrim(redisKey, 15, -1);
@@ -1084,7 +1114,13 @@ export function setupWebSocketServer(server: any) {
                 where: { id: eventId },
                 select: { userId: true },
               });
-              const participantIds = [...new Set([...attendees.map(a => a.userId), host?.userId].filter(Boolean))];
+              const participantIds = [
+                ...new Set(
+                  [...attendees.map((a) => a.userId), host?.userId].filter(
+                    Boolean,
+                  ),
+                ),
+              ];
               for (const pid of participantIds) {
                 if (pid !== userId) {
                   const ukey = `event:${eventRoomId}:unread:${pid}`;
@@ -1092,8 +1128,23 @@ export function setupWebSocketServer(server: any) {
                 }
               }
 
+              const recipients = participantIds.filter(
+                (pid) => pid !== userId,
+              ) as string[];
+              await Promise.allSettled(
+                recipients.map((participantId) =>
+                  sendSingleNotification(
+                    participantId,
+                    content || "New message in your event",
+                    userId,
+                    "Event Message",
+                  ),
+                ),
+              );
+
               // Update conversations for sender
-              const senderEventConvs = await getEventConversationsForUser(userId);
+              const senderEventConvs =
+                await getEventConversationsForUser(userId);
               ws.send(
                 JSON.stringify({
                   type: "event-conversation",
@@ -1103,10 +1154,14 @@ export function setupWebSocketServer(server: any) {
 
               // Update conversations for other connected participants
               const connectedParticipants = Array.from(connectedUsers).filter(
-                (client) => participantIds.includes(client.userId) && client.userId !== userId
+                (client) =>
+                  participantIds.includes(client.userId) &&
+                  client.userId !== userId,
               );
               for (const client of connectedParticipants) {
-                const convs = await getEventConversationsForUser(client.userId!);
+                const convs = await getEventConversationsForUser(
+                  client.userId!,
+                );
                 client.send(
                   JSON.stringify({
                     type: "event-conversation",
@@ -1120,7 +1175,8 @@ export function setupWebSocketServer(server: any) {
           }
 
           case "event-conversation": {
-            const eventConversations = await getEventConversationsForUser(userId);
+            const eventConversations =
+              await getEventConversationsForUser(userId);
             ws.send(
               JSON.stringify({
                 type: "event-conversation",
@@ -1217,15 +1273,12 @@ async function getEventConversationsForUser(targetUserId: string) {
     include: {
       event: {
         select: {
-           id: true,
+          id: true,
           eventName: true,
           userId: true,
-          
+
           eventAttendees: { select: { userId: true } },
         },
-       
-         
-       
       },
     },
   });
@@ -1252,8 +1305,7 @@ async function getEventConversationsForUser(targetUserId: string) {
         redisClient.get(unreadKey),
       ]);
 
-      const latestMsg =
-        latestRaw.length > 0 ? JSON.parse(latestRaw[0]) : null;
+      const latestMsg = latestRaw.length > 0 ? JSON.parse(latestRaw[0]) : null;
       const unreadCount = parseInt(unreadCountStr || "0", 10);
 
       const latestMessage = latestMsg

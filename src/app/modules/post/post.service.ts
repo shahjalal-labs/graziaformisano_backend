@@ -45,7 +45,11 @@ const createPostInDB = async (req: Request) => {
   return;
 };
 
-const getAllPostsFromDB = async (userId: string, type?: any, search?:string) => {
+const getAllPostsFromDB = async (
+  userId: string,
+  type?: any,
+  search?: string,
+) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
@@ -232,7 +236,7 @@ const createReplyInDB = async (userId: string, payload: any) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
-  await prisma.comment.findUniqueOrThrow({
+  const comment = await prisma.comment.findUniqueOrThrow({
     where: { id: payload.commentId },
   });
 
@@ -243,6 +247,18 @@ const createReplyInDB = async (userId: string, payload: any) => {
       content: payload.content,
     },
   });
+  if (comment.userId !== userId) {
+    try {
+      await sendSingleNotification(
+        comment.userId,
+        `${payload.content}`,
+        userId,
+        "Replied In your comment!",
+      );
+    } catch (notificationError) {
+      console.error("Notification failed:", notificationError);
+    }
+  }
 
   return;
 };
