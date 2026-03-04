@@ -185,7 +185,7 @@ const updateUserProfileIntoDB = async (userId: string, payload: any) => {
       profession: payload.profession || user.userProfile?.profession,
       subProfession: payload.subProfession || user.userProfile?.subProfession,
       education: payload.education || user.userProfile?.education,
-      skills: payload.skills || user.userProfile?.skills,
+      skills: payload.skills || user.userProfile?.skills,      
     },
   });
 

@@ -2,11 +2,7 @@ import { Event, TEventCategory } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
 import { calculateDistance } from "../../../helpers/distanceCalculator";
-import { get } from "http";
-import {
-  sendNotifications,
-  sendSingleNotification,
-} from "../notifications/notification.services";
+import { sendNotifications } from "../notifications/notification.services";
 
 const createEventInDB = async (userId: string, payload: Event) => {
   await prisma.user.findUniqueOrThrow({
@@ -26,15 +22,20 @@ const createEventInDB = async (userId: string, payload: Event) => {
     },
   });
 
+  await prisma.userProfile.update({
+    where: { userId },
+    data: {
+      hosted: { increment: 1 },
+    },
+  });
+
   try {
-    await sendSingleNotification(
+    await sendNotifications(
       `${payload.eventName} is now live. Tap to explore and secure your spot before it fills up`,
       `🎉 New Event Just Dropped!`,
     );
-    return;
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
-    return;
   }
 
   return;
@@ -177,13 +178,33 @@ const editEventInDB = async (payload: any) => {
     },
   });
 
+  try {
+    await sendNotifications(
+      `${event.eventName} event has important updates. Review the latest details.`,
+      `🔔 Event Updated`,
+    );
+  } catch (notificationError) {
+    console.error("Notification failed:", notificationError);
+  }
+
   return;
 };
 
 const deleteEventFromDB = async (eventId: string) => {
+  const event = await prisma.event.findUniqueOrThrow({
+    where: { id: eventId },
+  });
+
   await prisma.event.delete({
     where: { id: eventId },
   });
+  await prisma.userProfile.update({
+    where: { userId: event.userId },
+    data: {
+      hosted: { decrement: 1 },
+    },
+  });
+  return;
 };
 
 const getUserWiseEventJoinHistoryFromDB = async (userId: string) => {
@@ -254,6 +275,13 @@ const acceptOrRejectEventJoinRequestInDB = async (payload: any) => {
       where: { id: invite.eventId },
       data: {
         attendeesCount: { increment: 1 },
+      },
+    });
+
+    await prisma.userProfile.update({
+      where: { userId: invite.userId },
+      data: {
+        attendance: { increment: 1 },
       },
     });
 
@@ -352,6 +380,13 @@ const joinEventInDB = async (userId: string, eventId: string) => {
       attendeesCount: {
         increment: 1,
       },
+    },
+  });
+
+  await prisma.userProfile.update({
+    where: { userId },
+    data: {
+      attendance: { increment: 1 },
     },
   });
 

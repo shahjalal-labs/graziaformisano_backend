@@ -333,6 +333,13 @@ const deleteEventFromDB = async (eventId: string) => {
     where: { id: eventId },
   });
 
+  await prisma.userProfile.update({
+    where: { userId: event.userId },
+    data: {
+      hosted: { decrement: 1 },
+    },
+  });
+
   return;
 };
 
