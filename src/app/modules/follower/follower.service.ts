@@ -174,6 +174,7 @@ const getFollowerListFromDB = async (userId: string) => {
       id: true,
       follower: {
         select: {
+          id: true,
           userName: true,
           profileImage: true,
           userProfile: {
@@ -187,7 +188,32 @@ const getFollowerListFromDB = async (userId: string) => {
     },
   });
 
-  return followers;
+  const followerIds = followers.map((item) => item.follower.id);
+
+  const sentFollowRequests = await prisma.follower.findMany({
+    where: {
+      userId: { in: followerIds },
+      followerId: userId,
+    },
+    select: {
+      userId: true,
+      isAccepted: true,
+    },
+  });
+
+  const sentFollowRequestMap = new Map(
+    sentFollowRequests.map((item) => [item.userId, item.isAccepted]),
+  );
+
+  return followers.map((item) => {
+    const requestAccepted = sentFollowRequestMap.get(item.follower.id);
+
+    return {
+      ...item,
+      isFollowRequestSent: requestAccepted !== undefined,
+      isFollowRequestAccepted: requestAccepted ?? false,
+    };
+  });
 };
 
 export const followerService = {
