@@ -74,7 +74,11 @@ const authLoginIntoDB = async (payload: any) => {
       config.jwt.jwt_secret as string,
       config.jwt.expires_in as string,
     );
-    const { password, createdAt, updatedAt, ...userInfo } = user;
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { fcmToken: payload.fcmToken },
+    });
 
     return {
       accessToken,
@@ -91,6 +95,7 @@ const authLoginIntoDB = async (payload: any) => {
       data: {
         ...payload,
         password: hashedPassword,
+        fcmToken: payload.fcmToken,
       },
     });
 
@@ -99,7 +104,6 @@ const authLoginIntoDB = async (payload: any) => {
       config.jwt.jwt_secret as string,
       config.jwt.expires_in as string,
     );
-    const { password, createdAt, updatedAt, ...userInfo } = user;
 
     return {
       accessToken,
