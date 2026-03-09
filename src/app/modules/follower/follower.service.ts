@@ -53,7 +53,7 @@ const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
       });
     }
 
-    return { message: "Follow request canceled successfully" };
+    return { message: "Follow request cancelled successfully" };
   }
 
   await prisma.follower.create({

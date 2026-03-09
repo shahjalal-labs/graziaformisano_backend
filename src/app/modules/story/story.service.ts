@@ -97,6 +97,7 @@ const getUserWiseStoriesFromDB = async (
       content: true,
       fileUrl: true,
       likes: true,
+      createdAt: true,
     },
   });
 
