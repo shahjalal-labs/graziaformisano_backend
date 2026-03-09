@@ -100,8 +100,7 @@ const getUserWiseStoriesFromDB = async (
       createdAt: true,
     },
   });
-
-  const res = await prisma.story.updateMany({
+await prisma.story.updateMany({
     where: {
       userId: storyPosterId,
       createdAt: { gte: since },
@@ -109,12 +108,13 @@ const getUserWiseStoriesFromDB = async (
     },
     data: { viewedBy: { push: userId } },
   });
-  console.log(res);
+  
 
   return stories.map((story) => ({
     id: story.id,
     content: story.content,
     fileUrl: story.fileUrl,
+    createdAt: story.createdAt,
     isLiked: story.likes.includes(userId),
   }));
 };
