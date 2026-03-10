@@ -26,6 +26,7 @@ const createCityIntoDB = async (payload: any) => {
 const getAllCitiesFromDB = async () => {
   const cities = await prisma.city.findMany({
     select: {
+      id: true,
       cityName: true,
     },
   });
@@ -62,6 +63,7 @@ const getAllProfessionsFromDB = async () => {
       professionName: true,
       subProfessions: {
         select: {
+          id:true,
           subProfessionName: true,
         },
       },
@@ -98,10 +100,39 @@ const createSubProfessionIntoDB = async (payload: any) => {
   return;
 };
 
+const deleteCityFromDB = async (cityId: string) => {
+  await prisma.city.delete({
+    where: {
+      id: cityId,
+    },
+  });
+
+  return;
+};
+
+const deleteProfessionFromDB = async (professionId: string) => {
+  await prisma.profession.delete({
+    where: {
+      id: professionId,
+    },
+  });
+};
+
+const deleteSubProfessionFromDB = async (subProfessionId: string) => {
+  await prisma.subProfession.delete({
+    where: {
+      id: subProfessionId,
+    },
+  });
+};
+
 export const professionService = {
   createCityIntoDB,
   getAllCitiesFromDB,
   createProfessionIntoDB,
   getAllProfessionsFromDB,
   createSubProfessionIntoDB,
+  deleteCityFromDB,
+  deleteProfessionFromDB,
+  deleteSubProfessionFromDB,
 };

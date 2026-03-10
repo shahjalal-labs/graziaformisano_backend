@@ -47,7 +47,32 @@ const createSubProfession = catchAsync(async (req, res) => {
     message: "Sub-Profession created successfully",
   });
 });
+const deleteCity = catchAsync(async (req, res) => {
+  await professionService.deleteCityFromDB(req.params.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "City deleted successfully",
+  });
+});
 
+const deleteProfession = catchAsync(async (req, res) => {
+  await professionService.deleteProfessionFromDB(req.params.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Profession deleted successfully",
+  });
+});
+
+const deleteSubProfession = catchAsync(async (req, res) => {
+  await professionService.deleteSubProfessionFromDB(req.params.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Sub-Profession deleted successfully",
+  });
+});
 
 export const professionController = {
   createCity,
@@ -55,4 +80,7 @@ export const professionController = {
   createProfession,
   professions,
   createSubProfession,
+  deleteCity,
+  deleteProfession,
+  deleteSubProfession,
 };
