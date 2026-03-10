@@ -24,6 +24,7 @@ router.put(
 );
 
 router.get("/users", auth(UserRole.ADMIN), adminController.allUsers);
+router.get("/posts", auth(UserRole.ADMIN), adminController.allPosts);
 router.get(
   "/top-professionals",
   auth(UserRole.ADMIN),

@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import { Request } from "express";
 import { Prisma } from "@prisma/client";
+import { get } from "http";
 
 const loginAdminIntoDB = async (payload: any) => {
   const admin = await prisma.user.findUniqueOrThrow({
@@ -132,6 +133,44 @@ const getAllUsersFromDB = async (page: number = 1, search?: string) => {
     users,
   };
 };
+const getAllPostsFromDB = async (page: number = 1) => {
+  const totalPosts = await prisma.post.count({});
+  const filteredPostsCount = await prisma.post.count({});
+  const totalPages = Math.ceil(filteredPostsCount / 10);
+
+  const posts = await prisma.post.findMany({
+    skip: (page - 1) * 10,
+    take: 10,
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      content: true,
+      mediaUrls: true,
+      totalComment: true,
+      createdAt: true,
+      likes: true,      
+      user: {
+        select: {
+          userName: true,
+          profileImage: true,
+        },
+      },
+      
+    },
+  });
+
+  return {
+    meta: {
+      totalPosts,
+      filteredPosts: filteredPostsCount,
+      totalPages,
+      currentPage: page,
+    },
+    posts,
+  };
+};
 const getAllSubscribersFromDB = async (page: number = 1) => {
   const totalSubscribers = await prisma.userSubscription.count({
     where: { status: "ACTIVE" },
@@ -216,7 +255,7 @@ const getAllEventsFromDB = async (page: number = 1, search?: string) => {
       eventName: true,
       eventType: true,
       eventDate: true,
-      eventTime: true,
+      eventTime: true,    
       eventCategory: true,
       user: {
         select: {
@@ -397,4 +436,5 @@ export const adminService = {
   deleteEventFromDB,
   getAllSubscribersFromDB,
   getTopProfessionalsFromDB,
+  getAllPostsFromDB,
 };

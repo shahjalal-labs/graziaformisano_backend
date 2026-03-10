@@ -37,6 +37,17 @@ const allUsers = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const allPosts = catchAsync(async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const result = await adminService.getAllPostsFromDB(page);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Posts retrieved successfully",
+    data: result,
+  });
+});
 const allEvents = catchAsync(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const search = req.query.search as string;
@@ -137,4 +148,5 @@ export const adminController = {
   deleteEvent,
   allSubscribers,
   topProfessionals,
+  allPosts,
 };
