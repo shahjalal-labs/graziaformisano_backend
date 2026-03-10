@@ -6,7 +6,6 @@ import bcrypt from "bcryptjs";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import { Request } from "express";
 import { Prisma } from "@prisma/client";
-import { get } from "http";
 
 const loginAdminIntoDB = async (payload: any) => {
   const admin = await prisma.user.findUniqueOrThrow({

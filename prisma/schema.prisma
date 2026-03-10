@@ -294,6 +294,36 @@ model Notification {
   @@map("notifications")
 }
 
+model City {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cityName  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cities")
+}
+
+model Profession {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  professionName String          @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  subProfessions SubProfession[]
+
+  @@map("professions")
+}
+
+model SubProfession {
+  id                String     @id @default(auto()) @map("_id") @db.ObjectId
+  subProfessionName String     @unique
+  professionId      String     @db.ObjectId
+  profession        Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@map("subProfessions")
+}
+
 enum UserStatus {
   Active
   Blocked
