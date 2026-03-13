@@ -1,3 +1,4 @@
+import { count } from "console";
 import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
 import { sendSingleNotification } from "../notifications/notification.services";
@@ -186,7 +187,7 @@ const getFollowerListFromDB = async (userId: string) => {
         },
       },
     },
-  }); 
+  });
 
   const followerIds = followers.map((item) => item.follower.id);
 
@@ -216,10 +217,40 @@ const getFollowerListFromDB = async (userId: string) => {
   });
 };
 
+const getFollowingListFromDB = async (followerId: string) => {
+  const following = await prisma.follower.findMany({
+    where: { followerId },
+    select: {
+      id: true,
+      isAccepted: true,
+      user: {
+        select: {
+          id: true,
+          userName: true,
+          profileImage: true,
+          userProfile: {
+            select: {
+              profession: true,
+              city: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return {
+    following,
+    count: following.length,
+  };
+};
+
 export const followerService = {
   followUnfollowToggleInDB,
   acceptFollowRequestInDB,
   rejectFollowRequestInDB,
   getFollowerRequestListFromDB,
   getFollowerListFromDB,
+  getFollowingListFromDB,
+  
 };

@@ -9,5 +9,6 @@ router.patch("/accept-follow-request/:id", auth(), followerController.acceptFoll
 router.patch("/reject-follow-request/:id", auth(), followerController.rejectFollowRequest);
 router.get("/request-list", auth(), followerController.followerRequestList);
 router.get("/accepted-list", auth(), followerController.followersList);
+router.get("/following-list", auth(), followerController.getFollowingList);
 
 export const followerRoutes = router;
