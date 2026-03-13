@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { adminService } from "./admin.service";
+import { TEventType } from "@prisma/client";
 
 const loginAdmin = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
@@ -51,8 +52,9 @@ const allPosts = catchAsync(async (req: Request, res: Response) => {
 const allEvents = catchAsync(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const search = req.query.search as string;
+  const type = req.query.type as TEventType;
 
-  const result = await adminService.getAllEventsFromDB(page, search);
+  const result = await adminService.getAllEventsFromDB(page, search, type);
 
   sendResponse(res, {
     statusCode: 200,

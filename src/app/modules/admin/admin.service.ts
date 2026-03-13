@@ -5,7 +5,7 @@ import prisma from "../../../shared/prisma";
 import bcrypt from "bcryptjs";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import { Request } from "express";
-import { Prisma } from "@prisma/client";
+import { Prisma, TEventType } from "@prisma/client";
 import { get } from "http";
 
 const loginAdminIntoDB = async (payload: any) => {
@@ -221,8 +221,9 @@ const getAllSubscribersFromDB = async (page: number = 1) => {
     subscribers,
   };
 };
-const getAllEventsFromDB = async (page: number = 1, search?: string) => {
+const getAllEventsFromDB = async (page: number = 1, search?: string, type?: TEventType) => {
   const whereCondition: Prisma.EventWhereInput = {
+    eventType: type ? type : undefined,
     ...(search && {
       OR: [
         { eventName: { contains: search, mode: "insensitive" } },
