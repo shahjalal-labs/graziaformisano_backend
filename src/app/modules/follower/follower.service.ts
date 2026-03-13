@@ -186,7 +186,7 @@ const getFollowerListFromDB = async (userId: string) => {
         },
       },
     },
-  });
+  }); 
 
   const followerIds = followers.map((item) => item.follower.id);
 
