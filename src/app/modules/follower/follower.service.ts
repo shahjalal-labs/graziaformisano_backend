@@ -239,10 +239,7 @@ const getFollowingListFromDB = async (followerId: string) => {
     },
   });
 
-  return {
-    following,
-    count: following.length,
-  };
+  return following;
 };
 
 export const followerService = {

@@ -128,7 +128,7 @@ const setUpUserProfileIntoDB = async (req: Request) => {
   if (!profileImage) {
     throw new ApiError(404, "Image is required");
   }
-  
+
   const account = await createCustomerStripeAccount(user.userName, user.email);
 
   await prisma.userProfile.create({
@@ -185,7 +185,7 @@ const updateUserProfileIntoDB = async (userId: string, payload: any) => {
       profession: payload.profession || user.userProfile?.profession,
       subProfession: payload.subProfession || user.userProfile?.subProfession,
       education: payload.education || user.userProfile?.education,
-      skills: payload.skills || user.userProfile?.skills,      
+      skills: payload.skills || user.userProfile?.skills,
     },
   });
 
@@ -225,6 +225,7 @@ const updateProfileImageInDB = async (req: Request) => {
 
 //get single user
 const getProfileFromDB = async (id: string) => {
+  console.log(id);
   const user = await prisma.user.findUniqueOrThrow({
     where: { id },
     select: {
@@ -232,11 +233,16 @@ const getProfileFromDB = async (id: string) => {
       userName: true,
       email: true,
       profileImage: true,
+      _count: {
+        select: {
+          follower: true
+        },
+      },
       userLocation: {
         select: {
           latitude: true,
           longitude: true,
-        }
+        },
       },
       userProfile: {
         select: {
