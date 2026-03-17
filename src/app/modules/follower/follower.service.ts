@@ -241,6 +241,44 @@ const getFollowingListFromDB = async (followerId: string) => {
 
   return following;
 };
+const getFriendsListFromDB = async (userId: string) => {
+  const friends = await prisma.follower.findMany({
+    where: {
+      isAccepted: true,
+      OR: [{ userId }, { followerId: userId }],
+    },
+    select: {
+      id: true,
+      userId: true,
+      followerId: true,
+      user: {
+        select: {
+          id: true,
+          userName: true,
+          profileImage: true,
+        },
+      },
+      follower: {
+        select: {
+          id: true,
+          userName: true,
+          profileImage: true,
+        },
+      },
+    },
+  });
+
+  // 🔑 Transform result: always return "the other user"
+  const formattedFriends = friends.map((item) => {
+    if (item.userId === userId) {
+      return item.follower; // you are the user → return follower
+    } else {
+      return item.user; // you are the follower → return user
+    }
+  });
+
+  return formattedFriends;
+};
 
 export const followerService = {
   followUnfollowToggleInDB,
@@ -249,5 +287,5 @@ export const followerService = {
   getFollowerRequestListFromDB,
   getFollowerListFromDB,
   getFollowingListFromDB,
-  
+  getFriendsListFromDB
 };

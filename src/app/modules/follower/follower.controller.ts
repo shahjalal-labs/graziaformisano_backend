@@ -65,6 +65,16 @@ const getFollowingList = catchAsync(async (req: Request, res: Response) => {
     data: following,
   });
 });
+const getFriendsList = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const friends = await followerService.getFriendsListFromDB(userId);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Friends list retrieved successfully",
+    data: friends,
+  });
+});
 
 export const followerController = {
   followUnfollow,
@@ -73,4 +83,5 @@ export const followerController = {
   followerRequestList,
   followersList,
   getFollowingList,
+  getFriendsList
 };
