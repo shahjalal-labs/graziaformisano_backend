@@ -133,6 +133,14 @@ const getAllUsersFromDB = async (page: number = 1, search?: string) => {
     users,
   };
 };
+
+const deletePostFromDB = async (postId: string) => {
+  await prisma.post.delete({
+    where: { id: postId },
+  });
+
+  return;
+};
 const getAllPostsFromDB = async (page: number = 1) => {
   const totalPosts = await prisma.post.count({});
   const filteredPostsCount = await prisma.post.count({});
@@ -150,14 +158,13 @@ const getAllPostsFromDB = async (page: number = 1) => {
       mediaUrls: true,
       totalComment: true,
       createdAt: true,
-      likes: true,      
+      likes: true,
       user: {
         select: {
           userName: true,
           profileImage: true,
         },
       },
-      
     },
   });
 
@@ -221,7 +228,11 @@ const getAllSubscribersFromDB = async (page: number = 1) => {
     subscribers,
   };
 };
-const getAllEventsFromDB = async (page: number = 1, search?: string, type?: TEventType) => {
+const getAllEventsFromDB = async (
+  page: number = 1,
+  search?: string,
+  type?: TEventType,
+) => {
   const whereCondition: Prisma.EventWhereInput = {
     eventType: type ? type : undefined,
     ...(search && {
@@ -256,7 +267,7 @@ const getAllEventsFromDB = async (page: number = 1, search?: string, type?: TEve
       eventName: true,
       eventType: true,
       eventDate: true,
-      eventTime: true,    
+      eventTime: true,
       eventCategory: true,
       user: {
         select: {
@@ -332,20 +343,11 @@ const getEventDetailsFromDB = async (eventId: string) => {
 };
 
 const deleteUserFromDB = async (userId: string) => {
-  const user = await prisma.user.findUniqueOrThrow({
+  await prisma.user.delete({
     where: { id: userId },
   });
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      status: user.status == "Active" ? "Deleted" : "Active",
-    },
-  });
-
-  return {
-    message: `User ${user.status == "Active" ? "deleted" : "activated"} successfully`,
-  };
+  return;
 };
 
 const deleteEventFromDB = async (eventId: string) => {
@@ -425,6 +427,23 @@ const getTopProfessionalsFromDB = async () => {
   return topProfessionals;
 };
 
+const toggleUserStatusIntoDB = async (userId: string) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+  });
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      status: user.status == "Active" ? "Blocked" : "Active",
+    },
+  });
+
+  return {
+    message: `User ${user.status == "Active" ? "blocked" : "activated"} successfully`,
+  };
+};
+
 export const adminService = {
   loginAdminIntoDB,
   updateAdminProfileInDB,
@@ -438,4 +457,6 @@ export const adminService = {
   getAllSubscribersFromDB,
   getTopProfessionalsFromDB,
   getAllPostsFromDB,
+  deletePostFromDB,
+  toggleUserStatusIntoDB,
 };

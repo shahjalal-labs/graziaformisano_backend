@@ -16,6 +16,17 @@ const loginAdmin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deletePost = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await adminService.deletePostFromDB(id);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Post deleted successfully",
+  });
+});
+
 const updateAdminProfile = catchAsync(async (req: Request, res: Response) => {
   await adminService.updateAdminProfileInDB(req);
 
@@ -99,12 +110,12 @@ const eventDetails = catchAsync(async (req: Request, res: Response) => {
 });
 const deleteUser = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.id;
-  const result = await adminService.deleteUserFromDB(userId);
+  await adminService.deleteUserFromDB(userId);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: result.message,
+    message: "User deleted successfully",
   });
 });
 const deleteEvent = catchAsync(async (req: Request, res: Response) => {
@@ -137,6 +148,16 @@ const topProfessionals = catchAsync(async (req: Request, res: Response) => {
     data: topProfessionals,
   });
 });
+const toggleUserStatus = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
+  const result = await adminService.toggleUserStatusIntoDB(userId);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: result.message,
+  });
+});
 
 export const adminController = {
   loginAdmin,
@@ -149,6 +170,8 @@ export const adminController = {
   deleteUser,
   deleteEvent,
   allSubscribers,
+  toggleUserStatus,
   topProfessionals,
   allPosts,
+  deletePost,
 };

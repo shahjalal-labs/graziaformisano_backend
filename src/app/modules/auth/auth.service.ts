@@ -19,10 +19,10 @@ const loginUserIntoDB = async (payload: any) => {
     throw new ApiError(404, "User not found");
   }
 
-  if (user.status == "Deleted") {
+  if (user.status == "Blocked") {
     throw new ApiError(
       403,
-      "Your account has been deleted. Please contact support for more information.",
+      "Your account has been deactivated. Please contact support for more information.",
     );
   }
 
