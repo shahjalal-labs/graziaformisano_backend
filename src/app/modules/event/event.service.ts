@@ -59,6 +59,7 @@ const createEventInDB = async (userId: string, payload: any) => {
 const getAllEventsFromDB = async (
   userId: string,
   search?: string,
+  city?: string,
   eventCategory?: TEventCategory,
   maxDistance?: number,
 ) => {
@@ -85,6 +86,7 @@ const getAllEventsFromDB = async (
         ],
       }),
       ...(eventCategory && { eventCategory }),
+      ...(city && { city }),
     },
     select: {
       id: true,

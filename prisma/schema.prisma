@@ -111,6 +111,7 @@ model Event {
   attendeesCount Int             @default(0)
   latitude       Float
   longitude      Float
+  city           String?
   address        String
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt

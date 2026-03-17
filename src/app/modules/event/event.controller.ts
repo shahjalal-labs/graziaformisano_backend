@@ -16,6 +16,7 @@ const createEvent = catchAsync(async (req: Request, res: Response) => {
 const getAllEvents = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const search = req.query.search as string | undefined;
+  const city = req.query.city as string | undefined;
   const eventCategory = req.query.eventCategory as TEventCategory | undefined;
   const maxDistance = req.query.maxDistance
     ? Number(req.query.maxDistance)
@@ -23,6 +24,7 @@ const getAllEvents = catchAsync(async (req: Request, res: Response) => {
   const events = await eventService.getAllEventsFromDB(
     userId,
     search,
+    city,
     eventCategory,
     maxDistance,
   );

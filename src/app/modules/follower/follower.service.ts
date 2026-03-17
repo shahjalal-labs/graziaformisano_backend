@@ -268,12 +268,11 @@ const getFriendsListFromDB = async (userId: string) => {
     },
   });
 
-  // 🔑 Transform result: always return "the other user"
   const formattedFriends = friends.map((item) => {
     if (item.userId === userId) {
-      return item.follower; // you are the user → return follower
+      return item.follower;
     } else {
-      return item.user; // you are the follower → return user
+      return item.user;
     }
   });
 
@@ -287,5 +286,5 @@ export const followerService = {
   getFollowerRequestListFromDB,
   getFollowerListFromDB,
   getFollowingListFromDB,
-  getFriendsListFromDB
+  getFriendsListFromDB,
 };
