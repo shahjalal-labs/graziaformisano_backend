@@ -1,17 +1,22 @@
-import { Event, TEventCategory } from "@prisma/client";
+import { TEventCategory } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
 import { calculateDistance } from "../../../helpers/distanceCalculator";
-import { sendNotifications } from "../notifications/notification.services";
+import {
+  sendNotifications,
+  sendSingleNotification,
+} from "../notifications/notification.services";
 
-const createEventInDB = async (userId: string, payload: Event) => {
+const createEventInDB = async (userId: string, payload: any) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
 
+  const { invitees, ...eventData } = payload;
+
   const event = await prisma.event.create({
     data: {
-      ...payload,
+      ...eventData,
       userId,
     },
   });
@@ -28,14 +33,24 @@ const createEventInDB = async (userId: string, payload: Event) => {
       hosted: { increment: 1 },
     },
   });
+  if (payload.eventType === "Private" && payload.invitees?.length > 0) {
+    await payload.invitees.forEach(async (invite: string) => {
+      await sendPrivateEventJoinInvitation({
+        userId: invite,
+        eventId: event.id,
+      });
+    });
+  }
 
-  try {
-    await sendNotifications(
-      `${payload.eventName} is now live. Tap to explore and secure your spot before it fills up`,
-      `🎉 New Event Just Dropped!`,
-    );
-  } catch (notificationError) {
-    console.error("Notification failed:", notificationError);
+  if (payload.eventType === "Public") {
+    try {
+      await sendNotifications(
+        `${payload.eventName} is now live. Tap to explore and secure your spot before it fills up`,
+        `🎉 New Event Just Dropped!`,
+      );
+    } catch (notificationError) {
+      console.error("Notification failed:", notificationError);
+    }
   }
 
   return;
@@ -421,6 +436,16 @@ const sendPrivateEventJoinInvitation = async (payload: any) => {
       status: "Pending",
     },
   });
+  try {
+    await sendSingleNotification(
+      payload.userId,
+      `You've been invited to ${event.eventName}. Tap to join now—limited spots available!`,
+      event.userId,
+      "🎉Event Join Invitation!",
+    );
+  } catch (notificationError) {
+    console.error("Notification failed:", notificationError);
+  }
 
   return;
 };
