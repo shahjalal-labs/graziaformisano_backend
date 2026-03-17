@@ -66,9 +66,9 @@ const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
 
   try {
     await sendSingleNotification(
-      followerId,
-      `${user.userName} sent you a follow request`,
       userId,
+      `${user.userName} sent you a follow request`,
+      followerId,
       "New Follow Request!",
     );
   } catch (notificationError) {
