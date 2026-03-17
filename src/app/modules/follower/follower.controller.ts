@@ -36,7 +36,7 @@ const rejectFollowRequest = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const followerRequestList = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.params.id;
+  const userId = req.user.id;
   const followers = await followerService.getFollowerRequestListFromDB(userId);
   sendResponse(res, {
     success: true,
