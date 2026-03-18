@@ -104,9 +104,9 @@ const acceptFollowRequestInDB = async (followId: string) => {
 
   try {
     await sendSingleNotification(
-      followRequest.userId,
-      `${followRequest.follower.userName} accepted your follow request`,
       followRequest.followerId,
+      `${followRequest.follower.userName} accepted your follow request`,
+      followRequest.userId,
       "Follow Request Accepted!",
     );
   } catch (notificationError) {
@@ -134,9 +134,9 @@ const rejectFollowRequestInDB = async (followId: string) => {
 
   try {
     await sendSingleNotification(
-      followRequest.userId,
-      `${followRequest.follower.userName} rejected your follow request`,
       followRequest.followerId,
+      `${followRequest.follower.userName} rejected your follow request`,
+      followRequest.userId,
       "Follow Request Rejected!",
     );
   } catch (notificationError) {
