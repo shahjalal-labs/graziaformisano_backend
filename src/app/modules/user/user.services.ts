@@ -289,6 +289,7 @@ const urlGenerate = async (req: Request) => {
 const getUsersFromDB = async (
   userId: string,
   search?: string,
+  city?: string,
   profession?: string,
   subProfession?: string,
   maxDistance?: number,
@@ -348,6 +349,7 @@ const getUsersFromDB = async (
       userProfile: {
         profession: profession ? profession : undefined,
         subProfession: subProfession ? subProfession : undefined,
+        city: city ? { contains: city, mode: "insensitive" } : undefined,
       },
     },
   });

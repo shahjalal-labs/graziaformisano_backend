@@ -85,6 +85,7 @@ const generateFileUrl = catchAsync(async (req, res) => {
 const getUsers = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const search = req.query.search as string | undefined;
+  const city = req.query.city as string | undefined;
   const profession = req.query.profession as string | undefined;
   const subProfession = req.query.subProfession as string | undefined;
   const maxDistance = req.query.maxDistance
@@ -94,6 +95,7 @@ const getUsers = catchAsync(async (req, res) => {
   const users = await userService.getUsersFromDB(
     userId,
     search,
+    city,
     profession,
     subProfession,
     maxDistance,

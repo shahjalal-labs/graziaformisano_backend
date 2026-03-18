@@ -86,7 +86,12 @@ const getAllEventsFromDB = async (
         ],
       }),
       ...(eventCategory && { eventCategory }),
-      ...(city && { city }),
+      ...(city && {
+        OR: [
+          { city: { contains: city, mode: "insensitive" } },
+          { address: { contains: city, mode: "insensitive" } },
+        ],
+      }),
     },
     select: {
       id: true,
