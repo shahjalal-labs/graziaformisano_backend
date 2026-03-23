@@ -232,16 +232,7 @@ const getProfileFromDB = async (id: string) => {
       userName: true,
       email: true,
       profileImage: true,
-      _count: {
-        select: {
-          follower: {
-            where: {
-              followerId: id,
-              // isAccepted: true,
-            },
-          },
-        },
-      },
+
       userLocation: {
         select: {
           latitude: true,
@@ -264,7 +255,14 @@ const getProfileFromDB = async (id: string) => {
     },
   });
 
-  return user;
+  const followingCount = await prisma.follower.count({
+    where: { followerId: id},
+  });
+
+  return {
+    ...user,
+    followingCount,
+  };
 };
 
 //delete user
