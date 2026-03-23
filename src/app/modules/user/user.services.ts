@@ -225,7 +225,6 @@ const updateProfileImageInDB = async (req: Request) => {
 
 //get single user
 const getProfileFromDB = async (id: string) => {
-  console.log(id);
   const user = await prisma.user.findUniqueOrThrow({
     where: { id },
     select: {
@@ -235,7 +234,12 @@ const getProfileFromDB = async (id: string) => {
       profileImage: true,
       _count: {
         select: {
-          follower: true
+          follower: {
+            where: {
+              followerId: id,
+              // isAccepted: true,
+            },
+          },
         },
       },
       userLocation: {

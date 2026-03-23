@@ -406,6 +406,7 @@ const getDashboardStatsFromDB = async () => {
 
 const getTopProfessionalsFromDB = async () => {
   const topProfessionals = await prisma.user.findMany({
+    where: { role: "USER" },
     select: {
       id: true,
       userName: true,
