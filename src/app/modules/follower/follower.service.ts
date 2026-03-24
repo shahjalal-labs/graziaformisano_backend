@@ -12,7 +12,7 @@ const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
     where: { id: userId },
   });
 
-  await prisma.user.findUniqueOrThrow({
+  const follower =await prisma.user.findUniqueOrThrow({
     where: { id: followerId },
   });
 
@@ -67,7 +67,7 @@ const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
   try {
     await sendSingleNotification(
       userId,
-      `${user.userName} sent you a follow request`,
+      `${follower.userName} sent you a follow request`,
       followerId,
       "New Follow Request!",
     );
