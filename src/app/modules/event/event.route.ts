@@ -65,5 +65,15 @@ router.get(
   auth(),
   eventController.nonInvitedUsers,
 );
+router.patch(
+  "/non-invited-users/:id",
+  auth(),
+  eventController.nonInvitedUsers,
+);
+router.patch(
+  "/leave/:id",
+  auth(),
+  eventController.leaveEvent,
+);
 
 export const eventRoutes = router;

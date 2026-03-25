@@ -123,6 +123,16 @@ const nonInvitedUsers = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const leaveEvent = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const eventId = req.params.id;
+  await eventService.leaveEventInDB(userId, eventId);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Event left successfully",
+  });
+});
 
 export const eventController = {
   createEvent,
@@ -135,5 +145,6 @@ export const eventController = {
   sendInvitation,
   acceptOrRejectEventJoinRequest,
   userWiseJoinHistory,
-  nonInvitedUsers
+  nonInvitedUsers,
+  leaveEvent,
 };

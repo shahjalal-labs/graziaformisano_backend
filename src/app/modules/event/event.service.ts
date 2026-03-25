@@ -485,6 +485,32 @@ const getNonInvitedUsersForPrivateEvent = async (eventId: string) => {
   return nonInvitedUsers;
 };
 
+const leaveEventInDB = async (userId: string, eventId: string) => {
+  await prisma.event.findUniqueOrThrow({
+    where: { id: eventId },
+  });
+  const attendee = await prisma.eventAttendee.findFirst({
+    where: { userId, eventId },
+  });
+
+  await prisma.eventAttendee.deleteMany({
+    where: { userId, eventId },
+  });
+
+  if (attendee?.status === "Accepted") {
+    await prisma.event.update({
+      where: { id: eventId },
+      data: {
+        attendeesCount: {
+          decrement: 1,
+        },
+      },
+    });
+  }
+
+  return
+};
+
 export const eventService = {
   createEventInDB,
   getAllEventsFromDB,
@@ -497,4 +523,5 @@ export const eventService = {
   getUserWiseEventJoinHistoryFromDB,
   acceptOrRejectEventJoinRequestInDB,
   getNonInvitedUsersForPrivateEvent,
+  leaveEventInDB
 };
