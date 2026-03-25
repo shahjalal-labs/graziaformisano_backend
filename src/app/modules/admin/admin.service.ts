@@ -205,7 +205,6 @@ const getAllSubscribersFromDB = async (page: number = 1) => {
         select: {
           userName: true,
           email: true,
-
           profileImage: true,
           userProfile: {
             select: {

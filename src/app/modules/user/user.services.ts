@@ -233,7 +233,7 @@ const getProfileFromDB = async (id: string) => {
       email: true,
       profileImage: true,
       createdAt: true,
-      isSubscribed: true,
+      isSubscribed: true,      
       userLocation: {
         select: {
           latitude: true,

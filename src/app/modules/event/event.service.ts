@@ -157,6 +157,7 @@ const getMyEventsFromDB = async (userId: string) => {
       id: true,
       eventName: true,
       address: true,
+      eventType: true,
       latitude: true,
       longitude: true,
       eventDate: true,
