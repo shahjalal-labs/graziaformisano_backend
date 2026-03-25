@@ -51,7 +51,6 @@ model PendingUser {
 
   @@map("pendingUsers")
 }
-
 model UserProfile {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
   userId           String   @unique @db.ObjectId
@@ -72,7 +71,6 @@ model UserProfile {
 
   @@map("userProfiles")
 }
-
 model UserLocation {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String?  @db.ObjectId
@@ -105,14 +103,14 @@ model Event {
   eventPlace     TEventPlace
   eventDate      DateTime
   eventTime      String
-  description    String
+  description    String?
   agenda         String[]
   maxAttendence  Int
   attendeesCount Int             @default(0)
   latitude       Float
   longitude      Float
   city           String?
-  address        String
+  address        String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -379,5 +377,5 @@ enum TEventCategory {
   Lunch
   Dinner
   Breakfast
-  
+  Meeting
 }
