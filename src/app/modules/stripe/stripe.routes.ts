@@ -21,7 +21,7 @@ router.post(
   stripeController.createSubscription
 );
 router.put(
-  "/cancel-subscription",
+  "/cancel",
   auth(UserRole.USER),
   stripeController.cancelSubscription
 );

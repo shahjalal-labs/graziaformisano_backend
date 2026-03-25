@@ -6,11 +6,21 @@ import {
   sendNotifications,
   sendSingleNotification,
 } from "../notifications/notification.services";
+import { canUseAccount } from "../../../helpers/subscriptionChecker";
 
 const createEventInDB = async (userId: string, payload: any) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
+
+  const res = await canUseAccount(userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
 
   const { invitees, ...eventData } = payload;
 
@@ -175,6 +185,15 @@ const editEventInDB = async (payload: any) => {
     where: { id: payload.eventId },
   });
 
+  const res = await canUseAccount(event.userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
+
   if (event.attendeesCount > payload.maxAttendence) {
     throw new ApiError(
       400,
@@ -283,6 +302,15 @@ const acceptOrRejectEventJoinRequestInDB = async (payload: any) => {
     where: { id: invite.eventId },
   });
 
+  const res = await canUseAccount(event.userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
+
   if (event.attendeesCount >= event.maxAttendence) {
     throw new ApiError(400, "Event is full");
   }
@@ -366,6 +394,15 @@ const joinEventInDB = async (userId: string, eventId: string) => {
     where: { id: userId },
   });
 
+  const res = await canUseAccount(userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
+
   if (event.attendeesCount >= event.maxAttendence) {
     throw new ApiError(400, "Event is full");
   }
@@ -434,6 +471,15 @@ const sendPrivateEventJoinInvitation = async (payload: any) => {
 
   if (event.attendeesCount >= event.maxAttendence) {
     throw new ApiError(400, "Event is full");
+  }
+
+  const res = await canUseAccount(event.userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
   }
 
   await prisma.eventAttendee.create({
@@ -508,7 +554,7 @@ const leaveEventInDB = async (userId: string, eventId: string) => {
     });
   }
 
-  return
+  return;
 };
 
 export const eventService = {
@@ -523,5 +569,5 @@ export const eventService = {
   getUserWiseEventJoinHistoryFromDB,
   acceptOrRejectEventJoinRequestInDB,
   getNonInvitedUsersForPrivateEvent,
-  leaveEventInDB
+  leaveEventInDB,
 };

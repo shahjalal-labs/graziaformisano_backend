@@ -2,12 +2,21 @@ import { Request } from "express";
 import ApiError from "../../../errors/ApiErrors";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import prisma from "../../../shared/prisma";
-import { profile } from "console";
+import { canUseAccount } from "../../../helpers/subscriptionChecker";
 
 const createStoryInDB = async (req: Request) => {
   const userId = req.user.id;
   const file = req.file;
   const payload = req.body;
+
+  const res = await canUseAccount(userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
 
   const processImage = async (file: Express.Multer.File, folder: string) => {
     if (!file) return null;
@@ -75,7 +84,8 @@ const getAvailableStoriesForUser = async (userId: string) => {
   return allStoryCounts.map((item) => ({
     userId: item.userId,
     userName: userMap.get(item.userId) || "",
-    profileImage: users.find((user) => user.id === item.userId)?.profileImage || "",
+    profileImage:
+      users.find((user) => user.id === item.userId)?.profileImage || "",
     storyCount: unviewedCountMap.get(item.userId) || 0,
   }));
 };
@@ -100,7 +110,7 @@ const getUserWiseStoriesFromDB = async (
       createdAt: true,
     },
   });
-await prisma.story.updateMany({
+  await prisma.story.updateMany({
     where: {
       userId: storyPosterId,
       createdAt: { gte: since },
@@ -108,7 +118,6 @@ await prisma.story.updateMany({
     },
     data: { viewedBy: { push: userId } },
   });
-  
 
   return stories.map((story) => ({
     id: story.id,
@@ -124,6 +133,15 @@ const likeUnlikeStoryInDB = async (userId: string, storyId: string) => {
   const story = await prisma.story.findUniqueOrThrow({
     where: { id: storyId },
   });
+
+  const res = await canUseAccount(userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
 
   const isLiked = story.likes.includes(userId);
 

@@ -3,6 +3,7 @@ import { uploadInSpace } from "../../../shared/UploadHelper";
 import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
 import { sendSingleNotification } from "../notifications/notification.services";
+import { canUseAccount } from "../../../helpers/subscriptionChecker";
 
 const createPostInDB = async (req: Request) => {
   const userId = req.user.id;
@@ -12,6 +13,15 @@ const createPostInDB = async (req: Request) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
+
+  const res = await canUseAccount(userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
 
   const processImages = async (
     files: Express.Multer.File[],
@@ -104,6 +114,15 @@ const likeUnlikePostInDB = async (postId: string, userId: string) => {
     where: { id: userId },
   });
 
+  const res = await canUseAccount(userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
+
   const post = await prisma.post.findUniqueOrThrow({
     where: { id: postId },
   });
@@ -128,6 +147,15 @@ const createCommentInDB = async (userId: string, payload: any) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
+
+  const res = await canUseAccount(userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
 
   const post = await prisma.post.findUniqueOrThrow({
     where: { id: payload.postId },
@@ -209,6 +237,14 @@ const likeUnlikeCommentInDB = async (commentId: string, userId: string) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
+  const res = await canUseAccount(userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
 
   const comment = await prisma.comment.findUniqueOrThrow({
     where: { id: commentId },
@@ -236,6 +272,15 @@ const createReplyInDB = async (userId: string, payload: any) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
+  const res = await canUseAccount(userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
+
   const comment = await prisma.comment.findUniqueOrThrow({
     where: { id: payload.commentId },
   });

@@ -12,6 +12,7 @@ async function main() {
     console.log("Server is running on port ", config.port);
     seedSuperAdmin();
     stripeService.createMonthlySubscriptionPlan();
+    stripeService.createYearlySubscriptionPlan();
   });
 
   setupWebSocketServer(server);

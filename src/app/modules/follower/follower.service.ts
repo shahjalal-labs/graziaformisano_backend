@@ -2,19 +2,29 @@ import { count } from "console";
 import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
 import { sendSingleNotification } from "../notifications/notification.services";
+import { canUseAccount } from "../../../helpers/subscriptionChecker";
 
 const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
   if (userId === followerId) {
     throw new ApiError(400, "You cannot follow yourself");
   }
 
-  const user = await prisma.user.findUniqueOrThrow({
+  await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
 
-  const follower =await prisma.user.findUniqueOrThrow({
+  const follower = await prisma.user.findUniqueOrThrow({
     where: { id: followerId },
   });
+
+  const res = await canUseAccount(followerId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
 
   const existingFollowRequest = await prisma.follower.findUnique({
     where: {
@@ -90,6 +100,15 @@ const acceptFollowRequestInDB = async (followId: string) => {
     },
   });
 
+  const res = await canUseAccount(followRequest.userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
+
   await prisma.follower.update({
     where: { id: followId },
     data: { isAccepted: true },
@@ -127,6 +146,15 @@ const rejectFollowRequestInDB = async (followId: string) => {
       },
     },
   });
+
+  const res = await canUseAccount(followRequest.userId);
+
+  if (!res) {
+    throw new ApiError(
+      403,
+      "Your 2-month trial has ended. Subscribe to keep using all features.",
+    );
+  }
 
   await prisma.follower.delete({
     where: { id: followId },

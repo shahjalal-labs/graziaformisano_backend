@@ -7,8 +7,7 @@ const stripe = new Stripe(config.stripe.stripe_secret as string);
 
 const handleWebHook = catchAsync(async (req: any, res: any) => {
   const sig = req.headers["stripe-signature"] as string;
-  console.log(sig);
-
+ 
   if (!sig) {
     return sendResponse(res, {
       statusCode: 400,

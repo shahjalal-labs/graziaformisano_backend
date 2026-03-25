@@ -8,9 +8,13 @@ const stripe = new Stripe(config.stripe.stripe_secret as string);
 const createMonthlySubscriptionPlan = async () => {
   const title = "Monthly Subscription";
   const subscriptionTitleType = "MONTHLY";
-  const amount = 14.99;
+  const amount = 4.99;
   const interval = "month";
- const features = ["Users can create their own personalized ads", "Each ad run for a limited time only", "Choose from 3 duration options: 7 days, 10 days, or 1 month"];
+  const features = [
+    "Users can create their own personalized ads",
+    "Each ad run for a limited time only",
+    "Choose from 3 duration options: 7 days, 10 days, or 1 month",
+  ];
 
   const existing = await prisma.subscription.findUnique({
     where: { subscriptionTitleType },
@@ -47,6 +51,48 @@ const createMonthlySubscriptionPlan = async () => {
 
   return result;
 };
+const createYearlySubscriptionPlan = async () => {
+  const title = "Yearly Subscription";
+  const subscriptionTitleType = "YEARLY";
+  const amount = 49.99;
+  const interval = "year";
+  const features = ["personalized ads", " time only", " 10 days, or 1 month"];
+
+  const existing = await prisma.subscription.findUnique({
+    where: { subscriptionTitleType },
+  });
+
+  if (existing) {
+    console.log("Subscription already exists");
+    return;
+  }
+
+  const product = await stripe.products.create({ name: title });
+  if (!product) throw new ApiError(400, "Product creation failed");
+
+  const price = await stripe.prices.create({
+    unit_amount: amount * 100,
+    currency: "usd",
+    recurring: { interval },
+    product: product.id,
+  });
+
+  const result = await prisma.subscription.create({
+    data: {
+      title,
+      subscriptionTitleType,
+      priceId: price.id,
+      productId: product.id,
+      features,
+      type: SubscriptionType.SUBSCRIPTION,
+      interval,
+    },
+  });
+
+  console.log("Yearly subscription created successfully.");
+
+  return result;
+};
 
 const getAllSubscriptionPlanIntoDB = async () => {
   const products = await prisma.subscription.findMany({
@@ -69,14 +115,14 @@ const getAllSubscriptionPlanIntoDB = async () => {
       } catch (error) {
         console.error(
           `Failed to fetch Stripe price for ID ${product.priceId}:`,
-          error
+          error,
         );
         return {
           ...product,
           price: null,
         };
       }
-    })
+    }),
   );
 
   return plansWithPrice;
@@ -85,7 +131,7 @@ const getAllSubscriptionPlanIntoDB = async () => {
 const createSubscriptionIntoDB = async (
   priceId: string,
   paymentMethodId: string,
-  userId: string
+  userId: string,
 ) => {
   await prisma.userSubscription.findUnique({
     where: {
@@ -99,9 +145,9 @@ const createSubscriptionIntoDB = async (
       userProfile: {
         select: {
           stripeCustomerId: true,
-        }
-      }
-    }
+        },
+      },
+    },
   });
 
   if (user.isSubscribed == true) {
@@ -115,7 +161,6 @@ const createSubscriptionIntoDB = async (
   //   );
   // }
 
-  
   await stripe.paymentMethods.attach(paymentMethodId, {
     customer: user.userProfile?.stripeCustomerId as string,
   });
@@ -151,7 +196,7 @@ const createSubscriptionIntoDB = async (
 const handleSubscriptionCreated = async (
   priceId: string,
   userId: string,
-  subscriptionPayId: string
+  subscriptionPayId: string,
 ) => {
   try {
     const subscription = await prisma.subscription.findUnique({
@@ -161,7 +206,7 @@ const handleSubscriptionCreated = async (
     if (!subscription) {
       throw new ApiError(
         404,
-        `Subscription with priceId: ${priceId} not found`
+        `Subscription with priceId: ${priceId} not found`,
       );
     }
     const result = await prisma.userSubscription.upsert({
@@ -191,7 +236,7 @@ const handleSubscriptionCreated = async (
 const handleSubscriptionStatusUpdate = async (
   userId: string,
   priceId: string,
-  status: "ACTIVE" | "DEACTIVE"
+  status: "ACTIVE" | "DEACTIVE",
 ) => {
   try {
     const existingSubscription = await prisma.userSubscription.findFirst({
@@ -204,7 +249,7 @@ const handleSubscriptionStatusUpdate = async (
     if (!existingSubscription) {
       throw new ApiError(
         404,
-        `No subscription found for user ${userId} with priceId ${priceId}`
+        `No subscription found for user ${userId} with priceId ${priceId}`,
       );
     }
 
@@ -234,18 +279,23 @@ const cancelSubscriptionFromDB = async (userId: string) => {
       where: { id: userId },
       data: { isSubscribed: false, subscriptionId: "" },
     });
+
+    await prisma.userSubscription.deleteMany({
+      where: { userId },
+    });
     return;
   } else {
     throw new ApiError(400, "Subscription cancellation failed");
   }
-  // const updatedSubscription = await prisma.userSubscription.updateMany({
-  //   where: { userId, status: "ACTIVE" },
-  //   data: { status: "DEACTIVE" },
-  // });
+  const updatedSubscription = await prisma.userSubscription.updateMany({
+    where: { userId, status: "ACTIVE" },
+    data: { status: "DEACTIVE" },
+  });
 };
 
 export const stripeService = {
   createMonthlySubscriptionPlan,
+  createYearlySubscriptionPlan,
   getAllSubscriptionPlanIntoDB,
   createSubscriptionIntoDB,
   handleSubscriptionCreated,
