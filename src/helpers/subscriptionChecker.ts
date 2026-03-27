@@ -19,7 +19,7 @@ export const canUseAccount = async (userId: string): Promise<boolean> => {
   const now = new Date();
 
   if (now < expiryDate) {
-    return false;
+    return true;
   }
 
   if (isSubscribed) {
