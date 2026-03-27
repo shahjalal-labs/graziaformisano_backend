@@ -97,6 +97,11 @@ const acceptFollowRequestInDB = async (followId: string) => {
           userName: true,
         },
       },
+      user: {
+        select: {
+          userName: true,
+        },
+      }
     },
   });
 
@@ -124,7 +129,7 @@ const acceptFollowRequestInDB = async (followId: string) => {
   try {
     await sendSingleNotification(
       followRequest.followerId,
-      `${followRequest.follower.userName} accepted your follow request`,
+      `${followRequest.user.userName} accepted your follow request`,
       followRequest.userId,
       "Follow Request Accepted!",
     );
