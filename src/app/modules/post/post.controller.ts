@@ -32,6 +32,17 @@ const likeUnlikePost = catchAsync(async (req: Request, res: Response) => {
     message: result.message,
   });
 });
+const likedUsers = catchAsync(async (req: Request, res: Response) => {
+  const users = await postService.getLikedUsersForPost(
+    req.params.id
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "liked users retrieved successfully",
+    data: users,
+  });
+});
 
 const createComment = catchAsync(async (req: Request, res: Response) => {
   await postService.createCommentInDB(req.user.id, req.body);
@@ -84,4 +95,5 @@ export const postControllers = {
   getPostComments,
   likeUnlikeComment,
   createReply,
+  likedUsers
 };

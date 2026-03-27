@@ -33,6 +33,10 @@ router.get(
   auth(UserRole.USER),
   postControllers.getPostComments,
 );
+router.get(
+  "/liked-users/:id",
+  postControllers.likedUsers,
+);
 
 router.patch(
   "/comment/like-unlike/:id",

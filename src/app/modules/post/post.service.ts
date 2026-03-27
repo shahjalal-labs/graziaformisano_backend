@@ -143,6 +143,27 @@ const likeUnlikePostInDB = async (postId: string, userId: string) => {
   };
 };
 
+const getLikedUsersForPost = async (postId: string) => {
+  const post = await prisma.post.findUniqueOrThrow({
+    where: { id: postId },
+  });
+
+  const users = await prisma.user.findMany({
+    where: {
+      id: {
+        in: post.likes,
+      },
+    },
+    select: {
+      id: true,
+      userName: true,
+      profileImage: true,
+    },
+  });
+
+  return users;
+};
+
 const createCommentInDB = async (userId: string, payload: any) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
@@ -316,4 +337,5 @@ export const postService = {
   getPostCommentsFromDB,
   likeUnlikeCommentInDB,
   createReplyInDB,
+  getLikedUsersForPost
 };
