@@ -25,7 +25,7 @@ router.put(
 
 router.get("/users", auth(UserRole.ADMIN), adminController.allUsers);
 router.get("/posts", auth(UserRole.ADMIN), adminController.allPosts);
-router.delete("/posts/:id", auth(UserRole.ADMIN), adminController.deletePost);
+router.delete("/posts/:id", auth(), adminController.deletePost);
 router.patch("/users/status/:id", auth(UserRole.ADMIN), adminController.toggleUserStatus);
 router.get(
   "/top-professionals",
