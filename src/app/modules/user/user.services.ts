@@ -384,7 +384,7 @@ const getUsersFromDB = async (
   return usersWithDistance;
 };
 
-const getUserDetailsFromDB = async (userId: string) => {
+const getUserDetailsFromDB = async (ami:string, userId: string) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
     select: {
@@ -403,6 +403,13 @@ const getUserDetailsFromDB = async (userId: string) => {
           followers: true,
           education: true,
           skills: true,
+        },
+      },
+      follower: {
+        where: { followerId: ami },
+        select: {
+          id: true,
+          isAccepted: true,
         },
       },
     },

@@ -109,7 +109,7 @@ const getUsers = catchAsync(async (req, res) => {
 });
 
 const userDetails = catchAsync(async (req, res) => {
-  const userDetails = await userService.getUserDetailsFromDB(req.params.id);
+  const userDetails = await userService.getUserDetailsFromDB(req.user.id,req.params.id);
   sendResponse(res, {
     statusCode: 200,
     success: true,
