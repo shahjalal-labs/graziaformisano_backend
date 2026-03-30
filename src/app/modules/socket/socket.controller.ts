@@ -914,6 +914,7 @@ export function setupWebSocketServer(server: any) {
                 content || "You received a new message",
                 userId,
                 "New Message",
+                "Message"
               );
             } catch {}
 
@@ -1131,16 +1132,17 @@ export function setupWebSocketServer(server: any) {
               const recipients = participantIds.filter(
                 (pid) => pid !== userId,
               ) as string[];
-              await Promise.allSettled(
-                recipients.map((participantId) =>
-                  sendSingleNotification(
-                    participantId,
-                    content || "New message in your event",
-                    userId,
-                    "Event Message",
-                  ),
-                ),
-              );
+              // await Promise.allSettled(
+              //   recipients.map((participantId) =>
+              //     sendSingleNotification(
+              //       participantId,
+              //       content || "New message in your event",
+              //       userId,
+              //       "Event Message",
+              //       "Message"
+              //     ),
+              //   ),
+              // );
 
               // Update conversations for sender
               const senderEventConvs =

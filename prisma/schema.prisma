@@ -36,6 +36,7 @@ model User {
   eventAttendees    EventAttendee[]
   stories           Story[]
   userSubscriptions UserSubscription[]
+  notifications     Notification[]
 
   @@map("users")
 }
@@ -51,6 +52,7 @@ model PendingUser {
 
   @@map("pendingUsers")
 }
+
 model UserProfile {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
   userId           String   @unique @db.ObjectId
@@ -71,6 +73,7 @@ model UserProfile {
 
   @@map("userProfiles")
 }
+
 model UserLocation {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String?  @db.ObjectId
@@ -281,14 +284,17 @@ model Message {
 }
 
 model Notification {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  receiverId String?  @db.ObjectId
-  senderId   String?  @db.ObjectId
+  id         String             @id @default(auto()) @map("_id") @db.ObjectId
+  receiverId String?            @db.ObjectId
+  senderId   String?            @db.ObjectId
   title      String?
   content    String
-  isRead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  type       TNotificationType?
+  eventId    String?            @db.ObjectId
+  isRead     Boolean            @default(false)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  sender     User?              @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
@@ -358,6 +364,13 @@ enum SubscriptionTitleType {
 enum TEventPlace {
   Meeting
   Remote
+}
+
+enum TNotificationType {
+  Post
+  Message
+  Event
+  Follow
 }
 
 enum TStatus {

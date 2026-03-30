@@ -162,7 +162,7 @@ const updatePostInDB = async (req: Request) => {
 };
 
 const likeUnlikePostInDB = async (postId: string, userId: string) => {
-  await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
 
@@ -188,6 +188,20 @@ const likeUnlikePostInDB = async (postId: string, userId: string) => {
         : [...post.likes, userId],
     },
   });
+
+  if (!isLiked) {
+    try {
+      await sendSingleNotification(
+        post.userId,
+        `${user.userName} liked your post.`,
+        userId,
+        "New Like!",
+        "Post"
+      );
+    } catch (notificationError) {
+      console.error("Notification failed:", notificationError);
+    }
+  }
 
   return {
     message: isLiked ? "post unliked successfully" : "post liked successfully",
@@ -257,6 +271,7 @@ const createCommentInDB = async (userId: string, payload: any) => {
       `${payload.content}`,
       userId,
       "New Comment!",
+      "Post"
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
@@ -372,6 +387,7 @@ const createReplyInDB = async (userId: string, payload: any) => {
         `${payload.content}`,
         userId,
         "Replied In your comment!",
+        "Post"
       );
     } catch (notificationError) {
       console.error("Notification failed:", notificationError);

@@ -57,6 +57,8 @@ const createEventInDB = async (userId: string, payload: any) => {
       await sendNotifications(
         `${payload.eventName} is now live. Tap to explore and secure your spot before it fills up`,
         `🎉 New Event Just Dropped!`,
+        userId,
+        event.id,
       );
     } catch (notificationError) {
       console.error("Notification failed:", notificationError);
@@ -224,6 +226,8 @@ const editEventInDB = async (payload: any) => {
     await sendNotifications(
       `${event.eventName} event has important updates. Review the latest details.`,
       `🔔 Event Updated`,
+      event.userId,
+      event.id,
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
@@ -496,6 +500,8 @@ const sendPrivateEventJoinInvitation = async (payload: any) => {
       `You've been invited to ${event.eventName}. Tap to join now—limited spots available!`,
       event.userId,
       "🎉Event Join Invitation!",
+      "Event",
+      `${event.id}`,
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);

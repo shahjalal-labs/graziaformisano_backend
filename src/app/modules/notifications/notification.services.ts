@@ -1,3 +1,4 @@
+import { TNotificationType } from "@prisma/client";
 import ApiError from "../../../errors/ApiErrors";
 import admin from "../../../helpers/firebase.admin";
 import prisma from "../../../shared/prisma";
@@ -8,6 +9,8 @@ export const sendSingleNotification = async (
   content: string,
   senderId?: string,
   title?: string,
+  type?: TNotificationType,
+  eventId?: string,
 ) => {
   const user = await prisma.user.findUnique({
     where: { id: receiverId },
@@ -20,6 +23,8 @@ export const sendSingleNotification = async (
         receiverId,
         senderId,
         content,
+        type,
+        eventId,
       },
     });
     throw new ApiError(404, "User not found with FCM token");
@@ -56,7 +61,7 @@ export const sendSingleNotification = async (
   }
 };
 
-export const sendNotifications = async (body: string, title: string) => {
+export const sendNotifications = async (body: string, title: string, senderId: string, eventId?: string) => {
   try {
     const users = await prisma.user.findMany({
       where: { fcmToken: { not: null } },
@@ -90,6 +95,9 @@ export const sendNotifications = async (body: string, title: string) => {
           receiverId: user.id,
           title: title || "Notification",
           content: body,
+          senderId,
+          type: "Event",
+          eventId,
         })),
       });
     }
@@ -113,6 +121,13 @@ const getNotificationsFromDB = async (req: any) => {
       receiverId: req.user.id,
     },
     orderBy: { createdAt: "desc" },
+    include: {
+      sender: {
+        select: {
+          profileImage: true,
+        },
+      },
+    },
   });
 
   const totalUnread = await prisma.notification.count({

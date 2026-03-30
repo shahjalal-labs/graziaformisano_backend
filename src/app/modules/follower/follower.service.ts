@@ -1,4 +1,3 @@
-import { count } from "console";
 import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
 import { sendSingleNotification } from "../notifications/notification.services";
@@ -80,6 +79,7 @@ const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
       `${follower.userName} sent you a follow request`,
       followerId,
       "New Follow Request!",
+      "Follow"
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
@@ -132,6 +132,7 @@ const acceptFollowRequestInDB = async (followId: string) => {
       `${followRequest.user.userName} accepted your follow request`,
       followRequest.userId,
       "Follow Request Accepted!",
+      "Follow"
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
@@ -171,6 +172,7 @@ const rejectFollowRequestInDB = async (followId: string) => {
       `${followRequest.follower.userName} rejected your follow request`,
       followRequest.userId,
       "Follow Request Rejected!",
+      "Follow"
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
