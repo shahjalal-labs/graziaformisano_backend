@@ -16,6 +16,13 @@ router.post(
   parseBodyData,
   postControllers.createPost,
 );
+router.put(
+  "/update",
+  auth(UserRole.USER),
+  fileUploader.uploadMultiple,
+  parseBodyData,
+  postControllers.updatePost,
+);
 router.get("/all", auth(UserRole.USER), postControllers.allPosts);
 router.get("/user-wise", auth(UserRole.USER), postControllers.myPosts);
 router.patch(

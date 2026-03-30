@@ -12,6 +12,15 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updatePost = catchAsync(async (req: Request, res: Response) => {
+  await postService.updatePostInDB(req);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "post updated successfully",
+  });
+});
+
 const myPosts = catchAsync(async (req: Request, res: Response) => {
   const posts = await postService.getMyPostsFromDB(req.user.id);
   sendResponse(res, {
@@ -98,6 +107,7 @@ const createReply = catchAsync(async (req: Request, res: Response) => {
 
 export const postControllers = {
   createPost,
+  updatePost,
   allPosts,
   likeUnlikePost,
   createComment,

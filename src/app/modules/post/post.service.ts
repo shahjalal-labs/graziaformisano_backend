@@ -153,7 +153,7 @@ const updatePostInDB = async (req: Request) => {
   ]);
 
   await prisma.post.update({
-    where: { id: payload.id },
+    where: { id: payload.postId },
     data: {
       content: payload.content ?? post.content,
       mediaUrls: mediaUrls ?? post.mediaUrls,
@@ -407,4 +407,5 @@ export const postService = {
   createReplyInDB,
   getLikedUsersForPost,
   getMyPostsFromDB,
+  updatePostInDB,
 };
