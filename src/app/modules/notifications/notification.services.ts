@@ -127,6 +127,7 @@ const getNotificationsFromDB = async (req: any) => {
       sender: {
         select: {
           profileImage: true,
+          userName: true,
         },
       },
     },
