@@ -109,6 +109,58 @@ const getAllPostsFromDB = async (
   }));
 };
 
+const getMyPostsFromDB = async (userId: string) => {
+  await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+  });
+
+  const posts = await prisma.post.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      content: true,
+      mediaUrls: true,
+      createdAt: true,
+      totalComment: true,
+      likes: true,
+    },
+  });
+
+  return posts;
+};
+
+const updatePostInDB = async (req: Request) => {
+  const payload = req.body;
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+  const post = await prisma.post.findUniqueOrThrow({
+    where: { id: payload.postId },
+  });
+
+  const processImages = async (
+    files: Express.Multer.File[],
+    folder: string,
+  ) => {
+    if (!files || files.length === 0) return null;
+    return Promise.all(
+      files.map((file) => uploadInSpace(file, `posts/${folder}`)),
+    );
+  };
+
+  const [mediaUrls] = await Promise.all([
+    processImages(files?.mediaUrls, "mediaUrls"),
+  ]);
+
+  await prisma.post.update({
+    where: { id: payload.id },
+    data: {
+      content: payload.content ?? post.content,
+      mediaUrls: mediaUrls ?? post.mediaUrls,
+    },
+  });
+};
+
 const likeUnlikePostInDB = async (postId: string, userId: string) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
@@ -337,5 +389,6 @@ export const postService = {
   getPostCommentsFromDB,
   likeUnlikeCommentInDB,
   createReplyInDB,
-  getLikedUsersForPost
+  getLikedUsersForPost,
+  getMyPostsFromDB,
 };

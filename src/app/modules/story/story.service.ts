@@ -168,9 +168,45 @@ const likeUnlikeStoryInDB = async (userId: string, storyId: string) => {
   }
 };
 
+const updateStoryInDB = async (req: Request) => {
+  const payload = req.body;
+  const file = req.file;
+
+  const story = await prisma.story.findUniqueOrThrow({
+    where: { id: payload.storyId },
+  });
+
+  const processImage = async (file: Express.Multer.File, folder: string) => {
+    if (!file) return null;
+    return uploadInSpace(file, `courses/${folder}`);
+  };
+
+  const fileUrl = file ? await processImage(file, "profileImage") : null;
+
+  await prisma.story.update({
+    where: { id: payload.storyId },
+    data: {
+      content: payload.content ?? story.content,
+      fileUrl: fileUrl ?? story.fileUrl,      
+    },
+  });
+
+  return
+};
+
+const deleteStoryFromDB = async (storyId: string) => {
+  await prisma.story.delete({
+    where: { id: storyId },
+  });
+
+  return;
+};
+
 export const storyService = {
   createStoryInDB,
   getAvailableStoriesForUser,
   getUserWiseStoriesFromDB,
   likeUnlikeStoryInDB,
+  deleteStoryFromDB,
+  updateStoryInDB,
 };

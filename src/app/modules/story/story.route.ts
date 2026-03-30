@@ -13,6 +13,14 @@ router.post(
   parseBodyData,
   storyController.createStory,
 );
+
+router.put(
+  "/update",
+  auth(),
+  fileUploader.fileUrl,
+  parseBodyData,
+  storyController.updateStory,
+);
 router.get(
   "/available",
   auth(),
@@ -27,6 +35,11 @@ router.patch(
   "/like-unlike/:id",
   auth(),
   storyController.likeUnlikeStory,
+);
+router.delete(
+  "/delete/:id",
+  auth(),
+  storyController.deleteStory,
 );
 
 export const storyRoutes = router;

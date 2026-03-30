@@ -17,6 +17,7 @@ router.post(
   postControllers.createPost,
 );
 router.get("/all", auth(UserRole.USER), postControllers.allPosts);
+router.get("/user-wise", auth(UserRole.USER), postControllers.myPosts);
 router.patch(
   "/like-unlike/:id",
   auth(UserRole.USER),

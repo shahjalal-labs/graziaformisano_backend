@@ -12,6 +12,15 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const myPosts = catchAsync(async (req: Request, res: Response) => {
+  const posts = await postService.getMyPostsFromDB(req.user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "posts retrieved successfully",
+    data: posts,
+  });
+});
 const allPosts = catchAsync(async (req: Request, res: Response) => {
   const posts = await postService.getAllPostsFromDB(req.user.id, req.query.type, req.query.search as string);
   sendResponse(res, {
@@ -95,5 +104,6 @@ export const postControllers = {
   getPostComments,
   likeUnlikeComment,
   createReply,
-  likedUsers
+  likedUsers,
+  myPosts
 };
