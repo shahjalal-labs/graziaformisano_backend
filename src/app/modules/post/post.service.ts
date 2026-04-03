@@ -189,7 +189,7 @@ const likeUnlikePostInDB = async (postId: string, userId: string) => {
     },
   });
 
-  if (!isLiked) {
+  if (!isLiked && post.userId !== userId) {
     try {
       await sendSingleNotification(
         post.userId,
