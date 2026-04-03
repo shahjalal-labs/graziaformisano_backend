@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const TEventType = z.enum(["Public", "Private"]);
 const TEventPlace = z.enum(["Meeting", "Remote"]);
-const TEventCategory = z.enum(["Lunch", "Dinner", "Breakfast", "Meeting"]);
+const TEventCategory = z.enum(["Lunch", "Dinner", "Drink", "Breakfast", "Meeting"]);
 
 const eventValidationSchema = z.object({
   eventName: z.string(),

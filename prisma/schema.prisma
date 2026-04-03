@@ -391,4 +391,5 @@ enum TEventCategory {
   Dinner
   Breakfast
   Meeting
+  Drink
 }
