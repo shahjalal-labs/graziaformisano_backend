@@ -11,9 +11,17 @@ const createMonthlySubscriptionPlan = async () => {
   const amount = 4.99;
   const interval = "month";
   const features = [
-    "Users can create their own personalized ads",
-    "Each ad run for a limited time only",
-    "Choose from 3 duration options: 7 days, 10 days, or 1 month",
+    "Create unlimited events",
+    "Join and highlight events",
+    "Add unlimited users to your network",
+    "Unlimited private chat",
+  ];
+
+  const italian = [
+    "Crea eventi illimitati",
+    "Partecipa e evidenzia eventi",
+    "Aggiungi utenti illimitati alla tua rete",
+    "Chat privata illimitata",
   ];
 
   const existing = await prisma.subscription.findUnique({
@@ -42,6 +50,7 @@ const createMonthlySubscriptionPlan = async () => {
       priceId: price.id,
       productId: product.id,
       features,
+      italianFeatures: italian,
       type: SubscriptionType.SUBSCRIPTION,
       interval,
     },
@@ -56,7 +65,16 @@ const createYearlySubscriptionPlan = async () => {
   const subscriptionTitleType = "YEARLY";
   const amount = 49.99;
   const interval = "year";
-  const features = ["personalized ads", " time only", " 10 days, or 1 month"];
+  const features = [
+    "Discounted price as a reward for your loyalty",
+    "Create unlimited events",
+    "Join and highlight events",
+    "Add unlimited users to your network",
+    "Unlimited private chat",
+    "Continue Free",
+  ];
+
+  const italian = ["Prezzo scontato come premio per la tua fiducia", "Crea eventi illimitati", "Partecipa e evidenzia eventi", "Aggiungi utenti illimitati alla tua rete", "Chat privata illimitata", "Continua Gratis"];
 
   const existing = await prisma.subscription.findUnique({
     where: { subscriptionTitleType },
@@ -84,6 +102,7 @@ const createYearlySubscriptionPlan = async () => {
       priceId: price.id,
       productId: product.id,
       features,
+      italianFeatures: italian,
       type: SubscriptionType.SUBSCRIPTION,
       interval,
     },
@@ -101,6 +120,7 @@ const getAllSubscriptionPlanIntoDB = async () => {
       title: true,
       priceId: true,
       features: true,
+      italianFeatures: true,
     },
   });
 

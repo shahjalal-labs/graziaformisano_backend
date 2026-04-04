@@ -239,6 +239,7 @@ model Subscription {
   priceId               String                @unique
   productId             String                @unique
   features              Json
+  italianFeatures       Json?
   type                  SubscriptionType
   interval              String?
   createdAt             DateTime              @default(now())
