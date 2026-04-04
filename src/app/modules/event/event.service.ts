@@ -564,6 +564,117 @@ const leaveEventInDB = async (userId: string, eventId: string) => {
   return;
 };
 
+const getEventAndUserByLocation = async (
+  userId: string,
+  maxDistance?: number,
+) => {
+  const userLocation = await prisma.userLocation.findFirst({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!userLocation) {
+    throw new ApiError(404, "User location not found");
+  }
+
+  const [events, users] = await Promise.all([
+    prisma.event.findMany({
+      where: {
+        eventType: "Public",
+        NOT: { userId },
+      },
+      select: {
+        id: true,
+        eventName: true,
+        latitude: true,
+        longitude: true,
+        user: {
+          select: {
+            userName: true,
+            profileImage: true,
+          },
+        },
+      },
+    }),
+    prisma.user.findMany({
+      where: {
+        id: { not: userId },
+        role: { not: "ADMIN" },
+      },
+      select: {
+        id: true,
+        userName: true,
+        profileImage: true,
+        userLocation: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            latitude: true,
+            longitude: true,
+          },
+        },
+      },
+    }),
+  ]);
+
+  const nearbyEvents = events
+    .map((event) => {
+      const distance = calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        event.latitude,
+        event.longitude,
+      );
+
+      return {
+        type: "Event" as const,
+        id: event.id,
+        eventName: event.eventName,
+        userName: event.user.userName,
+        profileImage: event.user.profileImage,
+        latitude: event.latitude,
+        longitude: event.longitude,
+        distance,
+      };
+    })
+    .filter((item) => !maxDistance || item.distance <= maxDistance);
+
+  const nearbyUsers = users
+    .map((user) => {
+      const location = user.userLocation[0];
+
+      if (!location) {
+        return null;
+      }
+
+      const distance = calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        location.latitude,
+        location.longitude,
+      );
+
+      return {
+        type: "User" as const,
+        id: user.id,
+        eventName: null,
+        userName: user.userName,
+        profileImage: user.profileImage,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        distance,
+      };
+    })
+    .filter(
+      (item): item is NonNullable<typeof item> =>
+        !!item && (!maxDistance || item.distance <= maxDistance),
+    );
+
+  return [...nearbyEvents, ...nearbyUsers]
+    .sort((a, b) => a.distance - b.distance)
+    .map(({ distance, ...item }) => item);
+};
+
 export const eventService = {
   createEventInDB,
   getAllEventsFromDB,
@@ -577,4 +688,5 @@ export const eventService = {
   acceptOrRejectEventJoinRequestInDB,
   getNonInvitedUsersForPrivateEvent,
   leaveEventInDB,
+  getEventAndUserByLocation,
 };

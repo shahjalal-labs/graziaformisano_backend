@@ -75,5 +75,10 @@ router.patch(
   auth(),
   eventController.leaveEvent,
 );
+router.get(
+  "/event-user-by-location",
+  auth(),
+  eventController.eventUserByLocation,
+);
 
 export const eventRoutes = router;

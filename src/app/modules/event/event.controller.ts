@@ -133,6 +133,17 @@ const leaveEvent = catchAsync(async (req: Request, res: Response) => {
     message: "Event left successfully",
   });
 });
+const eventUserByLocation = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const maxDistance = Number(req.query.maxDistance);
+  const events = await eventService.getEventAndUserByLocation(userId, maxDistance);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Event and user data retrieved successfully",
+    data: events,
+  });
+});
 
 export const eventController = {
   createEvent,
@@ -147,4 +158,5 @@ export const eventController = {
   userWiseJoinHistory,
   nonInvitedUsers,
   leaveEvent,
+  eventUserByLocation,
 };
