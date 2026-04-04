@@ -586,6 +586,11 @@ const getEventAndUserByLocation = async (
       select: {
         id: true,
         eventName: true,
+        address: true,
+        eventDate: true,
+        eventTime: true,
+        attendeesCount: true,
+        maxAttendence: true,
         latitude: true,
         longitude: true,
         user: {
@@ -632,6 +637,11 @@ const getEventAndUserByLocation = async (
         eventName: event.eventName,
         userName: event.user.userName,
         profileImage: event.user.profileImage,
+        address: event.address,
+        eventDate: event.eventDate,
+        eventTime: event.eventTime,
+        attendeesCount: event.attendeesCount,
+        maxAttendence: event.maxAttendence,
         latitude: event.latitude,
         longitude: event.longitude,
         distance,
