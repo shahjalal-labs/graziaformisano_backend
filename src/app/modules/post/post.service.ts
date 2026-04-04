@@ -193,9 +193,9 @@ const likeUnlikePostInDB = async (postId: string, userId: string) => {
     try {
       await sendSingleNotification(
         post.userId,
-        `${user.userName} liked your post.`,
+        `${user.userName} Mi è piaciuto il tuo post.`,
         userId,
-        "New Like!",
+        "Nuovo Mi è piaciuto!",
         "Post"
       );
     } catch (notificationError) {
@@ -270,7 +270,7 @@ const createCommentInDB = async (userId: string, payload: any) => {
       post.userId,
       `${payload.content}`,
       userId,
-      "New Comment!",
+      "Nuovo commento!",
       "Post"
     );
   } catch (notificationError) {
@@ -386,7 +386,7 @@ const createReplyInDB = async (userId: string, payload: any) => {
         comment.userId,
         `${payload.content}`,
         userId,
-        "Replied In your comment!",
+        "Ha risposto al tuo commento!",
         "Post"
       );
     } catch (notificationError) {

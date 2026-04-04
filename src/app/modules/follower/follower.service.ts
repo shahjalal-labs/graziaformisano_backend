@@ -76,10 +76,10 @@ const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
   try {
     await sendSingleNotification(
       userId,
-      `${follower.userName} sent you a follow request`,
+      `${follower.userName} te ha enviado una solicitud de seguimiento`,
       followerId,
-      "New Follow Request!",
-      "Follow"
+      "Nueva solicitud de seguimiento!",
+      "Follow",
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
@@ -101,7 +101,7 @@ const acceptFollowRequestInDB = async (followId: string) => {
         select: {
           userName: true,
         },
-      }
+      },
     },
   });
 
@@ -129,10 +129,10 @@ const acceptFollowRequestInDB = async (followId: string) => {
   try {
     await sendSingleNotification(
       followRequest.followerId,
-      `${followRequest.user.userName} accepted your follow request`,
+      `${followRequest.user.userName} ha aceptado tu solicitud de seguimiento`,
       followRequest.userId,
-      "Follow Request Accepted!",
-      "Follow"
+      "Solicitud de seguimiento aceptada!",
+      "Follow",
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
@@ -169,10 +169,10 @@ const rejectFollowRequestInDB = async (followId: string) => {
   try {
     await sendSingleNotification(
       followRequest.followerId,
-      `${followRequest.follower.userName} rejected your follow request`,
+      `${followRequest.follower.userName} ha rechazado tu solicitud de seguimiento`,
       followRequest.userId,
-      "Follow Request Rejected!",
-      "Follow"
+      "Solicitud de seguimiento rechazada!",
+      "Follow",
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);

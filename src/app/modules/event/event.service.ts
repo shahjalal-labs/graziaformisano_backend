@@ -55,8 +55,8 @@ const createEventInDB = async (userId: string, payload: any) => {
   if (payload.eventType === "Public") {
     try {
       await sendNotifications(
-        `${payload.eventName} is now live. Tap to explore and secure your spot before it fills up`,
-        `🎉 New Event Just Dropped!`,
+        `${payload.eventName} ya está en vivo. Toca para explorar y asegurar tu lugar antes de que se llene.`,
+        `🎉Nuevo evento recién lanzado!`,
         userId,
         event.id,
       );
@@ -224,8 +224,8 @@ const editEventInDB = async (payload: any) => {
 
   try {
     await sendNotifications(
-      `${event.eventName} event has important updates. Review the latest details.`,
-      `🔔 Event Updated`,
+      `El evento ${event.eventName} tiene actualizaciones importantes. Revisa los últimos detalles.`,
+      `🔔Evento actualizado`,
       event.userId,
       event.id,
     );
@@ -497,9 +497,9 @@ const sendPrivateEventJoinInvitation = async (payload: any) => {
   try {
     await sendSingleNotification(
       payload.userId,
-      `You've been invited to ${event.eventName}. Tap to join now—limited spots available!`,
+      `Sei stato invitato a ${event.eventName}. Tocca per partecipare ora: posti limitati disponibili!`,
       event.userId,
-      "🎉Event Join Invitation!",
+      "🎉Invito a partecipare all’evento!",
       "Event",
       `${event.id}`,
     );

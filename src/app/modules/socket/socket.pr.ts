@@ -913,7 +913,7 @@ export function setupWebSocketServer(server: any) {
                 targetReceiverId,
                 content || "You received a new message",
                 userId,
-                "New Message",
+                "Nuovo messaggio",
               );
             } catch {}
 
