@@ -1,4 +1,5 @@
 import ApiError from "../../../errors/ApiErrors";
+import { Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import { sendSingleNotification } from "../notifications/notification.services";
 import { canUseAccount } from "../../../helpers/subscriptionChecker";
@@ -276,12 +277,35 @@ const getFollowingListFromDB = async (followerId: string) => {
 
   return following;
 };
-const getFriendsListFromDB = async (userId: string) => {
+const getFriendsListFromDB = async (userId: string, search?: string) => {
+  const searchTerm = search?.trim();
+
+  const whereCondition: Prisma.FollowerWhereInput = {
+    isAccepted: true,
+    OR: [{ userId }, { followerId: userId }],
+  };
+
+  if (searchTerm) {
+    whereCondition.AND = [
+      {
+        OR: [
+          {
+            user: {
+              userName: { contains: searchTerm, mode: "insensitive" },
+            },
+          },
+          {
+            follower: {
+              userName: { contains: searchTerm, mode: "insensitive" },
+            },
+          },
+        ],
+      },
+    ];
+  }
+
   const friends = await prisma.follower.findMany({
-    where: {
-      isAccepted: true,
-      OR: [{ userId }, { followerId: userId }],
-    },
+    where: whereCondition,
     select: {
       id: true,
       userId: true,

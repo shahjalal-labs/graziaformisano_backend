@@ -67,7 +67,8 @@ const getFollowingList = catchAsync(async (req: Request, res: Response) => {
 });
 const getFriendsList = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
-  const friends = await followerService.getFriendsListFromDB(userId);
+  const search = req.query.search as string | undefined;
+  const friends = await followerService.getFriendsListFromDB(userId, search);
   sendResponse(res, {
     success: true,
     statusCode: 200,
