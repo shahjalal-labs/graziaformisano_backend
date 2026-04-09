@@ -760,6 +760,14 @@ export function setupWebSocketServer(server: any) {
                 }),
               );
             }
+            if (receiverId === userId) {
+              return ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: "You cannot subscribe to yourself",
+                }),
+              );
+            }
 
             let room =
               (await prisma.room.findFirst({
@@ -914,7 +922,7 @@ export function setupWebSocketServer(server: any) {
                 content || "You received a new message",
                 userId,
                 "Nuovo messaggio",
-                "Message"
+                "Message",
               );
             } catch {}
 
