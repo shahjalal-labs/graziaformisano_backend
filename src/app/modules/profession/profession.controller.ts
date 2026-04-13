@@ -38,6 +38,15 @@ const professions = catchAsync(async (req, res) => {
     data: professions,
   });
 });
+const professionsForAdmin = catchAsync(async (req, res) => {
+  const professions = await professionService.getAllProfessionsForAdminFromDB();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Professions retrieved successfully",
+    data: professions,
+  });
+});
 
 const createSubProfession = catchAsync(async (req, res) => {
   await professionService.createSubProfessionIntoDB(req.body);
@@ -45,6 +54,15 @@ const createSubProfession = catchAsync(async (req, res) => {
     statusCode: 200,
     success: true,
     message: "Sub-Profession created successfully",
+  });
+});
+
+const toggleProfessionStatus = catchAsync(async (req, res) => {
+  const result = await professionService.toggleProfessionStatusInDB(req.params.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: result.message,
   });
 });
 const deleteCity = catchAsync(async (req, res) => {
@@ -83,4 +101,6 @@ export const professionController = {
   deleteCity,
   deleteProfession,
   deleteSubProfession,
+  toggleProfessionStatus,
+  professionsForAdmin,
 };

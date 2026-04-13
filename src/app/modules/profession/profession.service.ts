@@ -58,12 +58,30 @@ const createProfessionIntoDB = async (payload: any) => {
 
 const getAllProfessionsFromDB = async () => {
   const professions = await prisma.profession.findMany({
+    where: { isActive: true },
     select: {
       id: true,
-      professionName: true,
+      professionName: true,     
       subProfessions: {
         select: {
-          id:true,
+          id: true,
+          subProfessionName: true,
+        },
+      },
+    },
+  });
+  return professions;
+};
+
+const getAllProfessionsForAdminFromDB = async () => {
+  const professions = await prisma.profession.findMany({  
+    select: {
+      id: true,
+      professionName: true,  
+      isActive: true,   
+      subProfessions: {
+        select: {
+          id: true,
           subProfessionName: true,
         },
       },
@@ -98,6 +116,25 @@ const createSubProfessionIntoDB = async (payload: any) => {
   });
 
   return;
+};
+
+const toggleProfessionStatusInDB = async (professionId: string) => {
+  const profession = await prisma.profession.findUniqueOrThrow({
+    where: {
+      id: professionId,
+    },
+  });
+
+  await prisma.profession.update({
+    where: {
+      id: professionId,
+    },
+    data: {
+      isActive: !profession.isActive,
+    },
+  });
+
+  return {message : `Profession marked as ${!profession.isActive ? "active" : "inactive"}`};
 };
 
 const deleteCityFromDB = async (cityId: string) => {
@@ -135,4 +172,6 @@ export const professionService = {
   deleteCityFromDB,
   deleteProfessionFromDB,
   deleteSubProfessionFromDB,
+  toggleProfessionStatusInDB,
+  getAllProfessionsForAdminFromDB,
 };

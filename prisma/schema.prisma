@@ -313,6 +313,7 @@ model City {
 model Profession {
   id             String          @id @default(auto()) @map("_id") @db.ObjectId
   professionName String          @unique
+  isActive       Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   subProfessions SubProfession[]
