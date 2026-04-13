@@ -48,6 +48,7 @@ const createPostInDB = async (req: Request) => {
     data: {
       userId,
       content: payload.content,
+      isPrivate: payload.isPrivate,
       mediaUrls: mediaUrls || [],
     },
   });
@@ -69,10 +70,33 @@ const getAllPostsFromDB = async (
   }
   const posts = await prisma.post.findMany({
     where: {
-      content: {
-        contains: search,
-        mode: "insensitive",
-      },
+      AND: [
+        search
+          ? {
+              content: {
+                contains: search,
+                mode: "insensitive",
+              },
+            }
+          : {},
+        {
+          OR: [
+            { isPrivate: false },
+            { userId },
+            {
+              isPrivate: true,
+              user: {
+                follower: {
+                  some: {
+                    followerId: userId,
+                    isAccepted: true,
+                  },
+                },
+              },
+            },
+          ],
+        },
+      ],
     },
     orderBy: { createdAt: type ?? "desc" },
     select: {
@@ -122,6 +146,7 @@ const getMyPostsFromDB = async (userId: string) => {
       content: true,
       mediaUrls: true,
       createdAt: true,
+      isPrivate: true,
       totalComment: true,
       likes: true,
     },
@@ -196,7 +221,7 @@ const likeUnlikePostInDB = async (postId: string, userId: string) => {
         `${user.userName} Mi è piaciuto il tuo post.`,
         userId,
         "Nuovo Mi è piaciuto!",
-        "Post"
+        "Post",
       );
     } catch (notificationError) {
       console.error("Notification failed:", notificationError);
@@ -271,7 +296,7 @@ const createCommentInDB = async (userId: string, payload: any) => {
       `${payload.content}`,
       userId,
       "Nuovo commento!",
-      "Post"
+      "Post",
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
@@ -387,7 +412,7 @@ const createReplyInDB = async (userId: string, payload: any) => {
         `${payload.content}`,
         userId,
         "Ha risposto al tuo commento!",
-        "Post"
+        "Post",
       );
     } catch (notificationError) {
       console.error("Notification failed:", notificationError);

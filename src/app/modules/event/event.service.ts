@@ -124,6 +124,7 @@ const getAllEventsFromDB = async (
       eventAttendees: {
         where: { status: "Accepted" },
         select: {
+          // status: true,
           user: {
             select: {
               id: true,
