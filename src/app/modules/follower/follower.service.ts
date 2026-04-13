@@ -327,15 +327,17 @@ const getFriendsListFromDB = async (userId: string, search?: string) => {
     },
   });
 
-  const formattedFriends = friends.map((item) => {
-    if (item.userId === userId) {
-      return item.follower;
-    } else {
-      return item.user;
-    }
-  });
+  const uniqueFriendsMap = new Map<string, (typeof friends)[number]["user"]>();
 
-  return formattedFriends;
+  for (const item of friends) {
+    const friend = item.userId === userId ? item.follower : item.user;
+
+    if (!uniqueFriendsMap.has(friend.id)) {
+      uniqueFriendsMap.set(friend.id, friend);
+    }
+  }
+
+  return Array.from(uniqueFriendsMap.values());
 };
 
 export const followerService = {
