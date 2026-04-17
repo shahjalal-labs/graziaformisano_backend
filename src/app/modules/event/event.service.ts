@@ -55,8 +55,8 @@ const createEventInDB = async (userId: string, payload: any) => {
   if (payload.eventType === "Public") {
     try {
       await sendNotifications(
-        `${payload.eventName} ya está en vivo. Toca para explorar y asegurar tu lugar antes de que se llene.`,
-        `🎉Nuevo evento recién lanzado!`,
+        `${payload.eventName} è ora disponibile. Tocca per scoprire i dettagli e assicurarti un posto prima che si esaurisca.`,
+        `🎉Nuovo Evento Creato!`,
         userId,
         event.id,
       );
@@ -225,8 +225,8 @@ const editEventInDB = async (payload: any) => {
 
   try {
     await sendNotifications(
-      `El evento ${event.eventName} tiene actualizaciones importantes. Revisa los últimos detalles.`,
-      `🔔Evento actualizado`,
+      `L’evento ${event.eventName} ha aggiornamenti importanti. Controlla gli ultimi dettagli.`,
+      `🔔Evento Aggiornato`,
       event.userId,
       event.id,
     );
