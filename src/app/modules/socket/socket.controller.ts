@@ -919,7 +919,7 @@ export function setupWebSocketServer(server: any) {
             try {
               await sendSingleNotification(
                 targetReceiverId,
-                content || "You received a new message",
+                content || "Hai ricevuto un file.",
                 userId,
                 "Nuovo messaggio",
                 "Message",

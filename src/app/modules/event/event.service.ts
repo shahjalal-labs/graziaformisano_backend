@@ -464,7 +464,7 @@ const sendPrivateEventJoinInvitation = async (payload: any) => {
   });
 
   const event = await prisma.event.findUniqueOrThrow({
-    where: { id: payload.eventId, eventType: "Private" },
+    where: { id: payload.eventId },
   });
 
   const existingAttendee = await prisma.eventAttendee.findFirst({
@@ -513,7 +513,7 @@ const sendPrivateEventJoinInvitation = async (payload: any) => {
 
 const getNonInvitedUsersForPrivateEvent = async (eventId: string) => {
   const event = await prisma.event.findUniqueOrThrow({
-    where: { id: eventId, eventType: "Private" },
+    where: { id: eventId },
   });
 
   const invitedUserIds = await prisma.eventAttendee.findMany({
