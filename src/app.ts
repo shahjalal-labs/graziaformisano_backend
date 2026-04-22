@@ -8,6 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import path from "path";
 import redisClient from "./helpers/redis";
 import handleWebHook from "./helpers/stripe.webhook";
+import { privacyPolicy, termsandconditions } from "./app/routes/view.route";
 
 const app: Application = express();
 const prisma = new PrismaClient();
@@ -48,6 +49,15 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1", router);
+
+
+app.get("/privacy-policy", (req, res) => {
+  res.send(privacyPolicy());
+});
+app.get("/terms-and-conditions", (req, res) => {
+  res.send(termsandconditions());
+});
+
 app.use(GlobalErrorHandler);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
