@@ -283,6 +283,35 @@ const changePasswordFromDB = async (
   return;
 };
 
+const blockUnblockUserInDB = async (roomId: string, userId: string) => {
+  const room = await prisma.room.findUniqueOrThrow({
+    where: {
+      id: roomId,
+    },
+  });
+  console.log(userId);
+
+  if (room.senderId !== userId && room.receiverId !== userId) {
+    throw new ApiError(400, "You are not a participant of this room");
+  }
+
+  await prisma.room.update({
+    where: {
+      id: roomId,
+    },
+    data: {
+      isBlocked: !room.isBlocked,
+      blockerId: room.isBlocked ? null : userId,
+    },
+  });
+
+  return {
+    message: room.isBlocked
+      ? "User unblocked successfully"
+      : "User blocked successfully",
+  };
+};
+
 export const authService = {
   loginUserIntoDB,
   userLocationUpdateInDB,
@@ -291,4 +320,5 @@ export const authService = {
   resetForgotPasswordDB,
   changePasswordFromDB,
   authLoginIntoDB,
+  blockUnblockUserInDB,
 };

@@ -212,6 +212,8 @@ model Room {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   senderId   String?  @db.ObjectId
   receiverId String?  @db.ObjectId
+  isBlocked  Boolean  @default(false)
+  blockerId  String?  @db.ObjectId
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   user1      User?    @relation("user1Relation", fields: [senderId], references: [id], onDelete: Cascade)

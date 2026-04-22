@@ -27,5 +27,6 @@ router.post("/send-otp", authController.sendForgotPasswordOtp);
 router.post("/verify-otp", authController.verifyForgotPasswordOtpCode);
 router.patch("/reset-password", auth(), authController.resetPassword);
 router.patch("/change-password", auth(), authController.changePassword);
+router.put("/block-unblock-user", auth(), authController.blockUnblockUser);
 
 export const authRoute = router;

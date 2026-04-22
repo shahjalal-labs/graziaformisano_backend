@@ -561,6 +561,7 @@ import { verifyWebSocketToken } from "./socket.service";
 import { parse } from "url";
 import redisClient from "../../../helpers/redis";
 import { sendSingleNotification } from "../notifications/notification.services";
+import { is } from "date-fns/locale";
 
 interface CustomWebSocket extends WebSocket {
   userId?: string;
@@ -662,6 +663,7 @@ export function setupWebSocketServer(server: any) {
           roomId: room.id,
           partner: {
             id: partner?.id,
+            isBlocked: room.isBlocked,
             userName: partner?.userName,
             profileImage: partner?.profileImage,
             isActive,
@@ -733,6 +735,8 @@ export function setupWebSocketServer(server: any) {
                 roomId: room.id,
                 partner: {
                   id: partner?.id,
+                  isBlocked: room.isBlocked,
+                  blockerId: room.blockerId,
                   userName: partner?.userName,
                   profileImage: partner?.profileImage,
                   isActive,
@@ -806,7 +810,13 @@ export function setupWebSocketServer(server: any) {
               .map((msg: any) => JSON.parse(msg));
 
             ws.send(
-              JSON.stringify({ type: "past-messages", roomId, messages }),
+              JSON.stringify({
+                type: "past-messages",
+                roomId,
+                isBlocked: room.isBlocked,
+                blockedId: room.blockerId,
+                messages,
+              }),
             );
 
             const senderConversations = await getConversationsForUser(userId);

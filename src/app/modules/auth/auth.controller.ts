@@ -94,6 +94,17 @@ const changePassword = catchAsync(async (req: any, res: Response) => {
   });
 });
 
+
+const blockUnblockUser = catchAsync(async (req: Request, res: Response) => {
+  const { roomId } = req.body;
+  const { id } = req.user;
+  const result =await authService.blockUnblockUserInDB(roomId, id);
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: result.message,
+  });
+});
 export const authController = {
   loginUser,
   authLogin,
@@ -102,4 +113,5 @@ export const authController = {
   verifyForgotPasswordOtpCode,
   resetPassword,
   changePassword,
+  blockUnblockUser,
 };
