@@ -94,7 +94,6 @@ const changePassword = catchAsync(async (req: any, res: Response) => {
   });
 });
 
-
 const blockUnblockUser = catchAsync(async (req: Request, res: Response) => {
   const { roomId } = req.body;
   const { id } = req.user;

@@ -363,6 +363,8 @@ const getEventDetailsFromDB = async (eventId: string) => {
       eventPlace: true,
       eventType: true,
       description: true,
+      maxAttendence:true,
+      attendeesCount:true,
       agenda: true,
       user: {
         select: {
