@@ -233,7 +233,7 @@ const getProfileFromDB = async (id: string) => {
       email: true,
       profileImage: true,
       createdAt: true,
-      isSubscribed: true,      
+      isSubscribed: true,
       userLocation: {
         select: {
           latitude: true,
@@ -257,7 +257,7 @@ const getProfileFromDB = async (id: string) => {
   });
 
   const followingCount = await prisma.follower.count({
-    where: { followerId: id},
+    where: { followerId: id, isAccepted: true },
   });
 
   return {
@@ -384,7 +384,7 @@ const getUsersFromDB = async (
   return usersWithDistance;
 };
 
-const getUserDetailsFromDB = async (ami:string, userId: string) => {
+const getUserDetailsFromDB = async (ami: string, userId: string) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
     select: {

@@ -584,7 +584,7 @@ const getEventAndUserByLocation = async (
     prisma.event.findMany({
       where: {
         eventType: "Public",
-        NOT: { userId },
+        // NOT: { userId },
       },
       select: {
         id: true,
