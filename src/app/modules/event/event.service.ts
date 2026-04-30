@@ -89,6 +89,10 @@ const getAllEventsFromDB = async (
   const events = await prisma.event.findMany({
     where: {
       eventType: "Public",
+      eventDate: {
+        gte: new Date(),
+      },
+
       // NOT: [userId ? { userId } : {}],
       ...(search && {
         OR: [
@@ -363,8 +367,8 @@ const getEventDetailsFromDB = async (eventId: string) => {
       eventPlace: true,
       eventType: true,
       description: true,
-      maxAttendence:true,
-      attendeesCount:true,
+      maxAttendence: true,
+      attendeesCount: true,
       agenda: true,
       user: {
         select: {
@@ -584,6 +588,9 @@ const getEventAndUserByLocation = async (
     prisma.event.findMany({
       where: {
         eventType: "Public",
+        eventDate: {
+          gte: new Date(),
+        },
         // NOT: { userId },
       },
       select: {
