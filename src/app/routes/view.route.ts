@@ -371,106 +371,114 @@ export const accountDelete = () => {
     * {
       box-sizing: border-box;
     }
- 
+
     body {
       font-family: Arial, sans-serif;
-      background-color: #f6f6f6;
+      background-color: #F5F5FA; /* bg */
       padding: 0;
       margin: 0;
     }
- 
+
     .container {
       max-width: 400px;
       margin: 80px auto;
-      background-color: #ffffff;
+      background-color: #FFFFFF; /* cardBg */
       padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 1px solid #D8DBDF; /* containerBorder */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
- 
+
     h2 {
-      color: #d32f2f;
+      color: #6C63FF; /* purpleText */
       text-align: center;
       margin-bottom: 20px;
     }
- 
+
     label {
       display: block;
       margin-bottom: 6px;
       font-weight: 600;
+      color: #1A1A2E; /* text */
     }
- 
+
     input[type="email"],
     input[type="password"] {
       width: 100%;
       padding: 10px;
       margin-bottom: 20px;
-      border: 1px solid #ccc;
+      border: 1px solid #E8E8F0; /* border */
       border-radius: 6px;
       font-size: 14px;
+      color: #1A1A2E;
     }
- 
+
+    input::placeholder {
+      color: #AAAAAA; /* hint */
+    }
+
     button {
       width: 100%;
       padding: 12px;
-      background-color: #d32f2f;
-      color: #ffffff;
+      background-color: #6140E6; /* primary */
+      color: #FFFFFF;
       border: none;
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
       transition: background-color 0.3s ease;
- 
     }
- 
+
     button:hover {
-      background-color: #b71c1c;
+      background-color: #7B61FF; /* purple */
     }
- 
+
     .note {
       font-size: 13px;
-      color: #555;
+      color: #6B6B8A; /* subText */
       text-align: center;
       margin-top: 15px;
     }
 </style>
 </head>
 <body>
- 
+
 <div class="container">
-<h2>Delete Your Account</h2>
+  <h2>Delete Your Account</h2>
   <form onsubmit="handleDelete(event)">
-<label for="email">Email</label>
-<input type="email" id="email" name="email" required>
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required>
+
     <label for="password">Password</label>
-<input type="password" id="password" name="password" required>
+    <input type="password" id="password" name="password" required>
+
     <button type="submit">Confirm</button>
-</form>
- 
+  </form>
+
   <div class="note">
     This action is irreversible. Please confirm carefully.
+  </div>
 </div>
-</div>
- 
+
 <script>
- 
   function handleDelete(e) {
- 
     e.preventDefault();
+
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
+
     if (!email || !password) {
       alert("Please fill in both fields.");
       return;
     }
- 
-    const confirmed = confirm(Are you sure you want to delete the account?);
+
+    const confirmed = confirm("Are you sure you want to delete the account?");
     if (confirmed) {
-      // TODO: Send deletion request to server here
       alert("Your account has been marked for deletion.");
     }
   }
 </script>
+
 </body>
 </html>
  `;
@@ -489,120 +497,115 @@ export const dataDelete = () => {
     * {
       box-sizing: border-box;
     }
- 
+
     body {
       font-family: Arial, sans-serif;
-      background-color: #f6f6f6;
+      background-color: #F5F5FA; /* bg */
       padding: 0;
       margin: 0;
     }
- 
+
     .container {
       max-width: 400px;
       margin: 80px auto;
-      background-color: #ffffff;
+      background-color: #FFFFFF; /* cardBg */
       padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 1px solid #D8DBDF; /* containerBorder */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
- 
+
     h2 {
-      color: #d32f2f;
+      color: #6C63FF; /* purpleText */
       text-align: center;
       margin-bottom: 20px;
     }
- 
+
     label {
       display: block;
       margin-bottom: 6px;
       font-weight: 600;
+      color: #1A1A2E; /* text */
     }
- 
+
     input[type="email"],
     input[type="password"] {
       width: 100%;
       padding: 10px;
       margin-bottom: 20px;
-      border: 1px solid #ccc;
+      border: 1px solid #E8E8F0; /* border */
       border-radius: 6px;
       font-size: 14px;
+      color: #1A1A2E;
     }
- 
+
+    input::placeholder {
+      color: #AAAAAA; /* hint */
+    }
+
     button {
       width: 100%;
       padding: 12px;
-      background-color: #d32f2f;
-      color: #ffffff;
+      background-color: #6140E6; /* primary */
+      color: #FFFFFF;
       border: none;
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
       transition: background-color 0.3s ease;
- 
     }
- 
+
     button:hover {
-      background-color: #b71c1c;
+      background-color: #7B61FF; /* purple */
     }
- 
+
     .note {
       font-size: 13px;
-      color: #555;
+      color: #6B6B8A; /* subText */
       text-align: center;
       margin-top: 15px;
     }
 </style>
 </head>
 <body>
- 
+
 <div class="container">
-<h2>Delete Your Data</h2>
+  <h2>Delete Your Data</h2>
   <form onsubmit="handleDelete(event)">
-<label for="email">Email</label>
-<input type="email" id="email" name="email" required>
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required>
+
     <label for="password">Password</label>
-<input type="password" id="password" name="password" required>
+    <input type="password" id="password" name="password" required>
+
     <button type="submit">Confirm</button>
-</form>
- 
+  </form>
+
   <div class="note">
     This action is irreversible. Please confirm carefully.
+  </div>
 </div>
-</div>
- 
+
 <script>
- 
   function handleDelete(e) {
- 
     e.preventDefault();
- 
+
     const email = document.getElementById("email").value.trim();
- 
     const password = document.getElementById("password").value.trim();
- 
+
     if (!email || !password) {
- 
       alert("Please fill in both fields.");
- 
       return;
- 
     }
- 
-    const confirmed = confirm(Are you sure you want to delete the account?);
- 
+
+    const confirmed = confirm("Are you sure you want to delete your data?");
     if (confirmed) {
- 
-      // TODO: Send deletion request to server here
- 
-      alert("Your account has been marked for deletion.");
- 
+      alert("Your data has been marked for deletion.");
     }
- 
   }
 </script>
- 
+
 </body>
 </html>
- 
  `;
 };
