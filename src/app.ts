@@ -8,7 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import path from "path";
 import redisClient from "./helpers/redis";
 import handleWebHook from "./helpers/stripe.webhook";
-import { privacyPolicy, termsandconditions } from "./app/routes/view.route";
+import { accountDelete, dataDelete, privacyPolicy, termsandconditions } from "./app/routes/view.route";
 
 const app: Application = express();
 const prisma = new PrismaClient();
@@ -56,6 +56,14 @@ app.get("/privacy-policy", (req, res) => {
 });
 app.get("/terms-and-conditions", (req, res) => {
   res.send(termsandconditions());
+});
+
+app.get("/data-delete", (req, res) => {
+  res.send(dataDelete());
+});
+
+app.get("/account-delete", (req, res) => {
+  res.send(accountDelete());
 });
 
 app.use(GlobalErrorHandler);
