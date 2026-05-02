@@ -173,6 +173,8 @@ export const privacyPolicy = () => {
 </html>
 `;
 };
+
+
 export const termsandconditions = () => {
   return `<!doctype html>
 <html lang="en">
