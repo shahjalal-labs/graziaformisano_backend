@@ -7,8 +7,8 @@ import GlobalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 import redisClient from "./helpers/redis";
-import handleWebHook from "./helpers/stripe.webhook";
 import { accountDelete, dataDelete, privacyPolicy, termsandconditions } from "./app/routes/view.route";
+import { RevenueController } from "./app/modules/stripe/subscription.webhook";
 
 const app: Application = express();
 const prisma = new PrismaClient();
@@ -36,7 +36,12 @@ const prisma = new PrismaClient();
 app.use(cors());
 
 
-app.use("/webhook/stripe", express.raw({ type: 'application/json' }), handleWebHook);
+app.post(
+  "/webhook/revenuecat",
+  express.raw({ type: "application/json" }),
+  RevenueController.handleWebhook,
+);
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

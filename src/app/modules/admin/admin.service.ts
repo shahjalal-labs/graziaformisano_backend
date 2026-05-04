@@ -198,9 +198,9 @@ const getAllSubscribersFromDB = async (page: number = 1) => {
     },
     select: {
       id: true,
-      subscriptionPayId: true,
-      subscriptionId: true,
-      subscriptionTitleType: true,
+      // subscriptionPayId: true,
+      // subscriptionId: true,
+      // subscriptionTitleType: true,
       user: {
         select: {
           userName: true,

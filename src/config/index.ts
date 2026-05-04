@@ -27,4 +27,7 @@ export default {
     stripe_secret: process.env.STRIPE_SK,
     webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
   },
+  revenueCat: {
+    revenueCatHeader: process.env.REVENUECAT_HEADER,
+  },
 };

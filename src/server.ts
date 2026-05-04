@@ -3,16 +3,14 @@ import app from "./app";
 import config from "./config";
 import { setupWebSocketServer } from "./app/modules/socket/socket.controller";
 import seedSuperAdmin from "./config/seedAdmin";
-import { stripeService } from "./app/modules/stripe/stripe.service";
+
 
 let server: Server;
 
 async function main() {
   server = app.listen(config.port, () => {
     console.log("Server is running on port ", config.port);
-    seedSuperAdmin();
-    stripeService.createMonthlySubscriptionPlan();
-    stripeService.createYearlySubscriptionPlan();
+    seedSuperAdmin();  
   });
 
   setupWebSocketServer(server);

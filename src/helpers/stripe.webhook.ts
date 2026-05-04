@@ -1,141 +1,141 @@
-import Stripe from "stripe";
-import config from "../config";
-import catchAsync from "../shared/catchAsync";
-import sendResponse from "../shared/sendResponse";
-import { stripeService } from "../app/modules/stripe/stripe.service";
-const stripe = new Stripe(config.stripe.stripe_secret as string);
+// import Stripe from "stripe";
+// import config from "../config";
+// import catchAsync from "../shared/catchAsync";
+// import sendResponse from "../shared/sendResponse";
+// import { stripeService } from "../app/modules/stripe/revenuecat.service";
+// const stripe = new Stripe(config.stripe.stripe_secret as string);
 
-const handleWebHook = catchAsync(async (req: any, res: any) => {
-  const sig = req.headers["stripe-signature"] as string;
- 
-  if (!sig) {
-    return sendResponse(res, {
-      statusCode: 400,
-      success: false,
-      message: "Missing Stripe signature header.",
-      data: null,
-    });
-  }
+// const handleWebHook = catchAsync(async (req: any, res: any) => {
+//   const sig = req.headers["stripe-signature"] as string;
 
-  let event: Stripe.Event;
+//   if (!sig) {
+//     return sendResponse(res, {
+//       statusCode: 400,
+//       success: false,
+//       message: "Missing Stripe signature header.",
+//       data: null,
+//     });
+//   }
 
-  try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      config.stripe.webhook_secret as string
-    );
-  } catch (err) {
-    console.error("Webhook signature verification failed.", err);
-    return res.status(400).send("Webhook Error: Invalid signature.");
-  }
+//   let event: Stripe.Event;
 
-  switch (event.type) {
-    // Account Events
-    case "account.updated":
-      console.log("Account updated:", event.data.object);
-      break;
-    case "account.application.authorized":
-      console.log("Application authorized for account:", event.data.object);
-      break;
-    case "account.external_account.created":
-      console.log("External account created:", event.data.object);
-      break;
+//   try {
+//     event = stripe.webhooks.constructEvent(
+//       req.body,
+//       sig,
+//       config.stripe.webhook_secret as string,
+//     );
+//   } catch (err) {
+//     console.error("Webhook signature verification failed.", err);
+//     return res.status(400).send("Webhook Error: Invalid signature.");
+//   }
 
-    // Subscription & Recurring Payments
-    case "invoice.payment_succeeded":
-      const invoice: any = event.data.object as Stripe.Invoice;
-      const metadata = invoice.lines?.data?.[0]?.metadata || {};
-      const priceId = metadata.priceId as string;
-      const userId = metadata.userId as string;
-      const subscriptionPayId = invoice.subscription as string;
+//   switch (event.type) {
+//     // Account Events
+//     case "account.updated":
+//       console.log("Account updated:", event.data.object);
+//       break;
+//     case "account.application.authorized":
+//       console.log("Application authorized for account:", event.data.object);
+//       break;
+//     case "account.external_account.created":
+//       console.log("External account created:", event.data.object);
+//       break;
 
-      await stripeService.handleSubscriptionCreated(
-        priceId,
-        userId,
-        subscriptionPayId
-      );
-      break;
+//     // Subscription & Recurring Payments
+//     case "invoice.payment_succeeded":
+//       const invoice: any = event.data.object as Stripe.Invoice;
+//       const metadata = invoice.lines?.data?.[0]?.metadata || {};
+//       const priceId = metadata.priceId as string;
+//       const userId = metadata.userId as string;
+//       const subscriptionPayId = invoice.subscription as string;
 
-    case "invoice.payment_failed":
-      const failedInvoice = event.data.object as Stripe.Invoice;
-      const failedMetadata = failedInvoice.lines?.data?.[0]?.metadata || {};
-      const failedPriceId = failedMetadata.priceId as string;
-      const failedUserId = failedMetadata.userId as string;
-      await stripeService.handleSubscriptionStatusUpdate(
-        failedUserId,
-        failedPriceId,
-        "DEACTIVE"
-      );
-      break;
+//       await stripeService.handleSubscriptionCreated(
+//         priceId,
+//         userId,
+//         subscriptionPayId,
+//       );
+//       break;
 
-    // Updated: customer.subscription.created case
-    case "customer.subscription.created":
-      console.log("New subscription created:", event.data.object);
+//     case "invoice.payment_failed":
+//       const failedInvoice = event.data.object as Stripe.Invoice;
+//       const failedMetadata = failedInvoice.lines?.data?.[0]?.metadata || {};
+//       const failedPriceId = failedMetadata.priceId as string;
+//       const failedUserId = failedMetadata.userId as string;
+//       await stripeService.handleSubscriptionStatusUpdate(
+//         failedUserId,
+//         failedPriceId,
+//         "DEACTIVE",
+//       );
+//       break;
 
-      // Extracting priceId, userId, and subscriptionPayId
-      const subscription = event.data.object as Stripe.Subscription;
-      const priceIdFromSub = subscription.items.data[0].price.id; // priceId from subscription items
-      const userIdFromSub = subscription.metadata.userId; // userId from metadata
-      const subscriptionPayIdFromSub = subscription.id; // subscription ID as subscriptionPayId
+//     // Updated: customer.subscription.created case
+//     case "customer.subscription.created":
+//       console.log("New subscription created:", event.data.object);
 
-      // Call handleSubscriptionCreated with the extracted values
-      await stripeService.handleSubscriptionCreated(
-        priceIdFromSub,
-        userIdFromSub,
-        subscriptionPayIdFromSub
-      );
-      break;
+//       // Extracting priceId, userId, and subscriptionPayId
+//       const subscription = event.data.object as Stripe.Subscription;
+//       const priceIdFromSub = subscription.items.data[0].price.id; // priceId from subscription items
+//       const userIdFromSub = subscription.metadata.userId; // userId from metadata
+//       const subscriptionPayIdFromSub = subscription.id; // subscription ID as subscriptionPayId
 
-    case "customer.subscription.updated":
-      console.log("Subscription updated:", event.data.object);
-      break;
+//       // Call handleSubscriptionCreated with the extracted values
+//       await stripeService.handleSubscriptionCreated(
+//         priceIdFromSub,
+//         userIdFromSub,
+//         subscriptionPayIdFromSub,
+//       );
+//       break;
 
-    case "customer.subscription.deleted":
-      const subscriptionToDelete = event.data.object as Stripe.Subscription;
-      const subscriptionMetadata = subscriptionToDelete.metadata || {};
-      const deletedPriceId = subscriptionMetadata.priceId as string;
-      const deletedUserId = subscriptionMetadata.userId as string;
-      await stripeService.handleSubscriptionStatusUpdate(
-        deletedUserId,
-        deletedPriceId,
-        "DEACTIVE"
-      );
-      break;
+//     case "customer.subscription.updated":
+//       console.log("Subscription updated:", event.data.object);
+//       break;
 
-    // One-Time Payments
-    case "checkout.session.completed":
-      console.log("One-time payment completed:", event.data.object);
-      break;
-    case "charge.succeeded":
-      console.log("Charge succeeded:", event.data.object);
-      break;
-    case "charge.failed":
-      console.log("Charge failed:", event.data.object);
-      break;
+//     case "customer.subscription.deleted":
+//       const subscriptionToDelete = event.data.object as Stripe.Subscription;
+//       const subscriptionMetadata = subscriptionToDelete.metadata || {};
+//       const deletedPriceId = subscriptionMetadata.priceId as string;
+//       const deletedUserId = subscriptionMetadata.userId as string;
+//       await stripeService.handleSubscriptionStatusUpdate(
+//         deletedUserId,
+//         deletedPriceId,
+//         "DEACTIVE",
+//       );
+//       break;
 
-    // Refunds
-    case "charge.refunded":
-    case "charge.refund.updated":
-      console.log("Charge refunded:", event.data.object);
-      break;
+//     // One-Time Payments
+//     case "checkout.session.completed":
+//       console.log("One-time payment completed:", event.data.object);
+//       break;
+//     case "charge.succeeded":
+//       console.log("Charge succeeded:", event.data.object);
+//       break;
+//     case "charge.failed":
+//       console.log("Charge failed:", event.data.object);
+//       break;
 
-    // Other Events
-    case "capability.updated":
-      console.log("Capability updated event received.");
-      break;
-    case "financial_connections.account.created":
-      console.log("Financial connections account created.");
-      break;
-    case "customer.created":
-      console.log("New customer created:", event.data.object);
-      break;
+//     // Refunds
+//     case "charge.refunded":
+//     case "charge.refund.updated":
+//       console.log("Charge refunded:", event.data.object);
+//       break;
 
-    default:
-      console.log(`Unhandled event type: ${event.type}`);
-  }
+//     // Other Events
+//     case "capability.updated":
+//       console.log("Capability updated event received.");
+//       break;
+//     case "financial_connections.account.created":
+//       console.log("Financial connections account created.");
+//       break;
+//     case "customer.created":
+//       console.log("New customer created:", event.data.object);
+//       break;
 
-  res.status(200).send("Event received");
-});
+//     default:
+//       console.log(`Unhandled event type: ${event.type}`);
+//   }
 
-export default handleWebHook;
+//   res.status(200).send("Event received");
+// });
+
+// export default handleWebHook;

@@ -16,7 +16,6 @@ model User {
   profileImage      String?
   fcmToken          String?
   stripeAccountId   String?
-  subscriptionId    String?
   isSetup           Boolean            @default(false)
   isSubscribed      Boolean            @default(false)
   role              UserRole           @default(USER)
@@ -234,40 +233,19 @@ model EventRoom {
 
   @@map("event_rooms")
 }
-
-model Subscription {
-  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
-  title                 String                @unique
-  subscriptionTitleType SubscriptionTitleType @unique
-  priceId               String                @unique
-  productId             String                @unique
-  features              Json
-  italianFeatures       Json?
-  type                  SubscriptionType
-  interval              String?
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
-  userSubscription      UserSubscription[]
-
-  @@map("subscription")
-}
-
 model UserSubscription {
-  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
-  subscriptionTitleType SubscriptionTitleType
-  userId                String                @db.ObjectId
-  subscriptionId        String                @db.ObjectId
-  priceId               String
-  subscriptionPayId     String
-  features              Json
-  status                PaymentStatus         @default(ACTIVE)
-  subscription          Subscription?         @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  user                  User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
+  id                    String             @id @default(auto()) @map("_id") @db.ObjectId
+  userId                String             @unique
+  productId             String
+  status                SubscriptionStatus @default(ACTIVE)
+  expiresAt             DateTime?
+  store                 String
+  originaltransactionId String
+  renewal_number        Int?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, subscriptionId])
-  @@unique([userId, priceId])
   @@map("userSubscription")
 }
 
@@ -356,7 +334,7 @@ enum TEventType {
   Private
 }
 
-enum PaymentStatus {
+enum SubscriptionStatus {
   ACTIVE
   DEACTIVE
 }
