@@ -10,9 +10,7 @@ export async function initialPurchaseOrRenew(event: any) {
       expiration_at_ms,
       original_transaction_id,
       product_id,
-      price,
-      renewal_number,
-      transaction_id,
+      renewal_number,      
     } = event;
 
     console.log("RevenueCat initial purchase/renewal event received", {

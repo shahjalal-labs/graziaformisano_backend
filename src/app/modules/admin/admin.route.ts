@@ -38,6 +38,11 @@ router.get(
   auth(UserRole.ADMIN),
   adminController.allSubscribers,
 );
+router.get(
+  "/subscriber",
+  auth(UserRole.ADMIN),
+  adminController.allSubscriber,
+);
 router.get("/overview", auth(UserRole.ADMIN), adminController.getStats);
 router.get("/events/:id", auth(UserRole.ADMIN), adminController.eventDetails);
 router.get("/users/:id", auth(UserRole.ADMIN), adminController.userDetails);

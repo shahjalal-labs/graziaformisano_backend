@@ -86,6 +86,17 @@ const allSubscribers = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const allSubscriber = catchAsync(async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const result = await adminService.getSubscriptionFromDB(page);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "All subscriptions retrieved successfully",
+    data: result,
+  });
+});
 const userDetails = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.id;
   const result = await adminService.getUserDetailsFromDB(userId);
@@ -160,6 +171,7 @@ const toggleUserStatus = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const adminController = {
+  allSubscriber,
   loginAdmin,
   updateAdminProfile,
   allUsers,

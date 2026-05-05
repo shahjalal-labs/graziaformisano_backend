@@ -227,6 +227,51 @@ const getAllSubscribersFromDB = async (page: number = 1) => {
     subscribers,
   };
 };
+const getSubscriptionFromDB = async (page: number = 1) => {
+  const totalUsers = await prisma.user.count({});
+  const filteredUsersCount = await prisma.user.count({});
+  const totalPages = Math.ceil(filteredUsersCount / 10);
+
+  const users = await prisma.user.findMany({
+    skip: (page - 1) * 10,
+    take: 10,
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      userName: true,
+      email: true,
+      profileImage: true,
+      isSubscribed: true,
+      userProfile: {
+        select: {
+          profession: true,
+        },
+      },
+      userSubscription: {
+        select: {
+          store: true,
+          productId: true,
+          expiresAt: true,
+          renewal_number: true,
+          originaltransactionId: true,
+          status: true,
+        },
+      },
+      createdAt: true,
+    },
+  });
+
+  return {
+    meta: {
+      totalUsers,
+      filteredUsers: filteredUsersCount,
+      totalPages,
+      currentPage: page,
+    },
+    users,
+  };
+};
 const getAllEventsFromDB = async (
   page: number = 1,
   search?: string,
@@ -445,6 +490,7 @@ const toggleUserStatusIntoDB = async (userId: string) => {
 };
 
 export const adminService = {
+  getSubscriptionFromDB,
   loginAdminIntoDB,
   updateAdminProfileInDB,
   getAllUsersFromDB,

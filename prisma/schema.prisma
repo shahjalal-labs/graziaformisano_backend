@@ -8,34 +8,34 @@ generator client {
 }
 
 model User {
-  id                String             @id @default(auto()) @map("_id") @db.ObjectId
-  userName          String
-  email             String             @unique
-  appleId           String?
-  password          String
-  profileImage      String?
-  fcmToken          String?
-  stripeAccountId   String?
-  isSetup           Boolean            @default(false)
-  isSubscribed      Boolean            @default(false)
-  role              UserRole           @default(USER)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  userLocation      UserLocation[]
-  userProfile       UserProfile?
-  posts             Post[]
-  status            UserStatus         @default(Active)
-  comments          Comment[]
-  replies           Reply[]
-  follower          Follower[]         @relation("UserFollowers")
-  following         Follower[]         @relation("UserFollowing")
-  sender            Room[]             @relation("user1Relation")
-  receiver          Room[]             @relation("user2Relation")
-  events            Event[]
-  eventAttendees    EventAttendee[]
-  stories           Story[]
-  userSubscriptions UserSubscription[]
-  notifications     Notification[]
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  userName         String
+  email            String            @unique
+  appleId          String?
+  password         String
+  profileImage     String?
+  fcmToken         String?
+  stripeAccountId  String?
+  isSetup          Boolean           @default(false)
+  isSubscribed     Boolean           @default(false)
+  role             UserRole          @default(USER)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  userLocation     UserLocation[]
+  userProfile      UserProfile?
+  posts            Post[]
+  status           UserStatus        @default(Active)
+  comments         Comment[]
+  replies          Reply[]
+  follower         Follower[]        @relation("UserFollowers")
+  following        Follower[]        @relation("UserFollowing")
+  sender           Room[]            @relation("user1Relation")
+  receiver         Room[]            @relation("user2Relation")
+  events           Event[]
+  eventAttendees   EventAttendee[]
+  stories          Story[]
+  notifications    Notification[]
+  userSubscription UserSubscription?
 
   @@map("users")
 }
@@ -233,10 +233,27 @@ model EventRoom {
 
   @@map("event_rooms")
 }
+
+model Subscription {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  title                 String                @unique
+  subscriptionTitleType SubscriptionTitleType @unique
+  price                 Float
+  features              Json
+  italianFeatures       Json?
+  type                  SubscriptionType
+  interval              String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  userSubscription      UserSubscription[]
+
+  @@map("subscription")
+}
+
 model UserSubscription {
   id                    String             @id @default(auto()) @map("_id") @db.ObjectId
-  userId                String             @db.ObjectId @unique
-  productId             String
+  userId                String             @unique @db.ObjectId
+  productId             String             @db.ObjectId
   status                SubscriptionStatus @default(ACTIVE)
   expiresAt             DateTime?
   store                 String
@@ -245,6 +262,7 @@ model UserSubscription {
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
   user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription          Subscription       @relation(fields: [productId], references: [id])
 
   @@map("userSubscription")
 }

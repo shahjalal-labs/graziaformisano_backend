@@ -8,6 +8,7 @@ import { eventRoutes } from "../modules/event/event.route";
 import { storyRoutes } from "../modules/story/story.route";
 import { adminRoute } from "../modules/admin/admin.route";
 import { professionRoutes } from "../modules/profession/profession.route";
+import { stripeRoutes } from "../modules/stripe/stripe.routes";
 
 const router = express.Router();
 
@@ -35,7 +36,7 @@ const moduleRoutes = [
   {
     path: "/table",
     route: professionRoutes,
-  },  
+  },
   {
     path: "/story",
     route: storyRoutes,
@@ -47,6 +48,10 @@ const moduleRoutes = [
   {
     path: "/notification",
     route: notificationsRoute,
+  },
+  {
+    path: "/subscription",
+    route: stripeRoutes,
   },
 ];
 

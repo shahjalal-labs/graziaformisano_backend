@@ -234,7 +234,21 @@ const getProfileFromDB = async (id: string) => {
       profileImage: true,
       createdAt: true,
       isSubscribed: true,
-      userSubscriptions :true,
+      userSubscription: {
+        select: {
+          id: true,
+          renewal_number: true,
+          expiresAt: true,
+          status: true,
+          originaltransactionId: true,
+          store: true,
+          subscription: {
+            select: {              
+              title: true,
+            },
+          },
+        },
+      },
       userLocation: {
         select: {
           latitude: true,
