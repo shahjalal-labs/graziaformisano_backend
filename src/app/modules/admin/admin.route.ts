@@ -44,6 +44,8 @@ router.get(
   adminController.allSubscriber,
 );
 router.get("/overview", auth(UserRole.ADMIN), adminController.getStats);
+router.put("/free-access", adminController.freeAccess);
+router.patch("/remove-subscription/:id", adminController.removeSubscription);
 router.get("/events/:id", auth(UserRole.ADMIN), adminController.eventDetails);
 router.get("/users/:id", auth(UserRole.ADMIN), adminController.userDetails);
 router.delete("/delete/:id", auth(UserRole.ADMIN), adminController.deleteUser);

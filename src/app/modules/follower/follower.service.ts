@@ -22,7 +22,7 @@ const followUnfollowToggleInDB = async (userId: string, followerId: string) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -111,7 +111,7 @@ const acceptFollowRequestInDB = async (followId: string) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -159,7 +159,7 @@ const rejectFollowRequestInDB = async (followId: string) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 

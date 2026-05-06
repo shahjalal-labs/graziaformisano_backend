@@ -14,7 +14,7 @@ const createStoryInDB = async (req: Request) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -139,7 +139,7 @@ const likeUnlikeStoryInDB = async (userId: string, storyId: string) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -187,11 +187,11 @@ const updateStoryInDB = async (req: Request) => {
     where: { id: payload.storyId },
     data: {
       content: payload.content ?? story.content,
-      fileUrl: fileUrl ?? story.fileUrl,      
+      fileUrl: fileUrl ?? story.fileUrl,
     },
   });
 
-  return
+  return;
 };
 
 const deleteStoryFromDB = async (storyId: string) => {

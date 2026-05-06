@@ -2,8 +2,7 @@ import { Request, Response } from "express";
 import config from "../../../config";
 import { processEvent } from "./revenuecat.service";
 
-const handleWebhook = async (req: Request, res: Response) => {
-  console.log("came here");
+const handleWebhook = async (req: Request, res: Response) => {  
   try {
     const authHeader = req.headers.authorization;
     const auth = authHeader?.startsWith("Bearer ")

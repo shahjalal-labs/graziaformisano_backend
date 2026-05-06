@@ -88,13 +88,31 @@ const allSubscribers = catchAsync(async (req: Request, res: Response) => {
 });
 const allSubscriber = catchAsync(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
-  const result = await adminService.getSubscriptionFromDB(page);
+  const result = await adminService.getSubscriptionFromDB(page, req.query.search as string);
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: "All subscriptions retrieved successfully",
     data: result,
+  });
+});
+const freeAccess = catchAsync(async (req: Request, res: Response) => {
+  await adminService.giveAccessToUserForFree(req.body.userId, req.body.date);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Free access granted successfully",
+  });
+});
+const removeSubscription = catchAsync(async (req: Request, res: Response) => {
+  await adminService.removeSubscriptionFromUser(req.params.id);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Subscription removed successfully",
   });
 });
 const userDetails = catchAsync(async (req: Request, res: Response) => {
@@ -186,4 +204,6 @@ export const adminController = {
   topProfessionals,
   allPosts,
   deletePost,
+  freeAccess,
+  removeSubscription
 };

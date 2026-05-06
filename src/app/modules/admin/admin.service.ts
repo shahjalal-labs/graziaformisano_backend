@@ -6,7 +6,6 @@ import bcrypt from "bcryptjs";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import { Request } from "express";
 import { Prisma, TEventType } from "@prisma/client";
-import { get } from "http";
 
 const loginAdminIntoDB = async (payload: any) => {
   const admin = await prisma.user.findUniqueOrThrow({
@@ -227,22 +226,40 @@ const getAllSubscribersFromDB = async (page: number = 1) => {
     subscribers,
   };
 };
-const getSubscriptionFromDB = async (page: number = 1) => {
-  const totalUsers = await prisma.user.count({});
-  const filteredUsersCount = await prisma.user.count({});
+const getSubscriptionFromDB = async (page: number = 1, search?: string) => {
+  const totalUsers = await prisma.user.count({
+    where: { role: "USER" },
+  });
+  const filteredUsersCount = await prisma.user.count({
+    where: {
+      role: "USER",
+      ...(search && {
+        OR: [{ userName: { contains: search, mode: "insensitive" } }],
+      }),
+    },
+  });
   const totalPages = Math.ceil(filteredUsersCount / 10);
 
   const users = await prisma.user.findMany({
+    where: {
+      role: "USER",
+      ...(search && {
+        OR: [{ userName: { contains: search, mode: "insensitive" } }],
+      }),
+    },
     skip: (page - 1) * 10,
     take: 10,
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
     select: {
+      id: true,
       userName: true,
       email: true,
       profileImage: true,
       isSubscribed: true,
+      subscriptionExpiresAt: true,
+      subscriptionType: true,
       userProfile: {
         select: {
           profession: true,
@@ -272,6 +289,39 @@ const getSubscriptionFromDB = async (page: number = 1) => {
     users,
   };
 };
+
+const giveAccessToUserForFree = async (userId: string, date: Date) => {
+  await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+  });
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      isSubscribed: true,
+      subscriptionExpiresAt: date,
+      subscriptionType: "Free Access By Admin",
+    },
+  });
+
+  return;
+};
+
+const removeSubscriptionFromUser = async (userId: string) => {
+  await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+  });
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      isSubscribed: false,
+      subscriptionExpiresAt: null,
+      subscriptionType: "Free Non Paid",
+    },
+  });
+};
+
 const getAllEventsFromDB = async (
   page: number = 1,
   search?: string,
@@ -505,4 +555,6 @@ export const adminService = {
   getAllPostsFromDB,
   deletePostFromDB,
   toggleUserStatusIntoDB,
+  giveAccessToUserForFree,
+  removeSubscriptionFromUser,
 };

@@ -8,34 +8,36 @@ generator client {
 }
 
 model User {
-  id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  userName         String
-  email            String            @unique
-  appleId          String?
-  password         String
-  profileImage     String?
-  fcmToken         String?
-  stripeAccountId  String?
-  isSetup          Boolean           @default(false)
-  isSubscribed     Boolean           @default(false)
-  role             UserRole          @default(USER)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  userLocation     UserLocation[]
-  userProfile      UserProfile?
-  posts            Post[]
-  status           UserStatus        @default(Active)
-  comments         Comment[]
-  replies          Reply[]
-  follower         Follower[]        @relation("UserFollowers")
-  following        Follower[]        @relation("UserFollowing")
-  sender           Room[]            @relation("user1Relation")
-  receiver         Room[]            @relation("user2Relation")
-  events           Event[]
-  eventAttendees   EventAttendee[]
-  stories          Story[]
-  notifications    Notification[]
-  userSubscription UserSubscription?
+  id                    String            @id @default(auto()) @map("_id") @db.ObjectId
+  userName              String
+  email                 String            @unique
+  appleId               String?
+  password              String
+  profileImage          String?
+  fcmToken              String?
+  stripeAccountId       String?
+  subscriptionType      String?           @default("Free Paid")
+  subscriptionExpiresAt DateTime?
+  isSetup               Boolean           @default(false)
+  isSubscribed          Boolean           @default(false)
+  role                  UserRole          @default(USER)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  userLocation          UserLocation[]
+  userProfile           UserProfile?
+  posts                 Post[]
+  status                UserStatus        @default(Active)
+  comments              Comment[]
+  replies               Reply[]
+  follower              Follower[]        @relation("UserFollowers")
+  following             Follower[]        @relation("UserFollowing")
+  sender                Room[]            @relation("user1Relation")
+  receiver              Room[]            @relation("user2Relation")
+  events                Event[]
+  eventAttendees        EventAttendee[]
+  stories               Story[]
+  notifications         Notification[]
+  userSubscription      UserSubscription?
 
   @@map("users")
 }

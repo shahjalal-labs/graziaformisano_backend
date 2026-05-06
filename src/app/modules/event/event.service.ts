@@ -18,7 +18,7 @@ const createEventInDB = async (userId: string, payload: any) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -198,7 +198,7 @@ const editEventInDB = async (payload: any) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -317,7 +317,7 @@ const acceptOrRejectEventJoinRequestInDB = async (payload: any) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -411,7 +411,7 @@ const joinEventInDB = async (userId: string, eventId: string) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -490,7 +490,7 @@ const sendPrivateEventJoinInvitation = async (payload: any) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 

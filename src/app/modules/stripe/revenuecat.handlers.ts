@@ -10,7 +10,7 @@ export async function initialPurchaseOrRenew(event: any) {
       expiration_at_ms,
       original_transaction_id,
       product_id,
-      renewal_number,      
+      renewal_number,
     } = event;
 
     console.log("RevenueCat initial purchase/renewal event received", {
@@ -48,7 +48,7 @@ export async function initialPurchaseOrRenew(event: any) {
       where: { userId },
       create: {
         userId,
-        productId: product_id,      
+        productId: product_id,
         store: store || "unknown",
         originaltransactionId: original_transaction_id,
         renewal_number: renewal_number || 0,
@@ -68,7 +68,7 @@ export async function initialPurchaseOrRenew(event: any) {
     // Update user subscription status
     await prisma.user.update({
       where: { id: userId },
-      data: { isSubscribed: true },
+      data: { isSubscribed: true, subscriptionExpiresAt: expiresAt },
     });
 
     console.log(`✅ Subscription activated for user ${userId}`, {

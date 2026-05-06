@@ -14,7 +14,7 @@ export const canUseAccount = async (userId: string): Promise<boolean> => {
   const { isSubscribed, createdAt } = user;
 
   const expiryDate = new Date(createdAt);
-  expiryDate.setMonth(expiryDate.getMonth() + 2);
+  expiryDate.setMonth(expiryDate.getMonth() + 6);
 
   const now = new Date();
 

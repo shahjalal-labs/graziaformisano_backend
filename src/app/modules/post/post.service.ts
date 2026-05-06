@@ -19,7 +19,7 @@ const createPostInDB = async (req: Request) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -196,7 +196,7 @@ const likeUnlikePostInDB = async (postId: string, userId: string) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -265,7 +265,7 @@ const createCommentInDB = async (userId: string, payload: any) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -355,7 +355,7 @@ const likeUnlikeCommentInDB = async (commentId: string, userId: string) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
@@ -390,7 +390,7 @@ const createReplyInDB = async (userId: string, payload: any) => {
   if (!res) {
     throw new ApiError(
       403,
-      "Your 2-month trial has ended. Subscribe to keep using all features.",
+      "Your 6-month trial has ended. Subscribe to keep using all features.",
     );
   }
 
