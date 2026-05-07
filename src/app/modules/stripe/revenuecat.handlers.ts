@@ -1,6 +1,5 @@
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
-import { pl } from "date-fns/locale";
 
 export async function initialPurchaseOrRenew(event: any) {
   try {
