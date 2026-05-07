@@ -486,8 +486,6 @@ export const accountDelete = () => {
  `;
 };
 
-
-
 export const dataDelete = () => {
   return `<!DOCTYPE html>
 <html lang="en">

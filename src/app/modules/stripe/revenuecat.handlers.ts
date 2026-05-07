@@ -1,5 +1,6 @@
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
+import { pl } from "date-fns/locale";
 
 export async function initialPurchaseOrRenew(event: any) {
   try {
@@ -13,12 +14,15 @@ export async function initialPurchaseOrRenew(event: any) {
       renewal_number,
     } = event;
 
+    const planId = event?.subscriber_attributes?.subscriptionId?.value;
+
     console.log("RevenueCat initial purchase/renewal event received", {
       eventId,
       userId,
       original_transaction_id,
       store,
       product_id,
+      planId,
     });
 
     // Validate required fields
@@ -48,7 +52,7 @@ export async function initialPurchaseOrRenew(event: any) {
       where: { userId },
       create: {
         userId,
-        productId: product_id,
+        productId: planId,
         store: store || "unknown",
         originaltransactionId: original_transaction_id,
         renewal_number: renewal_number || 0,
@@ -56,7 +60,7 @@ export async function initialPurchaseOrRenew(event: any) {
         status: "ACTIVE",
       },
       update: {
-        productId: product_id,
+        productId: planId,
         store: store || "unknown",
         originaltransactionId: original_transaction_id,
         renewal_number: renewal_number || 0,
@@ -73,7 +77,7 @@ export async function initialPurchaseOrRenew(event: any) {
 
     console.log(`✅ Subscription activated for user ${userId}`, {
       expiresAt,
-      productId: product_id,
+      productId: planId,
     });
 
     return {
@@ -135,7 +139,7 @@ export async function handleExpiry(event: any) {
     // Update user subscription status
     await prisma.user.update({
       where: { id: userId },
-      data: { isSubscribed: false },
+      data: { isSubscribed: false, subscriptionExpiresAt: null },
     });
 
     console.log(`✅ Subscription deactivated for user ${userId}`);
