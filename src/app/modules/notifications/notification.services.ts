@@ -45,7 +45,6 @@ export const sendSingleNotification = async (
       senderId,
       content,
       type,
-      
     },
   });
 
@@ -63,7 +62,12 @@ export const sendSingleNotification = async (
   }
 };
 
-export const sendNotifications = async (body: string, title: string, senderId: string, eventId?: string) => {
+export const sendNotifications = async (
+  body: string,
+  title: string,
+  senderId: string,
+  eventId?: string,
+) => {
   try {
     const users = await prisma.user.findMany({
       where: { fcmToken: { not: null } },
@@ -180,6 +184,89 @@ const markAllReadInDB = async (userId: string) => {
   });
 
   return;
+};
+
+export const sendAdminNotifications = async (
+  body: string,
+  title: string,
+  company?: string,
+  profession?: string,
+) => {
+  const whereCondition: any = {
+    user: { fcmToken: { not: null } },
+  };
+
+  const adminAccount = await prisma.user.findFirst({
+    where: { role: "ADMIN" },
+  });
+
+  // Role-based filtering (only if role is provided)
+  if (company) {
+    whereCondition.company = company;
+  }
+
+  if (profession) {
+    whereCondition.profession = profession;
+  }
+
+  console.log(profession);
+
+  const userProfiles = await prisma.userProfile.findMany({
+    where: whereCondition,
+    select: { user: { select: { id: true, fcmToken: true } } },
+  });
+
+  console.log(userProfiles, "profiles");
+
+  if (userProfiles.length === 0) {
+    throw new ApiError(404, "No users found with valid FCM tokens.");
+  }
+
+  const fcmTokens = userProfiles
+    .map((profile) => profile.user?.fcmToken)
+    .filter(
+      (token): token is string => typeof token === "string" && token.length > 0,
+    );
+
+  console.log(fcmTokens, "sdfsdfsdf");
+
+  const message = {
+    notification: {
+      title: title || "Notification",
+      body,
+    },
+    tokens: fcmTokens,
+  };
+
+  const response = await admin.messaging().sendEachForMulticast(message as any);
+
+  const successIndices = response.responses
+    .map((res, idx) => (res.success ? idx : null))
+    .filter((idx): idx is number => idx !== null);
+
+  const successfulUserProfiles = successIndices.map((idx) => userProfiles[idx]);
+
+  if (successfulUserProfiles.length > 0) {
+    await prisma.notification.createMany({
+      data: successfulUserProfiles.map((profile) => ({
+        receiverId: profile?.user?.id,
+        title: title || "Notification",
+        content: body,
+        senderId: adminAccount?.id,
+        type: "Admin",
+      })),
+    });
+  }
+
+  const failedTokens = response.responses
+    .map((res, idx) => (!res.success ? fcmTokens[idx] : null))
+    .filter((token): token is string => token !== null);
+
+  return {
+    successCount: response.successCount,
+    failureCount: response.failureCount,
+    failedTokens,
+  };
 };
 
 export const notificationServices = {

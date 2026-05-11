@@ -97,6 +97,17 @@ const allSubscriber = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const sendAdminNotifications = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const result = await adminService.sendNotificationsToUsers(payload);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Admin notifications sent successfully",
+    data: result,
+  });
+});
 const freeAccess = catchAsync(async (req: Request, res: Response) => {
   await adminService.giveAccessToUserForFree(req.body.userId, req.body.date);
 
@@ -205,5 +216,6 @@ export const adminController = {
   allPosts,
   deletePost,
   freeAccess,
-  removeSubscription
+  removeSubscription,
+  sendAdminNotifications,
 };

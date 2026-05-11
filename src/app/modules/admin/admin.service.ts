@@ -5,7 +5,8 @@ import prisma from "../../../shared/prisma";
 import bcrypt from "bcryptjs";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import { Request } from "express";
-import { Prisma, TEventType } from "@prisma/client";
+import { AdminNotifications, Prisma, TEventType } from "@prisma/client";
+import { sendAdminNotifications } from "../notifications/notification.services";
 
 const loginAdminIntoDB = async (payload: any) => {
   const admin = await prisma.user.findUniqueOrThrow({
@@ -539,7 +540,27 @@ const toggleUserStatusIntoDB = async (userId: string) => {
   };
 };
 
+const sendNotificationsToUsers = async (payload: AdminNotifications) => {
+  await prisma.adminNotifications.create({
+    data: {
+      category: payload.category,
+      company: payload.company,
+      content: payload.content,
+    },
+  });
+
+  const res =await sendAdminNotifications(
+    payload.content,
+    "Notifica da Biz Meet",
+    payload.company as string,
+    payload.category as string,
+  );
+
+  return res;
+};
+
 export const adminService = {
+  sendNotificationsToUsers,
   getSubscriptionFromDB,
   loginAdminIntoDB,
   updateAdminProfileInDB,

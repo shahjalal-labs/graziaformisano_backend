@@ -49,6 +49,7 @@ router.patch("/remove-subscription/:id", adminController.removeSubscription);
 router.get("/events/:id", auth(UserRole.ADMIN), adminController.eventDetails);
 router.get("/users/:id", auth(UserRole.ADMIN), adminController.userDetails);
 router.delete("/delete/:id", auth(UserRole.ADMIN), adminController.deleteUser);
+router.post("/send-notifications", adminController.sendAdminNotifications);
 router.delete(
   "/delete-event/:id",
   auth(UserRole.ADMIN),

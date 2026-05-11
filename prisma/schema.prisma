@@ -65,6 +65,7 @@ model UserProfile {
   attendance       Int      @default(0)
   bio              String
   education        String?
+  company          String?
   stripeCustomerId String?
   stripeAccountId  String?
   skills           String[]
@@ -135,6 +136,17 @@ model EventAttendee {
   event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@map("eventAttendees")
+}
+
+model AdminNotifications {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  company   String?
+  category  String?
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("adminNotifications")
 }
 
 model Post {
@@ -374,6 +386,7 @@ enum TNotificationType {
   Message
   Event
   Follow
+  Admin
 }
 
 enum TStatus {

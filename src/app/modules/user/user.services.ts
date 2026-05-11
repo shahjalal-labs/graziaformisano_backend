@@ -140,6 +140,7 @@ const setUpUserProfileIntoDB = async (req: Request) => {
       subProfession: payload.subProfession,
       education: payload.education,
       skills: payload.skills,
+      company:payload.company,
       stripeCustomerId: account.id,
     },
   });
@@ -186,6 +187,7 @@ const updateUserProfileIntoDB = async (userId: string, payload: any) => {
       subProfession: payload.subProfession || user.userProfile?.subProfession,
       education: payload.education || user.userProfile?.education,
       skills: payload.skills || user.userProfile?.skills,
+      company: payload.company || user.userProfile?.company,
     },
   });
 
@@ -233,7 +235,7 @@ const getProfileFromDB = async (id: string) => {
       email: true,
       profileImage: true,
       createdAt: true,
-      isSubscribed: true,
+      isSubscribed: true,      
       subscriptionExpiresAt:true,
       subscriptionType:true,
       userSubscription: {
@@ -268,6 +270,7 @@ const getProfileFromDB = async (id: string) => {
           attendance: true,
           followers: true,
           hosted: true,
+          company:true,
         },
       },
     },
@@ -420,6 +423,7 @@ const getUserDetailsFromDB = async (ami: string, userId: string) => {
           followers: true,
           education: true,
           skills: true,
+          company:true
         },
       },
       follower: {
