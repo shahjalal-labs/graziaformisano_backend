@@ -7,7 +7,7 @@ import GlobalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 import redisClient from "./helpers/redis";
-import { accountDelete, dataDelete, privacyPolicy, termsandconditions } from "./app/routes/view.route";
+import { accountDelete, childPolicy, dataDelete, privacyPolicy, termsandconditions } from "./app/routes/view.route";
 import { RevenueController } from "./app/modules/stripe/subscription.webhook";
 
 const app: Application = express();
@@ -65,6 +65,9 @@ app.get("/terms-and-conditions", (req, res) => {
 
 app.get("/data-delete", (req, res) => {
   res.send(dataDelete());
+});
+app.get("/child-policy", (req, res) => {
+  res.send(childPolicy());
 });
 
 app.get("/account-delete", (req, res) => {

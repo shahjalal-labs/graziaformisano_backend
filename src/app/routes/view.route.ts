@@ -174,7 +174,6 @@ export const privacyPolicy = () => {
 `;
 };
 
-
 export const termsandconditions = () => {
   return `<!doctype html>
 <html lang="en">
@@ -359,8 +358,6 @@ export const termsandconditions = () => {
 </html>
 `;
 };
-
-
 
 export const accountDelete = () => {
   return `<!DOCTYPE html>
@@ -608,4 +605,93 @@ export const dataDelete = () => {
 </body>
 </html>
  `;
+};
+
+export const childPolicy = () => {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BizMeet - Child Safety Policy</title>
+  <meta name="description" content="Child Sexual Abuse and Exploitation (CSAE) Policy" />
+  <style>
+    :root{--bg:#f7f8fb;--card:#ffffff;--muted:#6b7280;--accent:#0f766e;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica Neue,Arial}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:#0f172a;-webkit-font-smoothing:antialiased;line-height:1.5;padding:32px}
+    .wrap{max-width:900px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+    header h1{font-size:20px;margin:0;color:var(--accent)}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(15,23,42,0.06);margin-bottom:14px}
+    h2{margin:0 0 8px 0;font-size:16px;color:#08101a}
+    p{margin:6px 0;color:#0b1220}
+    ul{margin:6px 0 6px 20px;color:var(--muted)}
+    .muted{color:var(--muted);font-size:13px}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef6f4;color:var(--accent);font-weight:600;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>BizMeet Platform</h1>
+        <p class="muted">Child Sexual Abuse & Exploitation (CSAE) Policy</p>
+      </div>
+      <div style="text-align:right">
+        <span class="pill">Last updated: May 9, 2026</span>
+        <div class="muted">Zero-tolerance policy</div>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Overview</h2>
+      <p>
+        Our platform maintains a zero-tolerance stance toward any form of child sexual abuse, exploitation,
+        or child sexual abuse material (CSAM). This policy describes prohibited behaviors, reporting
+        procedures, moderation responses, and user safety measures.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Prohibited Content and Behavior</h2>
+      <ul>
+        <li>Uploading, sharing, storing, or distributing child sexual abuse material (CSAM) is strictly prohibited.</li>
+        <li>Grooming, exploitation, or sexualization of minors is forbidden.</li>
+        <li>Promoting, encouraging, or facilitating child abuse or exploitation is not allowed.</li>
+        <li>Using the platform to harm or endanger minors in any way is prohibited.</li>
+      </ul>
+      <p class="muted">Any violation may result in immediate account suspension or permanent removal.</p>
+    </section>
+
+    <section class="card">
+      <h2>Reporting and Moderation</h2>
+      <ul>
+        <li>Users may report inappropriate content, accounts, messages, events, posts, or comments through the app or by contacting our safety team.</li>
+        <li>We actively review reports and take appropriate action, which may include removing content, suspending or banning accounts, and reporting illegal activity to law enforcement or child protection organizations when required.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>User Safety</h2>
+      <p class="muted">We are committed to protecting minors by:</p>
+      <ul>
+        <li>Applying content moderation and monitoring.</li>
+        <li>Providing user reporting tools and clear escalation paths.</li>
+        <li>Enforcing community guidelines to restrict abusive or harmful behavior.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Contact</h2>
+      <p>
+        If you encounter any content or behavior related to child sexual abuse or exploitation, please report it immediately.
+      </p>
+      <p class="muted">Email: bizmeet2026@gmail.com</p>
+    </section>
+
+    <footer class="muted" style="text-align:center;margin-top:12px">We review all reports promptly and take appropriate action, including content removal, account suspension, and referral to authorities when necessary.</footer>
+  </div>
+</body>
+</html>
+`;
 };
