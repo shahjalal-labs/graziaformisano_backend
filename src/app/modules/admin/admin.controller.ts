@@ -86,6 +86,17 @@ const allSubscribers = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const allNotifications = catchAsync(async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const result = await adminService.getAllAdminNotificationsFromDB(page);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "All notifications retrieved successfully",
+    data: result,
+  });
+});
 const allSubscriber = catchAsync(async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const result = await adminService.getSubscriptionFromDB(page, req.query.search as string);
@@ -99,6 +110,7 @@ const allSubscriber = catchAsync(async (req: Request, res: Response) => {
 });
 const sendAdminNotifications = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
+  console.log(payload);
   const result = await adminService.sendNotificationsToUsers(payload);
 
   sendResponse(res, {
@@ -198,8 +210,20 @@ const toggleUserStatus = catchAsync(async (req: Request, res: Response) => {
     message: result.message,
   });
 });
+const allCompany = catchAsync(async (req: Request, res: Response) => {
+  const company = await adminService.getAllCompanyFromDB();
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "All companies retrieved successfully",
+    data: company,
+  });
+});
 
 export const adminController = {
+  allNotifications,
+  allCompany,
   allSubscriber,
   loginAdmin,
   updateAdminProfile,

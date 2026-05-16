@@ -50,6 +50,8 @@ router.get("/events/:id", auth(UserRole.ADMIN), adminController.eventDetails);
 router.get("/users/:id", auth(UserRole.ADMIN), adminController.userDetails);
 router.delete("/delete/:id", auth(UserRole.ADMIN), adminController.deleteUser);
 router.post("/send-notifications", adminController.sendAdminNotifications);
+router.get("/companies",  adminController.allCompany);
+router.get("/notifications",  adminController.allNotifications);
 router.delete(
   "/delete-event/:id",
   auth(UserRole.ADMIN),

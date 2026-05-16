@@ -549,7 +549,7 @@ const sendNotificationsToUsers = async (payload: AdminNotifications) => {
     },
   });
 
-  const res =await sendAdminNotifications(
+  const res = await sendAdminNotifications(
     payload.content,
     "Notifica da Biz Meet",
     payload.company as string,
@@ -559,7 +559,54 @@ const sendNotificationsToUsers = async (payload: AdminNotifications) => {
   return res;
 };
 
+const getAllCompanyFromDB = async () => {
+  const company = await prisma.userProfile.findMany({
+    where: {
+      company: { not: null },
+    },
+    select: {
+      company: true,
+    },
+    distinct: ["company"],
+  });
+
+  return company;
+};
+
+const getAllAdminNotificationsFromDB = async (page: number = 1) => {
+  const totalNotifications = await prisma.adminNotifications.count({});
+  const filteredPostsCount = await prisma.adminNotifications.count({});
+  const totalPages = Math.ceil(filteredPostsCount / 10);
+
+  const notifications = await prisma.adminNotifications.findMany({
+    skip: (page - 1) * 10,
+    take: 10,
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      category: true,
+      company: true,
+      content: true,
+      createdAt: true,
+    },
+  });
+
+  return {
+    meta: {
+      totalNotifications,
+      filteredNotifications: filteredPostsCount,
+      totalPages,
+      currentPage: page,
+    },
+    notifications,
+  };
+};
+
 export const adminService = {
+  getAllAdminNotificationsFromDB,
+  getAllCompanyFromDB,
   sendNotificationsToUsers,
   getSubscriptionFromDB,
   loginAdminIntoDB,

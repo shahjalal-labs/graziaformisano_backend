@@ -155,10 +155,11 @@ const getAllEventsFromDB = async (
 
   return events;
 };
-const getMyEventsFromDB = async (userId: string) => {
+const getMyEventsFromDB = async (userId: string, eventCategory?: TEventCategory,) => {
   const events = await prisma.event.findMany({
     where: {
       userId: userId,
+      ...(eventCategory && { eventCategory }),
     },
     select: {
       id: true,

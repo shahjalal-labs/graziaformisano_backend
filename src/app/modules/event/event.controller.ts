@@ -37,7 +37,7 @@ const getAllEvents = catchAsync(async (req: Request, res: Response) => {
 });
 const getMyEvents = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
-  const events = await eventService.getMyEventsFromDB(userId);
+  const events = await eventService.getMyEventsFromDB(userId, req.query.category as TEventCategory);
   sendResponse(res, {
     success: true,
     statusCode: 200,
