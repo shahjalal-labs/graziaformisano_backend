@@ -155,7 +155,10 @@ const getAllEventsFromDB = async (
 
   return events;
 };
-const getMyEventsFromDB = async (userId: string, eventCategory?: TEventCategory,) => {
+const getMyEventsFromDB = async (
+  userId: string,
+  eventCategory?: TEventCategory,
+) => {
   const events = await prisma.event.findMany({
     where: {
       userId: userId,
@@ -384,8 +387,9 @@ const getEventDetailsFromDB = async (eventId: string) => {
         },
       },
       eventAttendees: {
-        where: { status: "Accepted" },
+        // where: { status: "Accepted" },
         select: {
+          status: true,
           user: {
             select: {
               id: true,
