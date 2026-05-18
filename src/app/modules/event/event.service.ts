@@ -394,6 +394,13 @@ const getEventDetailsFromDB = async (eventId: string) => {
             select: {
               id: true,
               profileImage: true,
+              userName: true,
+              userProfile: {
+                select: {
+                  profession: true,
+                  company: true,
+                },
+              },
             },
           },
         },
