@@ -335,6 +335,7 @@ const getUsersFromDB = async (
         select: {
           city: true,
           profession: true,
+          company:true
         },
       },
       follower: {
