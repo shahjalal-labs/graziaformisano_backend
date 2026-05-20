@@ -588,7 +588,7 @@ const getEventAndUserByLocation = async (
   const [events, users] = await Promise.all([
     prisma.event.findMany({
       where: {
-        eventType: "Public",
+        // eventType: "Public",
         eventDate: {
           gte: new Date(),
         },
@@ -659,6 +659,8 @@ const getEventAndUserByLocation = async (
       };
     })
     .filter((item) => !maxDistance || item.distance <= maxDistance);
+
+    console.log(nearbyEvents, "near by");
 
   const nearbyUsers = users
     .map((user) => {
