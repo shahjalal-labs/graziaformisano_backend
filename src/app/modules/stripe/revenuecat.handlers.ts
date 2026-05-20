@@ -71,7 +71,7 @@ export async function initialPurchaseOrRenew(event: any) {
     // Update user subscription status
     await prisma.user.update({
       where: { id: userId },
-      data: { isSubscribed: true, subscriptionExpiresAt: expiresAt },
+      data: { isSubscribed: true, subscriptionExpiresAt: expiresAt, subscriptionType: "Paid" },
     });
 
     console.log(`✅ Subscription activated for user ${userId}`, {
@@ -138,7 +138,7 @@ export async function handleExpiry(event: any) {
     // Update user subscription status
     await prisma.user.update({
       where: { id: userId },
-      data: { isSubscribed: false, subscriptionExpiresAt: null },
+      data: { isSubscribed: false, subscriptionExpiresAt: null, subscriptionType: "Free Paid" },
     });
 
     console.log(`✅ Subscription deactivated for user ${userId}`);
