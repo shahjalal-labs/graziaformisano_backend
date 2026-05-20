@@ -88,7 +88,7 @@ const getAllEventsFromDB = async (
 
   const events = await prisma.event.findMany({
     where: {
-      eventType: "Public",
+      // eventType: "Public",
       eventDate: {
         gte: new Date(),
       },
