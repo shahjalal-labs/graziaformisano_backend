@@ -44,12 +44,12 @@ const createEventInDB = async (userId: string, payload: any) => {
     },
   });
   if (payload.eventType === "Private" && payload.invitees?.length > 0) {
-    await payload.invitees.forEach(async (invite: string) => {
+    await Promise.all(payload.invitees.map(async (invite: string) => {
       await sendPrivateEventJoinInvitation({
         userId: invite,
         eventId: event.id,
       });
-    });
+    }));
   }
 
   if (payload.eventType === "Public") {

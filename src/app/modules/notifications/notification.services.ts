@@ -45,6 +45,7 @@ export const sendSingleNotification = async (
       senderId,
       content,
       type,
+      eventId,
     },
   });
 
