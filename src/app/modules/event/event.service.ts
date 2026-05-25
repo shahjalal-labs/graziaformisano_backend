@@ -520,7 +520,7 @@ const sendPrivateEventJoinInvitation = async (payload: any) => {
       event.userId,
       "🎉Invito a partecipare all’evento!",
       "Event",
-      `${event.id}`,
+      `${payload.eventId}`,
     );
   } catch (notificationError) {
     console.error("Notification failed:", notificationError);
