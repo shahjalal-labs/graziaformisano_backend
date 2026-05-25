@@ -182,6 +182,7 @@ const updatePostInDB = async (req: Request) => {
     data: {
       content: payload.content ?? post.content,
       mediaUrls: mediaUrls ?? post.mediaUrls,
+      isPrivate: payload.isPrivate ?? post.isPrivate,
     },
   });
 };
