@@ -255,7 +255,7 @@ const getFollowerListFromDB = async (userId: string) => {
 
 const getFollowingListFromDB = async (followerId: string) => {
   const following = await prisma.follower.findMany({
-    where: { followerId },
+    where: { followerId, isAccepted: true },
     select: {
       id: true,
       isAccepted: true,
