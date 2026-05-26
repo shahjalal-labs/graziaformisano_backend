@@ -561,7 +561,7 @@ import { verifyWebSocketToken } from "./socket.service";
 import { parse } from "url";
 import redisClient from "../../../helpers/redis";
 import { sendSingleNotification } from "../notifications/notification.services";
-import { is } from "date-fns/locale";
+
 
 interface CustomWebSocket extends WebSocket {
   userId?: string;
