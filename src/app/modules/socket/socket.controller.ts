@@ -956,6 +956,7 @@ export function setupWebSocketServer(server: any) {
                   await redisClient.incr(ukey);
                 }
               }
+              console.log(participantIds, "participantIds");
 
               const recipients = participantIds.filter(
                 (pid) => pid !== userId,
