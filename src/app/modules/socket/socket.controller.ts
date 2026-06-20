@@ -931,7 +931,7 @@ export function setupWebSocketServer(server: any) {
             // Increment unread for other participants
             const eventRoomInfo = await prisma.eventRoom.findUnique({
               where: { id: eventRoomId },
-              select: { eventId: true },
+              select: { eventId: true , eventName: true},
             });
             if (eventRoomInfo) {
               const eventId = eventRoomInfo.eventId;
@@ -960,17 +960,18 @@ export function setupWebSocketServer(server: any) {
               const recipients = participantIds.filter(
                 (pid) => pid !== userId,
               ) as string[];
-              // await Promise.allSettled(
-              //   recipients.map((participantId) =>
-              //     sendSingleNotification(
-              //       participantId,
-              //       content || "New message in your event",
-              //       userId,
-              //       "Event Message",
-              //       "Message"
-              //     ),
-              //   ),
-              // );
+              await Promise.allSettled(
+                recipients.map((participantId) =>
+                  sendSingleNotification(
+                    participantId,
+                    content || "Hai ricevuto un file.",
+                    userId,
+                    `Nuovo messaggio nell'evento ${eventRoomInfo.eventName}`,
+                    "Message",
+                    `${eventRoomInfo.eventId}`,
+                  ),
+                ),
+              );
 
               // Update conversations for sender
               const senderEventConvs =
@@ -1204,16 +1205,6 @@ async function getEventConversationsForUser(targetUserId: string) {
 
 export const socket = { wss, roomUsers, adminRoomWatchers };
 
-
-
-
-
-
-
-
-
-
-
 // // shahjalal changed this
 // import { WebSocket, WebSocketServer } from "ws";
 // import { Request } from "express";
@@ -1222,7 +1213,6 @@ export const socket = { wss, roomUsers, adminRoomWatchers };
 // import { parse } from "url";
 // import redisClient from "../../../helpers/redis";
 // import { sendSingleNotification } from "../notifications/notification.services";
-
 
 // interface CustomWebSocket extends WebSocket {
 //   userId?: string;

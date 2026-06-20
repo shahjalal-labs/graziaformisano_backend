@@ -44,12 +44,14 @@ const createEventInDB = async (userId: string, payload: any) => {
     },
   });
   if (payload.eventType === "Private" && payload.invitees?.length > 0) {
-    await Promise.all(payload.invitees.map(async (invite: string) => {
-      await sendPrivateEventJoinInvitation({
-        userId: invite,
-        eventId: event.id,
-      });
-    }));
+    await Promise.all(
+      payload.invitees.map(async (invite: string) => {
+        await sendPrivateEventJoinInvitation({
+          userId: invite,
+          eventId: event.id,
+        });
+      }),
+    );
   }
 
   if (payload.eventType === "Public") {
@@ -155,6 +157,7 @@ const getAllEventsFromDB = async (
 
   return events;
 };
+
 const getMyEventsFromDB = async (
   userId: string,
   eventCategory?: TEventCategory,
@@ -599,12 +602,33 @@ const getEventAndUserByLocation = async (
   const [events, users] = await Promise.all([
     prisma.event.findMany({
       where: {
-        // eventType: "Public",
         eventDate: {
           gte: new Date(),
         },
-        // NOT: { userId },
+        OR: [
+          {
+            eventType: "Public",
+          },
+          {
+            eventType: "Private",
+            OR: [
+              { userId },
+              {
+                eventAttendees: {
+                  some: {
+                    userId,
+                  },
+                },
+              },
+            ],
+          },
+        ],
       },
+      // where: {
+      //   eventDate: {
+      //     gte: new Date(),
+      //   },
+      // },
       select: {
         id: true,
         eventName: true,
@@ -671,7 +695,7 @@ const getEventAndUserByLocation = async (
     })
     .filter((item) => !maxDistance || item.distance <= maxDistance);
 
-    console.log(nearbyEvents, "near by");
+  console.log(nearbyEvents, "near by");
 
   const nearbyUsers = users
     .map((user) => {
