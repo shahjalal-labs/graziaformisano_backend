@@ -931,7 +931,7 @@ export function setupWebSocketServer(server: any) {
             // Increment unread for other participants
             const eventRoomInfo = await prisma.eventRoom.findUnique({
               where: { id: eventRoomId },
-              select: { eventId: true , eventName: true},
+              select: { eventId: true , event : { select: { eventName: true } } },
             });
             if (eventRoomInfo) {
               const eventId = eventRoomInfo.eventId;
@@ -966,7 +966,7 @@ export function setupWebSocketServer(server: any) {
                     participantId,
                     content || "Hai ricevuto un file.",
                     userId,
-                    `Nuovo messaggio nell'evento ${eventRoomInfo.eventName}`,
+                    `Nuovo messaggio nell'evento ${eventRoomInfo.event.eventName}`,
                     "Message",
                     `${eventRoomInfo.eventId}`,
                   ),
