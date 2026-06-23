@@ -430,7 +430,7 @@ const joinEventInDB = async (userId: string, eventId: string) => {
   const event = await prisma.event.findUniqueOrThrow({
     where: { id: eventId },
   });
-  await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
 
@@ -488,6 +488,19 @@ const joinEventInDB = async (userId: string, eventId: string) => {
       attendance: { increment: 1 },
     },
   });
+
+  try {
+    await sendSingleNotification(
+      event.userId,
+      `${user.userName} ha partecipato al tuo evento ${event.eventName}. Tocca per vedere i dettagli.`,
+      event.userId,
+      "🎉Nuovo Partecipante al Tuo Evento!",
+      "Event",
+      `${eventId}`,
+    );
+  } catch (notificationError) {
+    console.error("Notification failed:", notificationError);
+  }
 
   return;
 };
@@ -574,7 +587,10 @@ const getNonInvitedUsersForPrivateEvent = async (eventId: string) => {
 };
 
 const leaveEventInDB = async (userId: string, eventId: string) => {
-  await prisma.event.findUniqueOrThrow({
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+  });
+  const event =await prisma.event.findUniqueOrThrow({
     where: { id: eventId },
   });
   const attendee = await prisma.eventAttendee.findFirst({
@@ -594,6 +610,19 @@ const leaveEventInDB = async (userId: string, eventId: string) => {
         },
       },
     });
+  }
+
+    try {
+    await sendSingleNotification(
+      event.userId,
+      `${user.userName} ha lasciato il tuo evento ${event.eventName}.`,
+      event.userId,
+      "👋Partecipante che ha lasciato l'evento",
+      "Event",
+      `${event.id}`,
+    );
+  } catch (notificationError) {
+    console.error("Notification failed:", notificationError);
   }
 
   return;
@@ -708,7 +737,6 @@ const getEventAndUserByLocation = async (
     })
     .filter((item) => !maxDistance || item.distance <= maxDistance);
 
-  
   const nearbyUsers = users
     .map((user) => {
       const location = user.userLocation[0];

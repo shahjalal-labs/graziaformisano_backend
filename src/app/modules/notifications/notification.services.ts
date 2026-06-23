@@ -2,6 +2,7 @@ import { TNotificationType } from "@prisma/client";
 import ApiError from "../../../errors/ApiErrors";
 import admin from "../../../helpers/firebase.admin";
 import prisma from "../../../shared/prisma";
+import { calculateDistanceKm } from "../../../helpers/distanceCalculator";
 
 // Send notification to a single user
 export const sendSingleNotification = async (
@@ -64,45 +65,154 @@ export const sendSingleNotification = async (
   }
 };
 
+// export const sendNotifications = async (
+//   body: string,
+//   title: string,
+//   senderId: string,
+//   eventId?: string,
+// ) => {
+//   const senderLocation = await prisma.userLocation.findFirst({
+//     where: { userId: senderId },
+//   });
+
+//   console.log("Sender Location:", senderLocation);
+
+//   try {
+//     const users = await prisma.user.findMany({
+//       where: { fcmToken: { not: null } },
+//       select: { id: true, fcmToken: true },
+//     });
+
+//     if (users.length === 0) {
+//       throw new ApiError(404, "No users found with valid FCM tokens.");
+//     }
+
+//     const fcmTokens = users.map((user) => user.fcmToken);
+
+//     const message = {
+//       notification: {
+//         title: title || "Notification",
+//         body: body,
+//       },
+//       tokens: fcmTokens,
+//     };
+//     const response = await admin
+//       .messaging()
+//       .sendEachForMulticast(message as any);
+//     const successIndices = response.responses
+//       .map((res, idx) => (res.success ? idx : null))
+//       .filter((idx) => idx !== null) as number[];
+
+//     const successfulUsers = successIndices.map((idx) => users[idx]);
+//     if (successfulUsers.length > 0) {
+//       await prisma.notification.createMany({
+//         data: successfulUsers.map((user) => ({
+//           receiverId: user.id,
+//           title: title || "Notification",
+//           content: body,
+//           senderId,
+//           type: "Event",
+//           eventId,
+//         })),
+//       });
+//     }
+//     const failedTokens = response.responses
+//       .map((res, idx) => (!res.success ? fcmTokens[idx] : null))
+//       .filter((token) => token !== null);
+
+//     return {
+//       successCount: response.successCount,
+//       failureCount: response.failureCount,
+//       failedTokens,
+//     };
+//   } catch (error) {
+//     throw new ApiError(500, "Failed to send notifications.");
+//   }
+// };
+
+
 export const sendNotifications = async (
   body: string,
   title: string,
   senderId: string,
-  eventId?: string,
+  eventId?: string
 ) => {
-  const senderLocation = await prisma.userLocation.findFirst({
-    where: { userId: senderId },
-  });
-
-  console.log("Sender Location:", senderLocation);
-
   try {
-    const users = await prisma.user.findMany({
-      where: { fcmToken: { not: null } },
-      select: { id: true, fcmToken: true },
+    const senderLocation = await prisma.userLocation.findFirst({
+      where: { userId: senderId },
     });
 
-    if (users.length === 0) {
-      throw new ApiError(404, "No users found with valid FCM tokens.");
+    if (!senderLocation) {
+      throw new ApiError(404, "Sender location not found.");
     }
 
-    const fcmTokens = users.map((user) => user.fcmToken);
+    const users = await prisma.user.findMany({
+      where: {
+        fcmToken: {
+          not: null,
+        },
+        id: {
+          not: senderId,
+        },
+      },
+      select: {
+        id: true,
+        fcmToken: true,
+       userLocation: {
+        select : {
+          latitude: true,
+          longitude: true,
+        }
+       }
+      },
+    });
+
+    const nearbyUsers = users.filter((user) => {
+      if (!user.userLocation) return false;
+
+      const distance = calculateDistanceKm(
+        senderLocation.latitude,
+        senderLocation.longitude,
+        user.userLocation[0].latitude,
+        user.userLocation[0].longitude
+      );
+
+      return distance <= 50;
+    });
+
+    if (nearbyUsers.length === 0) {
+      return {
+        successCount: 0,
+        failureCount: 0,
+        failedTokens: [],
+        message: "No users found within 50 KM.",
+      };
+    }
+
+    const fcmTokens = nearbyUsers
+      .map((user) => user.fcmToken)
+      .filter(Boolean) as string[];
 
     const message = {
       notification: {
         title: title || "Notification",
-        body: body,
+        body,
       },
       tokens: fcmTokens,
     };
+
     const response = await admin
       .messaging()
-      .sendEachForMulticast(message as any);
+      .sendEachForMulticast(message);
+
     const successIndices = response.responses
       .map((res, idx) => (res.success ? idx : null))
       .filter((idx) => idx !== null) as number[];
 
-    const successfulUsers = successIndices.map((idx) => users[idx]);
+    const successfulUsers = successIndices.map(
+      (idx) => nearbyUsers[idx]
+    );
+
     if (successfulUsers.length > 0) {
       await prisma.notification.createMany({
         data: successfulUsers.map((user) => ({
@@ -115,9 +225,10 @@ export const sendNotifications = async (
         })),
       });
     }
+
     const failedTokens = response.responses
       .map((res, idx) => (!res.success ? fcmTokens[idx] : null))
-      .filter((token) => token !== null);
+      .filter(Boolean);
 
     return {
       successCount: response.successCount,
@@ -125,9 +236,11 @@ export const sendNotifications = async (
       failedTokens,
     };
   } catch (error) {
+    console.error(error);
     throw new ApiError(500, "Failed to send notifications.");
   }
 };
+
 
 const getNotificationsFromDB = async (req: any) => {
   const notifications = await prisma.notification.findMany({
