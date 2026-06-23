@@ -11,7 +11,8 @@ export const sendSingleNotification = async (
   title?: string,
   type?: TNotificationType,
   eventId?: string,
-) => {
+) => { 
+
   const user = await prisma.user.findUnique({
     where: { id: receiverId },
   });
@@ -69,6 +70,12 @@ export const sendNotifications = async (
   senderId: string,
   eventId?: string,
 ) => {
+  const senderLocation = await prisma.userLocation.findFirst({
+    where: { userId: senderId },
+  });
+
+  console.log("Sender Location:", senderLocation);
+
   try {
     const users = await prisma.user.findMany({
       where: { fcmToken: { not: null } },
@@ -210,14 +217,10 @@ export const sendAdminNotifications = async (
     whereCondition.profession = profession;
   }
 
-  console.log(profession);
-
   const userProfiles = await prisma.userProfile.findMany({
     where: whereCondition,
     select: { user: { select: { id: true, fcmToken: true } } },
   });
-
-  console.log(userProfiles, "profiles");
 
   if (userProfiles.length === 0) {
     throw new ApiError(404, "No users found with valid FCM tokens.");
@@ -228,8 +231,6 @@ export const sendAdminNotifications = async (
     .filter(
       (token): token is string => typeof token === "string" && token.length > 0,
     );
-
-  console.log(fcmTokens, "sdfsdfsdf");
 
   const message = {
     notification: {

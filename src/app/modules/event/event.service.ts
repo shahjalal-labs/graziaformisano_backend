@@ -696,8 +696,7 @@ const getEventAndUserByLocation = async (
     })
     .filter((item) => !maxDistance || item.distance <= maxDistance);
 
-  console.log(nearbyEvents, "near by");
-
+  
   const nearbyUsers = users
     .map((user) => {
       const location = user.userLocation[0];

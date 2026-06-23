@@ -110,7 +110,7 @@ const allSubscriber = catchAsync(async (req: Request, res: Response) => {
 });
 const sendAdminNotifications = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
-  console.log(payload);
+  
   const result = await adminService.sendNotificationsToUsers(payload);
 
   sendResponse(res, {

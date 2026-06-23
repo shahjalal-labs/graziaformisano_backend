@@ -289,7 +289,7 @@ const blockUnblockUserInDB = async (roomId: string, userId: string) => {
       id: roomId,
     },
   });
-  console.log(userId);
+
 
   if (room.senderId !== userId && room.receiverId !== userId) {
     throw new ApiError(400, "You are not a participant of this room");
