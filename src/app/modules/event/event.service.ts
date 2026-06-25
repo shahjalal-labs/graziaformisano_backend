@@ -90,28 +90,11 @@ const getAllEventsFromDB = async (
 
   const events = await prisma.event.findMany({
     where: {
-      // eventType: "Public",
+      eventType: "Public",
       eventDate: {
         gte: new Date(),
       },
-      OR: [
-        {
-          eventType: "Public",
-        },
-        {
-          eventType: "Private",
-          OR: [
-            { userId },
-            {
-              eventAttendees: {
-                some: {
-                  userId,
-                },
-              },
-            },
-          ],
-        },
-      ],
+
       // NOT: [userId ? { userId } : {}],
       ...(search && {
         OR: [
@@ -607,7 +590,7 @@ const leaveEventInDB = async (userId: string, eventId: string) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
-  const event = await prisma.event.findUniqueOrThrow({
+  const event =await prisma.event.findUniqueOrThrow({
     where: { id: eventId },
   });
   const attendee = await prisma.eventAttendee.findFirst({
@@ -629,7 +612,7 @@ const leaveEventInDB = async (userId: string, eventId: string) => {
     });
   }
 
-  try {
+    try {
     await sendSingleNotification(
       event.userId,
       `${user.userName} ha lasciato il tuo evento ${event.eventName}.`,
