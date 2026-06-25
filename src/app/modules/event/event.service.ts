@@ -130,6 +130,7 @@ const getAllEventsFromDB = async (
       eventTime: true,
       attendeesCount: true,
       maxAttendence: true,
+      eventCategory: true,
       user: {
         select: {
           id: true,
@@ -688,6 +689,7 @@ const getEventAndUserByLocation = async (
         eventTime: true,
         attendeesCount: true,
         maxAttendence: true,
+        eventCategory:true,
         latitude: true,
         longitude: true,
         user: {
@@ -737,9 +739,10 @@ const getEventAndUserByLocation = async (
         address: event.address,
         eventDate: event.eventDate,
         eventTime: event.eventTime,
+        eventCategory: event.eventCategory,
         attendeesCount: event.attendeesCount,
         maxAttendence: event.maxAttendence,
-        latitude: event.latitude,
+        latitude: event.latitude,        
         longitude: event.longitude,
         distance,
       };
