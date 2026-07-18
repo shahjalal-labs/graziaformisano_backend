@@ -969,7 +969,7 @@ export function setupWebSocketServer(server: any) {
                     userId,
                     `Nuovo messaggio nell'evento ${eventRoomInfo.event.eventName}`,
                     "Message",
-                    `${eventRoomId}`,
+                    `${eventRoomInfo.eventId}`,
                   ),
                 ),
               );
