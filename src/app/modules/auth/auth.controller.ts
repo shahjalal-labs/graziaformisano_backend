@@ -30,6 +30,15 @@ const authLogin = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const logout = catchAsync(async (req: Request, res: Response) => {
+  await authService.logOutFromDB(req.user.id);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "User successfully logged out",
+  });
+});
 
 const updateUserLocation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.user;
@@ -97,7 +106,7 @@ const changePassword = catchAsync(async (req: any, res: Response) => {
 const blockUnblockUser = catchAsync(async (req: Request, res: Response) => {
   const { roomId } = req.body;
   const { id } = req.user;
-  const result =await authService.blockUnblockUserInDB(roomId, id);
+  const result = await authService.blockUnblockUserInDB(roomId, id);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -113,4 +122,5 @@ export const authController = {
   resetPassword,
   changePassword,
   blockUnblockUser,
+  logout,
 };

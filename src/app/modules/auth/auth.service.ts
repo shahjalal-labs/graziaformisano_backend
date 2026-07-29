@@ -312,7 +312,17 @@ const blockUnblockUserInDB = async (roomId: string, userId: string) => {
   };
 };
 
+const logOutFromDB = async (userId: string) => {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { fcmToken: null },
+  });
+
+  return;
+};
+
 export const authService = {
+  logOutFromDB,
   loginUserIntoDB,
   userLocationUpdateInDB,
   sendForgotPasswordOtpDB,

@@ -13,10 +13,9 @@ router.post(
   validateRequest(authValidation.loginSchema),
   authController.loginUser,
 );
-router.post(
-  "/social-login",
-  authController.authLogin,
-);
+//login user
+router.post("/logout", auth(), authController.logout);
+router.post("/social-login", authController.authLogin);
 router.post(
   "/update/user-location",
   auth(),
