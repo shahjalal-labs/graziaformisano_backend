@@ -450,21 +450,6 @@ const deleteEventFromDB = async (eventId: string) => {
     where: { id: eventId },
   });
 
-  const now = new Date();
-  const endOfToday = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    23,
-    59,
-    59,
-    999,
-  );
-
-  if (event.eventDate <= endOfToday) {
-    throw new ApiError(400, "Only future events can be deleted");
-  }
-
   await prisma.event.delete({
     where: { id: eventId },
   });

@@ -140,7 +140,7 @@ const setUpUserProfileIntoDB = async (req: Request) => {
       subProfession: payload.subProfession,
       education: payload.education,
       skills: payload.skills,
-      company:payload.company,
+      company: payload.company,
       stripeCustomerId: account.id,
     },
   });
@@ -235,9 +235,9 @@ const getProfileFromDB = async (id: string) => {
       email: true,
       profileImage: true,
       createdAt: true,
-      isSubscribed: true,      
-      subscriptionExpiresAt:true,
-      subscriptionType:true,
+      isSubscribed: true,
+      subscriptionExpiresAt: true,
+      subscriptionType: true,
       userSubscription: {
         select: {
           id: true,
@@ -247,7 +247,7 @@ const getProfileFromDB = async (id: string) => {
           originaltransactionId: true,
           store: true,
           subscription: {
-            select: {              
+            select: {
               title: true,
             },
           },
@@ -270,7 +270,7 @@ const getProfileFromDB = async (id: string) => {
           attendance: true,
           followers: true,
           hosted: true,
-          company:true,
+          company: true,
         },
       },
     },
@@ -280,9 +280,19 @@ const getProfileFromDB = async (id: string) => {
     where: { followerId: id, isAccepted: true },
   });
 
+  const activeEventsCount = await prisma.event.count({
+    where: {
+      userId: id,
+      eventDate: {
+        gte: new Date(),
+      },
+    },
+  });
+
   return {
     ...user,
     followingCount,
+    activeEventsCount,
   };
 };
 
@@ -335,7 +345,7 @@ const getUsersFromDB = async (
         select: {
           city: true,
           profession: true,
-          company:true
+          company: true,
         },
       },
       follower: {
@@ -424,7 +434,7 @@ const getUserDetailsFromDB = async (ami: string, userId: string) => {
           followers: true,
           education: true,
           skills: true,
-          company:true
+          company: true,
         },
       },
       follower: {
@@ -437,7 +447,19 @@ const getUserDetailsFromDB = async (ami: string, userId: string) => {
     },
   });
 
-  return user;
+  const getActiveEventsCount = await prisma.event.count({
+    where: {
+      userId: userId,
+      eventDate: {
+        gte: new Date(),
+      },
+    },
+  });
+
+  return {
+    ...user,
+    activeEventsCount: getActiveEventsCount,
+  };
 };
 
 export const userService = {
