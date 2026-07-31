@@ -302,6 +302,7 @@ const getUserWiseEventJoinHistoryFromDB = async (userId: string) => {
           latitude: true,
           longitude: true,
           eventDate: true,
+          eventType:true,
           eventTime: true,
           attendeesCount: true,
           maxAttendence: true,
