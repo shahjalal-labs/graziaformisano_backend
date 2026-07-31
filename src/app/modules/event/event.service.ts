@@ -201,7 +201,7 @@ const getMyEventsFromDB = async (
       attendeesCount: true,
       maxAttendence: true,
       eventAttendees: {
-        where: { status: "Accepted" },
+        // where: { status: "Accepted" },
         select: {
           user: {
             select: {
@@ -311,7 +311,7 @@ const getUserWiseEventJoinHistoryFromDB = async (userId: string) => {
             },
           },
           eventAttendees: {
-            where: { status: "Accepted" },
+            // where: { status: "Accepted" },
             select: {
               user: {
                 select: {
