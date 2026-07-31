@@ -128,6 +128,7 @@ const getAllEventsFromDB = async (
       longitude: true,
       eventDate: true,
       eventTime: true,
+      eventType: true,
       attendeesCount: true,
       maxAttendence: true,
       eventCategory: true,
@@ -689,7 +690,7 @@ const getEventAndUserByLocation = async (
         eventTime: true,
         attendeesCount: true,
         maxAttendence: true,
-        eventCategory:true,
+        eventCategory: true,
         latitude: true,
         longitude: true,
         user: {
@@ -742,7 +743,7 @@ const getEventAndUserByLocation = async (
         eventCategory: event.eventCategory,
         attendeesCount: event.attendeesCount,
         maxAttendence: event.maxAttendence,
-        latitude: event.latitude,        
+        latitude: event.latitude,
         longitude: event.longitude,
         distance,
       };
