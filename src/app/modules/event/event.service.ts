@@ -120,6 +120,9 @@ const getAllEventsFromDB = async (
         ],
       }),
     },
+    orderBy: {
+      eventDate: "desc",
+    },
     select: {
       id: true,
       eventName: true,
@@ -295,6 +298,9 @@ const getUserWiseEventJoinHistoryFromDB = async (userId: string) => {
       id: true,
       status: true,
       event: {
+        orderBy: {
+          eventDate: "desc",
+        },
         select: {
           id: true,
           eventName: true,
@@ -302,7 +308,7 @@ const getUserWiseEventJoinHistoryFromDB = async (userId: string) => {
           latitude: true,
           longitude: true,
           eventDate: true,
-          eventType:true,
+          eventType: true,
           eventTime: true,
           attendeesCount: true,
           maxAttendence: true,
