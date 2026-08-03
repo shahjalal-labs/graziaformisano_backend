@@ -294,13 +294,15 @@ const deleteEventFromDB = async (eventId: string) => {
 const getUserWiseEventJoinHistoryFromDB = async (userId: string) => {
   const events = await prisma.eventAttendee.findMany({
     where: { userId },
+    orderBy: {
+      event: {
+        eventDate: "desc",
+      },
+    },
     select: {
       id: true,
       status: true,
       event: {
-        orderBy: {
-          eventDate: "desc",
-        },
         select: {
           id: true,
           eventName: true,
