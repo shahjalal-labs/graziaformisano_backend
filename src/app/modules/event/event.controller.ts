@@ -17,6 +17,8 @@ const getAllEvents = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const search = req.query.search as string | undefined;
   const city = req.query.city as string | undefined;
+  const profession = req.query.profession as string | undefined;
+  const subProfession = req.query.subProfession as string | undefined;
   const eventCategory = req.query.eventCategory as TEventCategory | undefined;
   const maxDistance = req.query.maxDistance
     ? Number(req.query.maxDistance)
@@ -26,6 +28,8 @@ const getAllEvents = catchAsync(async (req: Request, res: Response) => {
     search,
     city,
     eventCategory,
+    profession,
+    subProfession,
     maxDistance,
   );
   sendResponse(res, {
@@ -37,7 +41,11 @@ const getAllEvents = catchAsync(async (req: Request, res: Response) => {
 });
 const getMyEvents = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
-  const events = await eventService.getMyEventsFromDB(userId, req.query.category as TEventCategory, req.query.time as string);
+  const events = await eventService.getMyEventsFromDB(
+    userId,
+    req.query.category as TEventCategory,
+    req.query.time as string,
+  );
   sendResponse(res, {
     success: true,
     statusCode: 200,
@@ -136,7 +144,10 @@ const leaveEvent = catchAsync(async (req: Request, res: Response) => {
 const eventUserByLocation = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const maxDistance = Number(req.query.maxDistance);
-  const events = await eventService.getEventAndUserByLocation(userId, maxDistance);
+  const events = await eventService.getEventAndUserByLocation(
+    userId,
+    maxDistance,
+  );
   sendResponse(res, {
     success: true,
     statusCode: 200,

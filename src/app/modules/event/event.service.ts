@@ -75,6 +75,8 @@ const getAllEventsFromDB = async (
   search?: string,
   city?: string,
   eventCategory?: TEventCategory,
+  profession?: string,
+  subProfession?: string,
   maxDistance?: number,
 ) => {
   const userLocation = await prisma.userLocation.findFirst({
@@ -88,12 +90,55 @@ const getAllEventsFromDB = async (
     );
   }
 
+  if (profession) {
+    const professionRecord = await prisma.profession.findFirst({
+      where: { professionName: profession },
+    });
+
+    if (!professionRecord) {
+      throw new ApiError(400, `Profession with name ${profession} not found`);
+    }
+  }
+
+  if (subProfession) {
+    const subProfessionRecord = await prisma.subProfession.findFirst({
+      where: { subProfessionName: subProfession },
+    });
+
+    if (!subProfessionRecord) {
+      throw new ApiError(
+        400,
+        `Sub profession with name ${subProfession} not found`,
+      );
+    }
+  }
+
   const events = await prisma.event.findMany({
     where: {
       // eventType: "Public",
       eventDate: {
         gte: new Date(),
       },
+      ...(profession && {
+        user: {
+          userProfile: {
+            profession: {
+              contains: profession,
+              mode: "insensitive",
+            },
+          },
+        },
+      }),
+      ...(subProfession && {
+        user: {
+          userProfile: {
+            subProfession: {
+              contains: subProfession,
+              mode: "insensitive",
+            },
+          },
+        },
+      }),
       OR: [
         {
           eventType: "Public",
