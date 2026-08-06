@@ -184,6 +184,11 @@ const getAllEventsFromDB = async (
         select: {
           id: true,
           userName: true,
+          userProfile: {
+            select : {
+              profession:true
+            }
+          }
         },
       },
       eventAttendees: {
