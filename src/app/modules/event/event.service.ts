@@ -166,7 +166,7 @@ const getAllEventsFromDB = async (
       }),
     },
     orderBy: {
-      eventDate: "desc",
+      eventDate: "asc",
     },
     select: {
       id: true,
@@ -241,7 +241,7 @@ const getMyEventsFromDB = async (
       ...(eventCategory && { eventCategory }),
     },
     orderBy: {
-      eventDate: "desc",
+      eventDate: "asc",
     },
     select: {
       id: true,
@@ -346,7 +346,7 @@ const getUserWiseEventJoinHistoryFromDB = async (userId: string) => {
     where: { userId },
     orderBy: {
       event: {
-        eventDate: "desc",
+        eventDate: "asc",
       },
     },
     select: {
