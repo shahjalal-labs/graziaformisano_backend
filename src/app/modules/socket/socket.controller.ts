@@ -570,12 +570,23 @@ export function setupWebSocketServer(server: any) {
               userId,
             );
 
+            const partnerId =
+              room.senderId === userId ? room.receiverId : room.senderId;          
+            const currentlyConnectedIds = Array.from(connectedUsers)
+              .map((c) => c.userId)
+              .filter((id): id is string => id !== undefined);
+
+            const isActive = partnerId
+              ? currentlyConnectedIds.includes(partnerId)
+              : false;
+
             ws.send(
               JSON.stringify({
                 type: "past-messages",
                 roomId,
                 isBlocked: room.isBlocked,
                 blockedId: room.blockerId,
+                isActive,
                 messages,
               }),
             );
@@ -931,7 +942,7 @@ export function setupWebSocketServer(server: any) {
             // Increment unread for other participants
             const eventRoomInfo = await prisma.eventRoom.findUnique({
               where: { id: eventRoomId },
-              select: { eventId: true , event : { select: { eventName: true } } },
+              select: { eventId: true, event: { select: { eventName: true } } },
             });
             if (eventRoomInfo) {
               const eventId = eventRoomInfo.eventId;
@@ -956,7 +967,6 @@ export function setupWebSocketServer(server: any) {
                   await redisClient.incr(ukey);
                 }
               }
-        
 
               const recipients = participantIds.filter(
                 (pid) => pid !== userId,

@@ -204,6 +204,7 @@ const getFollowerRequestListFromDB = async (userId: string) => {
 
   return followers;
 };
+
 const getFollowerListFromDB = async (userId: string) => {
   const followers = await prisma.follower.findMany({
     where: { userId, isAccepted: true },
@@ -253,6 +254,29 @@ const getFollowerListFromDB = async (userId: string) => {
   });
 };
 
+const removeFollowerInDB = async (followId: string) => {
+  const followRequest = await prisma.follower.findUniqueOrThrow({
+    where: { id: followId, isAccepted: true },
+  });
+
+  const userProfile = await prisma.userProfile.findUniqueOrThrow({
+    where: { userId: followRequest.userId },
+  });
+
+  await prisma.follower.delete({
+    where: { id: followId },
+  });
+
+  await prisma.userProfile.update({
+    where: { userId: followRequest.userId },
+    data: {
+      followers: userProfile.followers > 0 ? { decrement: 1 } : 0,
+    },
+  });
+
+  return;
+};
+
 const getFollowingListFromDB = async (followerId: string) => {
   const following = await prisma.follower.findMany({
     where: { followerId, isAccepted: true },
@@ -277,6 +301,7 @@ const getFollowingListFromDB = async (followerId: string) => {
 
   return following;
 };
+
 const getFriendsListFromDB = async (userId: string, search?: string) => {
   const searchTerm = search?.trim();
 
@@ -348,4 +373,5 @@ export const followerService = {
   getFollowerListFromDB,
   getFollowingListFromDB,
   getFriendsListFromDB,
+  removeFollowerInDB,
 };

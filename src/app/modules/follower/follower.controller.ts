@@ -55,6 +55,16 @@ const followersList = catchAsync(async (req: Request, res: Response) => {
     data: followers,
   });
 });
+const removeFollower = catchAsync(async (req: Request, res: Response) => {
+  const followId = req.params.id;
+  await followerService.removeFollowerInDB(followId);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Follower removed successfully",
+  });
+});
+
 const getFollowingList = catchAsync(async (req: Request, res: Response) => {
   const followerId = req.user.id;
   const following = await followerService.getFollowingListFromDB(followerId);
@@ -84,5 +94,6 @@ export const followerController = {
   followerRequestList,
   followersList,
   getFollowingList,
-  getFriendsList
+  getFriendsList,
+  removeFollower,
 };

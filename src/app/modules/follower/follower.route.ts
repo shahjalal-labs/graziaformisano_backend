@@ -11,5 +11,6 @@ router.get("/request-list", auth(), followerController.followerRequestList);
 router.get("/accepted-list", auth(), followerController.followersList);
 router.get("/following-list", auth(), followerController.getFollowingList);
 router.get("/friends-list", auth(), followerController.getFriendsList);
+router.delete("/remove-follower/:id", auth(), followerController.removeFollower);
 
 export const followerRoutes = router;
