@@ -189,6 +189,7 @@ const getFollowerRequestListFromDB = async (userId: string) => {
       id: true,
       follower: {
         select: {
+          id: true,
           userName: true,
           profileImage: true,
           userProfile: {
