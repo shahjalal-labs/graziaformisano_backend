@@ -3,6 +3,7 @@ import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
 import { calculateDistance } from "../../../helpers/distanceCalculator";
 import {
+  sendEventUpdateNotifications,
   sendNotifications,
   sendSingleNotification,
 } from "../notifications/notification.services";
@@ -311,7 +312,7 @@ const editEventInDB = async (payload: any) => {
   });
 
   try {
-    await sendNotifications(
+    await sendEventUpdateNotifications(
       `L’evento ${event.eventName} ha aggiornamenti importanti. Controlla gli ultimi dettagli.`,
       `🔔Evento Aggiornato`,
       event.userId,

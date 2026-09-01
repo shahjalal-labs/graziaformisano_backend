@@ -15,6 +15,7 @@ const upload = multer({
       "audio/mpeg",
       "audio/mp3",
       "video/mp4",
+      "video/quicktime",
       "video/x-matroska",
       "application/pdf",
     ];

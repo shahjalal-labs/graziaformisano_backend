@@ -12,8 +12,7 @@ export const sendSingleNotification = async (
   title?: string,
   type?: TNotificationType,
   eventId?: string,
-) => { 
-
+) => {
   const user = await prisma.user.findUnique({
     where: { id: receiverId },
   });
@@ -130,12 +129,11 @@ export const sendSingleNotification = async (
 //   }
 // };
 
-
 export const sendNotifications = async (
   body: string,
   title: string,
   senderId: string,
-  eventId?: string
+  eventId?: string,
 ) => {
   try {
     const senderLocation = await prisma.userLocation.findFirst({
@@ -158,12 +156,12 @@ export const sendNotifications = async (
       select: {
         id: true,
         fcmToken: true,
-       userLocation: {
-        select : {
-          latitude: true,
-          longitude: true,
-        }
-       }
+        userLocation: {
+          select: {
+            latitude: true,
+            longitude: true,
+          },
+        },
       },
     });
 
@@ -174,7 +172,7 @@ export const sendNotifications = async (
         senderLocation.latitude,
         senderLocation.longitude,
         user.userLocation[0].latitude,
-        user.userLocation[0].longitude
+        user.userLocation[0].longitude,
       );
 
       return distance <= 50;
@@ -201,17 +199,13 @@ export const sendNotifications = async (
       tokens: fcmTokens,
     };
 
-    const response = await admin
-      .messaging()
-      .sendEachForMulticast(message);
+    const response = await admin.messaging().sendEachForMulticast(message);
 
     const successIndices = response.responses
       .map((res, idx) => (res.success ? idx : null))
       .filter((idx) => idx !== null) as number[];
 
-    const successfulUsers = successIndices.map(
-      (idx) => nearbyUsers[idx]
-    );
+    const successfulUsers = successIndices.map((idx) => nearbyUsers[idx]);
 
     if (successfulUsers.length > 0) {
       await prisma.notification.createMany({
@@ -241,6 +235,100 @@ export const sendNotifications = async (
   }
 };
 
+export const sendEventUpdateNotifications = async (
+  body: string,
+  title: string,
+  senderId: string,
+  eventId?: string,
+) => {
+  try {
+    const eventAttendees = await prisma.eventAttendee.findMany({
+      where: {
+        eventId: eventId,
+        status: "Accepted",
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fcmToken: true,
+          },
+        },
+      },
+    });
+
+    if (eventAttendees.length === 0) {
+      return {
+        successCount: 0,
+        failureCount: 0,
+        failedTokens: [],
+        message: "No accepted attendees found for this event.",
+      };
+    }
+
+    const attendees = eventAttendees.filter(
+      (attendee) =>
+        attendee.user.fcmToken && attendee.user.id !== senderId,
+    );
+
+    if (attendees.length === 0) {
+      return {
+        successCount: 0,
+        failureCount: 0,
+        failedTokens: [],
+        message: "No attendees with valid FCM tokens found.",
+      };
+    }
+
+    const fcmTokens = attendees
+      .map((attendee) => attendee.user.fcmToken)
+      .filter(Boolean) as string[];
+
+    const message = {
+      notification: {
+        title: title || "Notification",
+        body,
+      },
+      tokens: fcmTokens,
+    };
+
+    const response = await admin.messaging().sendEachForMulticast(message);
+
+    const successIndices = response.responses
+      .map((res, idx) => (res.success ? idx : null))
+      .filter((idx) => idx !== null) as number[];
+
+    const successfulUsers = successIndices.map(
+      (idx) => attendees[idx].user,
+    );
+
+    if (successfulUsers.length > 0) {
+      await prisma.notification.createMany({
+        data: successfulUsers.map((user) => ({
+          receiverId: user.id,
+          title: title || "Notification",
+          content: body,
+          senderId,
+          type: "Event",
+          eventId,
+        })),
+      });
+    }
+
+    const failedTokens = response.responses
+      .map((res, idx) => (!res.success ? fcmTokens[idx] : null))
+      .filter(Boolean);
+
+    return {
+      successCount: response.successCount,
+      failureCount: response.failureCount,
+      failedTokens,
+    };
+  } catch (error) {
+    console.error(error);
+    throw new ApiError(500, "Failed to send notifications.");
+  }
+};
 
 const getNotificationsFromDB = async (req: any) => {
   const notifications = await prisma.notification.findMany({
