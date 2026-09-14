@@ -1,0 +1,82 @@
+### 1. Create a video story
+
+POST {{baseUrl}}/story/create HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "content": "Check out this video story!",
+  "storyType": "VIDEO"
+}
+
+### 2. Create an image story
+
+POST {{baseUrl}}/story/create HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "content": "Beautiful sunny day out here!",
+  "fileUrl": "https://storage.googleapis.com/example/stories/sample_image.jpg",
+  "storyType": "IMAGE"
+}
+
+### 3. Create a text story
+
+POST {{baseUrl}}/story/create HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "content": "Excited to share this moment with everyone!",
+  "storyType": "TEXT"
+}
+
+### 4. Update a story
+
+PUT {{baseUrl}}/story/update HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "storyId": "6aa77788f5aa48736c3c562e",
+  "content": "Updated caption with new video",
+  "storyType": "VIDEO"
+}
+
+### 5. Update a story (content only)
+
+PUT {{baseUrl}}/story/update HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "storyId": "6650a1b2c3d4e5f6a7b8c9d0",
+  "content": "Updated text caption for the story"
+}
+
+### 6. Get available stories for user
+
+GET {{baseUrl}}/story/available HTTP/1.1
+Authorization: {{user}}
+
+### 7. Get user-wise stories (returns storyType: VIDEO | IMAGE | TEXT)
+
+# /:id -> user ID (story poster ID)
+
+GET {{baseUrl}}/story/user/6a76854f7acbc5fdbb402ed2 HTTP/1.1
+Authorization: {{user}}
+
+### 8. Like or unlike a story
+
+# /:id -> story ID
+
+PATCH {{baseUrl}}/story/like-unlike/6650a1b2c3d4e5f6a7b8c9d0 HTTP/1.1
+Authorization: {{user}}
+
+### 9. Delete a story
+
+# /:id -> story ID
+
+DELETE {{baseUrl}}/story/delete/6650a1b2c3d4e5f6a7b8c9d0 HTTP/1.1
+Authorization: {{user}}

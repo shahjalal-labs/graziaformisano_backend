@@ -3,6 +3,11 @@ import ApiError from "../../../errors/ApiErrors";
 import { uploadInSpace } from "../../../shared/UploadHelper";
 import prisma from "../../../shared/prisma";
 import { canUseAccount } from "../../../helpers/subscriptionChecker";
+import { StoryType } from "@prisma/client";
+
+const isVideoUrl = (url: string) => {
+  return /\.(mp4|mov|mkv|webm|avi|flv|wmv|m4v)(\?.*)?$/i.test(url);
+};
 
 const createStoryInDB = async (req: Request) => {
   const userId = req.user.id;
@@ -20,13 +25,27 @@ const createStoryInDB = async (req: Request) => {
 
   const processImage = async (file: Express.Multer.File, folder: string) => {
     if (!file) return null;
-    return uploadInSpace(file, `courses/${folder}`);
+    return uploadInSpace(file, folder);
   };
 
-  const fileUrl = file ? await processImage(file, "profileImage") : null;
+  const uploadedUrl = file ? await processImage(file, "stories") : null;
+  const fileUrl = uploadedUrl || payload.fileUrl || null;
 
   if (!fileUrl && !payload.content) {
     throw new ApiError(400, "Story content or media is required");
+  }
+
+  let storyType: StoryType | undefined = payload.storyType;
+  if (!storyType) {
+    if (file) {
+      storyType = file.mimetype.startsWith("video/")
+        ? StoryType.VIDEO
+        : StoryType.IMAGE;
+    } else if (fileUrl) {
+      storyType = isVideoUrl(fileUrl) ? StoryType.VIDEO : StoryType.IMAGE;
+    } else {
+      storyType = StoryType.TEXT;
+    }
   }
 
   await prisma.story.create({
@@ -34,6 +53,7 @@ const createStoryInDB = async (req: Request) => {
       userId,
       content: payload.content,
       fileUrl: fileUrl,
+      storyType: storyType,
       viewedBy: ["sdfdfsdf"],
     },
   });
@@ -106,6 +126,7 @@ const getUserWiseStoriesFromDB = async (
       id: true,
       content: true,
       fileUrl: true,
+      storyType: true,
       likes: true,
       createdAt: true,
     },
@@ -123,6 +144,7 @@ const getUserWiseStoriesFromDB = async (
     id: story.id,
     content: story.content,
     fileUrl: story.fileUrl,
+    storyType: story.storyType,
     createdAt: story.createdAt,
     isLiked: story.likes.includes(userId),
   }));
@@ -169,25 +191,47 @@ const likeUnlikeStoryInDB = async (userId: string, storyId: string) => {
 };
 
 const updateStoryInDB = async (req: Request) => {
-  const payload = req.body;
+  const payload = req.body || {};
   const file = req.file;
 
+  const storyId = payload.storyId || req.params.id;
+  if (!storyId) {
+    throw new ApiError(400, "storyId is required");
+  }
+
   const story = await prisma.story.findUniqueOrThrow({
-    where: { id: payload.storyId },
+    where: { id: storyId },
   });
 
   const processImage = async (file: Express.Multer.File, folder: string) => {
     if (!file) return null;
-    return uploadInSpace(file, `courses/${folder}`);
+    return uploadInSpace(file, folder);
   };
 
-  const fileUrl = file ? await processImage(file, "profileImage") : null;
+  const uploadedUrl = file ? await processImage(file, "stories") : null;
+  const fileUrl = uploadedUrl || payload.fileUrl || story.fileUrl;
+
+  let storyType: StoryType | undefined = payload.storyType;
+  if (!storyType) {
+    if (file) {
+      storyType = file.mimetype.startsWith("video/")
+        ? StoryType.VIDEO
+        : StoryType.IMAGE;
+    } else if (payload.fileUrl) {
+      storyType = isVideoUrl(payload.fileUrl)
+        ? StoryType.VIDEO
+        : StoryType.IMAGE;
+    } else {
+      storyType = story.storyType ?? undefined;
+    }
+  }
 
   await prisma.story.update({
-    where: { id: payload.storyId },
+    where: { id: storyId },
     data: {
       content: payload.content ?? story.content,
-      fileUrl: fileUrl ?? story.fileUrl,
+      fileUrl: fileUrl,
+      storyType: storyType,
     },
   });
 
