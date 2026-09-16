@@ -16,7 +16,7 @@ model User {
   profileImage          String?
   fcmToken              String?
   stripeAccountId       String?
-  subscriptionType      String?           @default("Free Paid")
+  subscriptionType      String?           @default("Free")
   subscriptionExpiresAt DateTime?
   isSetup               Boolean           @default(false)
   isSubscribed          Boolean           @default(false)

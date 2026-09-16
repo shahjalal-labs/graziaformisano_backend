@@ -84,12 +84,16 @@ const createUserIntoDB = async (email: string, otp: string) => {
     },
   });
 
+  const subscriptionExpiresAt = new Date();
+  subscriptionExpiresAt.setMonth(subscriptionExpiresAt.getMonth() + 3);
+
   const user = await prisma.user.create({
     data: {
       email: email,
       password: userPending.password,
       userName: userName,
       role: "USER",
+      subscriptionExpiresAt,
     },
   });
 
