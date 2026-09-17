@@ -1,0 +1,146 @@
+### 1. Register pending user (Send OTP)
+
+POST {{baseUrl}}/users/pending HTTP/1.1
+Content-Type: application/json
+
+{
+  "userName": "john_doe",
+  "email": "user22@gmail.com",
+  "password": "1234Qq!!"
+}
+
+### 2. Verify account OTP and complete registration
+
+# Use the accessToken received in the response as Authorization header: {{user}}
+
+POST {{baseUrl}}/users/verify-account HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "user22@gmail.com",
+  "otp": "1499"
+}
+
+### 3. Setup user profile (First time profile setup)
+
+# Multipart form-data containing profileImage file and JSON string bodyData
+# Note: Replace './avatar.jpg' with a path to an image file on your system
+
+POST {{baseUrl}}/users/set-profile HTTP/1.1
+Authorization: {{user}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="profileImage"; filename="avatar.jpg"
+Content-Type: image/jpeg
+
+< ./avatar.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="bodyData"
+
+{
+  "bio": "Passionate fashion designer with over 5 years of experience in luxury tailoring.",
+  "city": "Milan",
+  "profession": "Fashion Designer",
+  "subProfession": "Pattern Maker",
+  "education": "Master of Fashion and Textile Design",
+  "skills": [
+    "Tailoring",
+    "Pattern Making",
+    "Textile Design",
+    "Styling"
+  ],
+  "company": "Formisano Atelier"
+}
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 4. Get authenticated user profile
+
+GET {{baseUrl}}/users/profile HTTP/1.1
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWJiYmZlMjUxNjA3ZGVkYjBmOGNmOCIsImVtYWlsIjoidXNlcjIyQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzg5NjM5Njc5LCJleHAiOjE3OTA5MzU2Nzl9.Mw7LMFGYheNfMVNx8xrfo4CeYKtw6gbdqhJcxOh3nY8
+
+### 5. Update user profile information
+
+PUT {{baseUrl}}/users/update-profile HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "userName": "john_doe_updated",
+  "bio": "Senior fashion designer and creative consultant.",
+  "city": "Rome",
+  "profession": "Creative Director",
+  "subProfession": "Haute Couture",
+  "education": "Master in Haute Couture & Luxury Goods",
+  "skills": [
+    "Haute Couture",
+    "Creative Direction",
+    "Draping",
+    "Fashion Illustration"
+  ],
+  "company": "Maison Milano"
+}
+
+### 6. Update user profile image
+
+# Multipart form-data containing updated profileImage
+
+PUT {{baseUrl}}/users/update-profile-image HTTP/1.1
+Authorization: {{user}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="profileImage"; filename="new_avatar.jpg"
+Content-Type: image/jpeg
+
+< ./new_avatar.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 7. Get all users (Basic)
+
+# Note: Authenticated user must have updated their location via POST /auth/update/user-location first
+
+GET {{baseUrl}}/users/all HTTP/1.1
+Authorization: {{user}}
+
+### 8. Get all users with query filters (Search, City, Profession, Distance)
+
+# Query parameters:
+# - search: Search by userName, email, profession, or subProfession
+# - city: Filter by city name
+# - profession: Filter by profession
+# - subProfession: Filter by sub-profession
+# - maxDistance: Maximum distance in kilometers (calculated from user's location)
+
+GET {{baseUrl}}/users/all?search=john
+  &city=Milan
+  &profession=Fashion%20Designer
+  &subProfession=Pattern%20Maker
+  &maxDistance=50 HTTP/1.1
+Authorization: {{user}}
+
+### 9. Get user details by ID
+
+# /:id -> Target user's MongoDB ObjectId
+
+GET {{baseUrl}}/users/details/6650a1b2c3d4e5f6a7b8c9d0 HTTP/1.1
+Authorization: {{user}}
+
+### 10. Generate file URLs (Upload files to storage)
+
+# Multipart form-data upload with field name "fileUrl" (supports multiple files)
+
+POST {{baseUrl}}/users/generate-url HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="fileUrl"; filename="sample_document.pdf"
+Content-Type: application/pdf
+
+< ./sample_document.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 11. Delete authenticated user account
+
+DELETE {{baseUrl}}/users/delete-account HTTP/1.1
+Authorization: {{user}}
