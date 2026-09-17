@@ -253,6 +253,7 @@ const getProfileFromDB = async (id: string) => {
           subscription: {
             select: {
               title: true,
+              subscriptionTitleType: true,
             },
           },
         },

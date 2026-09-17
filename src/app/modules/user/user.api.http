@@ -18,8 +18,13 @@ Content-Type: application/json
 
 {
   "email": "user22@gmail.com",
-  "otp": "1499"
+  "otp": "5066"
 }
+
+### 4. Get authenticated user profile
+
+GET {{baseUrl}}/users/profile HTTP/1.1
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWJjMjQwMjUxNjA3ZGVkYjBmOGNmYyIsImVtYWlsIjoidXNlcjIyQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzg5NjQxMjgwLCJleHAiOjE3OTA5MzcyODB9.pKZ0ma2YBbu0X99IprVZfreXhCil4yE6F-Tppqs3d-E
 
 ### 3. Setup user profile (First time profile setup)
 
@@ -53,11 +58,6 @@ Content-Disposition: form-data; name="bodyData"
   "company": "Formisano Atelier"
 }
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### 4. Get authenticated user profile
-
-GET {{baseUrl}}/users/profile HTTP/1.1
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWJiYmZlMjUxNjA3ZGVkYjBmOGNmOCIsImVtYWlsIjoidXNlcjIyQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzg5NjM5Njc5LCJleHAiOjE3OTA5MzU2Nzl9.Mw7LMFGYheNfMVNx8xrfo4CeYKtw6gbdqhJcxOh3nY8
 
 ### 5. Update user profile information
 
