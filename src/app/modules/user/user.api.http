@@ -5,7 +5,7 @@ Content-Type: application/json
 
 {
   "userName": "john_doe",
-  "email": "user22@gmail.com",
+  "email": "shahjalal.backend@gmail.com",
   "password": "1234Qq!!"
 }
 
@@ -18,13 +18,13 @@ Content-Type: application/json
 
 {
   "email": "user22@gmail.com",
-  "otp": "5066"
+  "otp": "6567"
 }
 
 ### 4. Get authenticated user profile
 
 GET {{baseUrl}}/users/profile HTTP/1.1
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWJjMjQwMjUxNjA3ZGVkYjBmOGNmYyIsImVtYWlsIjoidXNlcjIyQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzg5NjQxMjgwLCJleHAiOjE3OTA5MzcyODB9.pKZ0ma2YBbu0X99IprVZfreXhCil4yE6F-Tppqs3d-E
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYWNiMzBiMDU0YTEyYTBlZmViY2RjZSIsImVtYWlsIjoidXNlcjIyQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzg5NzAyOTI0LCJleHAiOjE3OTA5OTg5MjR9.yEBnnqAfm-VpzqhhMPahwXU1IxtRCtXSPAaBDWGJcvQ
 
 ### 3. Setup user profile (First time profile setup)
 
