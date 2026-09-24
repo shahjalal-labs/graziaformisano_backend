@@ -2,7 +2,13 @@ import { z } from "zod";
 
 const TEventType = z.enum(["Public", "Private"]);
 const TEventPlace = z.enum(["Meeting", "Remote"]);
-const TEventCategory = z.enum(["Lunch", "Dinner", "Drink", "Breakfast", "Meeting"]);
+const TEventCategory = z.enum([
+  "Lunch",
+  "Dinner",
+  "Drink",
+  "Breakfast",
+  "Meeting",
+]);
 
 const eventValidationSchema = z.object({
   eventName: z.string(),
@@ -12,7 +18,7 @@ const eventValidationSchema = z.object({
   //   eventDate: z.date(),
   eventTime: z.string(),
   description: z.string().optional(),
-  // agenda: z.array(z.string()).min(1, "Agenda cannot be empty"), 
+  // agenda: z.array(z.string()).min(1, "Agenda cannot be empty"),
   maxAttendence: z.number().min(1, "Max attendees must be at least 1"),
   latitude: z
     .number()
@@ -24,6 +30,9 @@ const eventValidationSchema = z.object({
     .max(180, "Longitude must be between -180 and 180"),
   address: z.string().optional(),
 });
+
+export type TEventCreate = z.infer<typeof eventValidationSchema>;
+
 const eventUpdateValidationSchema = z.object({
   eventId: z.string(),
   eventName: z.string(),
@@ -33,7 +42,7 @@ const eventUpdateValidationSchema = z.object({
   //   eventDate: z.date(),
   eventTime: z.string().optional(),
   description: z.string().optional(),
-  // agenda: z.array(z.string()).min(1, "Agenda cannot be empty").optional(), 
+  // agenda: z.array(z.string()).min(1, "Agenda cannot be empty").optional(),
   maxAttendence: z
     .number()
     .min(1, "Max attendees must be at least 1")
@@ -63,5 +72,5 @@ export const eventSchema = {
   eventValidationSchema,
   eventUpdateValidationSchema,
   sendInviteSchema,
-  acceptOrRejectInviteSchema
+  acceptOrRejectInviteSchema,
 };

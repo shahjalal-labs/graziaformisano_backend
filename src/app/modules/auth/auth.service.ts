@@ -149,7 +149,7 @@ const sendForgotPasswordOtpDB = async (email: string) => {
 
   // Generate OTP and expiry time
   const otp = generateOTP(); // 4-digit OTP
-  const OTP_EXPIRATION_TIME = 5 * 60 * 1000; // 5 minute
+  const OTP_EXPIRATION_TIME = 10 * 60 * 1000; // 10 minute
   const expiresAt = Date.now() + OTP_EXPIRATION_TIME;
   const subject = "Your Password Reset OTP";
   const html = `
@@ -158,7 +158,7 @@ const sendForgotPasswordOtpDB = async (email: string) => {
     <p>Hi <b>${existringUser.userName}</b>,</p>
     <p>Your OTP for password reset is:</p>
     <h1 style="color: #007BFF;">${otp}</h1>
-    <p>This OTP is valid for <b>5 minutes</b>. If you did not request this, please ignore this email.</p>
+    <p>This OTP is valid for <b>10 minutes</b>. If you did not request this, please ignore this email.</p>
     <p>Thanks, <br>The Support Team</p>
   </div>
 `;
@@ -289,7 +289,6 @@ const blockUnblockUserInDB = async (roomId: string, userId: string) => {
       id: roomId,
     },
   });
-
 
   if (room.senderId !== userId && room.receiverId !== userId) {
     throw new ApiError(400, "You are not a participant of this room");

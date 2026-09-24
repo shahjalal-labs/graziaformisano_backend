@@ -26,7 +26,7 @@ export const LOGO_URL =
 export const emailBody = (
   username: string,
   otp: string,
-  useHostedUrl: boolean = false
+  useHostedUrl: boolean = false,
 ) => {
   const logoSrc = useHostedUrl ? LOGO_URL : `cid:${LOGO_CID}`;
   const html = `
@@ -51,13 +51,13 @@ export const emailBody = (
         <h1 style="color: #00c2d1; font-size: 36px; margin: 15px 0;">${otp}</h1>
 
         <p style="font-size: 14px; color: #777;">
-          This OTP is valid for <b>5 minutes</b>. If you did not request this, you can safely ignore this email.
+          This OTP is valid for <b>10 minutes</b>. If you did not request this, you can safely ignore this email.
         </p>
       </div>
 
       <!-- Footer -->
       <div style="background-color: #f9f9f9; padding: 15px; text-align: center; font-size: 12px; color: #aaa;">
-        &copy; ${new Date().getFullYear()} Home Health. All rights reserved.
+        &copy; ${new Date().getFullYear()} BizMeet. All rights reserved.
       </div>
     </div>
   </div>
@@ -67,7 +67,7 @@ export const emailBody = (
 
 export const markActiveMessage = (
   userName: string,
-  useHostedUrl: boolean = false
+  useHostedUrl: boolean = false,
 ) => {
   const logoSrc = useHostedUrl ? LOGO_URL : `cid:${LOGO_CID}`;
   const html = `

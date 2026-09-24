@@ -1,0 +1,219 @@
+### ==========================================
+
+
+### ==========================================
+
+# Note: Ensure {{baseUrl}} and {{user}} (Bearer/JWT accessToken) 
+# are configured in your environment or VS Code REST Client settings.
+
+
+### 1. Create a Public Event
+
+# Required fields:
+# - eventName: string
+# - eventType: "Public" | "Private"
+# - eventCategory: "Lunch" | "Dinner" | "Drink" | "Breakfast" | "Meeting"
+# - eventPlace: "Meeting" | "Remote"
+# - eventDate: ISO DateTime string (e.g., "2026-10-15T18:00:00.000Z")
+# - eventTime: string (e.g., "18:00" or "06:00 PM")
+# - maxAttendence: number (minimum 1)
+# - latitude: number (-90 to 90)
+# - longitude: number (-180 to 180)
+# Optional fields:
+# - description, address, city, agenda (array of strings)
+
+POST {{baseUrl}}/event/create HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "eventName": "New event for 9 pm",
+  "eventType": "Public",
+  "eventCategory": "Meeting",
+  "eventPlace": "Meeting",
+  "eventDate": "2026-09-19T00:00:00.000Z",
+  "eventTime": "3:44 PM",
+  "description": "",
+  "agenda": [],
+  "maxAttendence": 2,
+  "latitude": 40.86445910042446,
+  "longitude": 14.268919117748736,
+  "address": "Via Don Bosco 88, Naples, Campania, Italy",
+  "city": "Naples"
+}
+
+### 2. Create a Private Event (with direct invitees)
+
+# For Private events, pass an optional "invitees" array containing target user MongoDB ObjectIds
+
+POST {{baseUrl}}/event/create HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "eventName": "Exclusive Founders Dinner",
+  "eventType": "Private",
+  "eventCategory": "Dinner",
+  "eventPlace": "Meeting",
+  "eventDate": "2026-10-20T20:00:00.000Z",
+  "eventTime": "20:00",
+  "description": "Private dinner for selected entrepreneurs and startup executives.",
+  "agenda": [
+    "Welcome Drink",
+    "Three-Course Dinner",
+    "Private Roundtable Discussion"
+  ],
+  "maxAttendence": 10,
+  "latitude": 45.4642,
+  "longitude": 9.19,
+  "city": "Milan",
+  "address": "Via Montenapoleone 8, 20121 Milano MI, Italy",
+  "invitees": ["6650a1b2c3d4e5f6a7b8c9d1"]
+}
+
+### 3. Get All Events (Basic / Location-based)
+
+# Note: Requires authenticated user to have a recorded location in userLocation
+
+GET {{baseUrl}}/event/all HTTP/1.1
+Authorization: {{user}}
+
+### 4. Get All Events with Query Filters
+
+# Query parameters:
+# - search: Search by eventName, address, or description
+# - city: Filter by city / address
+# - eventCategory: "Lunch" | "Dinner" | "Drink" | "Breakfast" | "Meeting"
+# - profession: Filter by organizer's profession (must exist in DB)
+# - subProfession: Filter by organizer's sub-profession
+# - maxDistance: Maximum distance in kilometers from user's location
+
+GET {{baseUrl}}/event/all?search=Tech
+  &city=Milan
+  &eventCategory=Meeting
+  &maxDistance=50 HTTP/1.1
+Authorization: {{user}}
+
+### 5. Get My Created Events (Upcoming)
+
+# Query parameters:
+# - time: "upcoming" (default) or "past"
+# - category: "Lunch" | "Dinner" | "Drink" | "Breakfast" | "Meeting" (optional)
+
+GET {{baseUrl}}/event/user-wise?time=upcoming HTTP/1.1
+Authorization: {{user}}
+
+### 6. Get My Created Events (Past)
+
+GET {{baseUrl}}/event/user-wise?time=past HTTP/1.1
+Authorization: {{user}}
+
+### 7. Get Event Details by ID
+
+# /:id -> Target event's MongoDB ObjectId
+
+GET {{baseUrl}}/event/details/6650a1b2c3d4e5f6a7b8c9d0 HTTP/1.1
+Authorization: {{user}}
+
+### 8. Update Event Information
+
+# Required: eventId, eventName
+# Optional: eventType, eventCategory, eventPlace, eventDate, eventTime, description, maxAttendence, latitude, longitude, address
+
+PUT {{baseUrl}}/event/update HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "eventId": "6650a1b2c3d4e5f6a7b8c9d0",
+  "eventName": "Milan Tech & Design Meetup - Updated",
+  "eventType": "Public",
+  "eventCategory": "Meeting",
+  "eventPlace": "Meeting",
+  "eventDate": "2026-10-15T19:00:00.000Z",
+  "eventTime": "19:00",
+  "description": "Updated time and expanded venue space.",
+  "maxAttendence": 35,
+  "latitude": 45.4642,
+  "longitude": 9.19,
+  "address": "Piazza del Duomo 1, 20122 Milano MI, Italy"
+}
+
+### 9. Join a Public Event
+
+# /:id -> Target event's MongoDB ObjectId
+
+PATCH {{baseUrl}}/event/join/6650a1b2c3d4e5f6a7b8c9d0 HTTP/1.1
+Authorization: {{user}}
+
+### 10. Leave an Event
+
+# /:id -> Target event's MongoDB ObjectId
+
+PATCH {{baseUrl}}/event/leave/6650a1b2c3d4e5f6a7b8c9d0 HTTP/1.1
+Authorization: {{user}}
+
+### 11. Send Private Event Invitation to a User
+
+POST {{baseUrl}}/event/invite HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "eventId": "6650a1b2c3d4e5f6a7b8c9d0",
+  "userId": "6650a1b2c3d4e5f6a7b8c9d1"
+}
+
+### 12. Accept an Event Invitation
+
+# inviteId -> The eventAttendee record ID (with status: "Pending")
+
+PUT {{baseUrl}}/event/accept-reject-invite HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "inviteId": "6650a1b2c3d4e5f6a7b8c9d2",
+  "accept": true
+}
+
+### 13. Reject an Event Invitation
+
+PUT {{baseUrl}}/event/accept-reject-invite HTTP/1.1
+Authorization: {{user}}
+Content-Type: application/json
+
+{
+  "inviteId": "6650a1b2c3d4e5f6a7b8c9d2",
+  "accept": false
+}
+
+### 14. Get Non-Invited Users for a Private Event
+
+# /:id -> Target private event's MongoDB ObjectId
+# Returns users not yet invited and not organizing the event
+
+GET {{baseUrl}}/event/non-invited-users/6650a1b2c3d4e5f6a7b8c9d0 HTTP/1.1
+Authorization: {{user}}
+
+### 15. Get User Joined Events History
+
+# Returns list of events the authenticated user has joined/attended
+
+GET {{baseUrl}}/event/join-history HTTP/1.1
+Authorization: {{user}}
+
+### 16. Get Nearby Events & Users by Location (Map / Radar View)
+
+# Query parameters:
+# - maxDistance: Maximum radius in kilometers (e.g., 50)
+
+GET {{baseUrl}}/event/event-user-by-location?maxDistance=50 HTTP/1.1
+Authorization: {{user}}
+
+### 17. Delete an Event
+
+# /:id -> Target event's MongoDB ObjectId
+
+DELETE {{baseUrl}}/event/delete/6650a1b2c3d4e5f6a7b8c9d0 HTTP/1.1
+Authorization: {{user}}

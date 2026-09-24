@@ -8,8 +8,13 @@ import {
   sendSingleNotification,
 } from "../notifications/notification.services";
 import { canUseAccount } from "../../../helpers/subscriptionChecker";
+// import { format, parse } from "date-fns";
+import { getLocalTimeAsUtc } from "../../../helpers/getLocalTimeAsUtc";
 
-const createEventInDB = async (userId: string, payload: any) => {
+const createEventInDB = async (
+  userId: string,
+  payload: any /* TEventCreate */,
+) => {
   await prisma.user.findUniqueOrThrow({
     where: { id: userId },
   });
@@ -23,11 +28,19 @@ const createEventInDB = async (userId: string, payload: any) => {
     );
   }
 
-  const { invitees, ...eventData } = payload;
+  const { invitees, eventDate, ...eventData } = payload;
+
+  // const eventTime = payload.eventTime;
+
+  /* const utcTime = new Date(
+    `${format(new Date(eventDate), "yyyy-MM-dd")}T${format(parse(eventTime, "hh:mm a", new Date()), "HH:mm")}:00Z`,
+  ); */
 
   const event = await prisma.event.create({
     data: {
       ...eventData,
+      // eventDate: utcTime,
+      eventDate,
       userId,
     },
   });
@@ -114,11 +127,13 @@ const getAllEventsFromDB = async (
     }
   }
 
+  const localTimeAsUtc = getLocalTimeAsUtc("Asia/Dhaka");
   const events = await prisma.event.findMany({
     where: {
       // eventType: "Public",
       eventDate: {
-        gte: new Date(),
+        // gte: new Date(),
+        gte: localTimeAsUtc,
       },
       ...(profession && {
         user: {
@@ -186,10 +201,10 @@ const getAllEventsFromDB = async (
           id: true,
           userName: true,
           userProfile: {
-            select : {
-              profession:true
-            }
-          }
+            select: {
+              profession: true,
+            },
+          },
         },
       },
       eventAttendees: {
