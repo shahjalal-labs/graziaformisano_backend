@@ -1,6 +1,6 @@
-# 🏢 Grazia Formisano — Enterprise Business Directory & Booking Platform
+# 🌐 Grazia Formisano — Professional Networking, Event Hosting & 24h Multimedia Story Social API
 
-![Architecture Banner](./assets/banner.jpg)
+![Architecture Banner](./assets/banner.svg)
 
 <p align="center">
   <a href="https://www.postman.com/shahjalal-backend-9458759/shahjalal-api-portfolio/collection/48491387-15dd4458-11a6-4cca-891b-8c596fed6157" target="_blank">
@@ -18,8 +18,8 @@
   <img src="https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma" />
   <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
   <img src="https://img.shields.io/badge/Stripe-635BFF?style=for-the-badge&logo=stripe&logoColor=white" alt="Stripe" />
-  <img src="https://img.shields.io/badge/Cloudflare_R2-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare_R2" />
-  <img src="https://img.shields.io/badge/JWT_Auth-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT_Auth" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/Social_Network-8B5CF6?style=for-the-badge&logo=users&logoColor=white" alt="Social_Network" />
   
 </p>
 
@@ -27,17 +27,17 @@
 
 ## 📌 Executive Overview
 
-Grazia Formisano is an enterprise-grade directory and consultation scheduling platform. Engineered with a scalable clean architecture, it features business profile management, dynamic category filtering, calendar booking slots, Stripe payment checkout, and high-performance digital asset storage via Cloudflare R2 / S3.
+**Grazia Formisano Backend** is an enterprise social networking and event hosting platform engine. Engineered with **Node.js, TypeScript, Express, Prisma ORM, and Stripe**, the platform powers professional communities: rich career profile curation, skills verification, **conference and meetup event hosting with agendas and RSVP ticketing**, **ephemeral 24-hour multimedia Stories (video/image/text)**, public and private feed posts with comment threads, bi-directional follow relationships, 1-on-1 and event group chat rooms, and premium Stripe membership tiers.
 
 ---
 
-## 🚀 Key Architectural Highlights
+## 🚀 Key Architectural & Domain Capabilities
 
-- **Consultation Scheduling**: Timezone-aware booking engine with real-time slot availability validation.
-- **Cloud Asset Storage**: High-speed multipart uploads and image optimization via Cloudflare R2.
-- **Stripe Payment Gateway**: Secure checkout sessions, refund management, and automated webhook reconciliation.
-- **Type-Safe Persistence**: Prisma ORM schema indexing and transaction isolation.
-- **Security First**: Role-based access control (Admin, Business Owner, Client), bcrypt password hashing, and Zod input validation.
+- **Event Hosting & Agenda Coordination**: Create conferences and meetups with timezone-aware agendas, venue geolocations, capacity caps, and attendee RSVPs.
+- **Ephemeral 24h Story Engine**: Ephemeral video, image, and text stories with view tracking, like counters, and automated expiration.
+- **Professional Networking & Followers**: Skill endorsements, career bios, company affiliations, and follower/following graph relationships.
+- **Multimedia Feed & Engagement**: Rich media posts with nested comments, replies, like reactions, and privacy visibility toggles.
+- **Stripe Subscription Billing**: Monetized membership tiers (Free, Pro, VIP) with automated renewal webhooks and access guards.
 
 ---
 
@@ -46,18 +46,19 @@ Grazia Formisano is an enterprise-grade directory and consultation scheduling pl
 The complete REST API specification is published in our public Postman showcase workspace:
 
 * 🌐 **Instant Live API Documentation**: [Explore graziaformisano_backend in Postman (Instant Web View)](https://www.postman.com/shahjalal-backend-9458759/shahjalal-api-portfolio/collection/48491387-15dd4458-11a6-4cca-891b-8c596fed6157)
-* 📁 **Local Postman File**: [`docs/postman_collection.json`](./docs/postman_collection.json) (import directly into Postman Desktop or Newman CLI).
+* 📁 **Local Postman File**: [`docs/postman_collection.json`](./docs/postman_collection.json) (ready for Postman Desktop or Newman CLI).
 
 ### Core Endpoint Modules
 
 | Module | Base Route | Key Capabilities |
 |---|---|---|
-| **Authentication** | `/api/v1/auth` | User signup, login, password recovery, JWT token refresh |
-| **Business Profiles** | `/api/v1/business` | Create, update, and discover verified business listings |
-| **Appointments** | `/api/v1/booking` | Reserve consultation slots, cancel/reschedule, calendar sync |
-| **Payments** | `/api/v1/payment` | Stripe checkout session creation and webhook listener |
-| **Reviews & Ratings** | `/api/v1/review` | Customer feedback, verified star ratings, and moderation |
-| **Uploads** | `/api/v1/upload` | Direct multipart asset uploads to Cloudflare R2 |
+| **Authentication** | `/api/v1/auth` | User registration, Apple/Google sign-in, JWT rotation |
+| **Profiles & Skills** | `/api/v1/userProfile` | Career profession, bio, company, verified skills, profile photos |
+| **Events & RSVPs** | `/api/v1/event` | Event creation, agenda items, geolocation, attendee ticketing |
+| **Ephemeral Stories** | `/api/v1/story` | Upload 24h stories (video/image/text), track views, like reactions |
+| **Posts & Threads** | `/api/v1/post` | Feed publications, multimedia attachments, comments and replies |
+| **Networking Graph** | `/api/v1/follower` | Follow/unfollow connections, follower lists, network discovery |
+| **Chat & Rooms** | `/api/v1/room` | 1-on-1 private messaging and event attendee group discussions |
 
 ---
 
@@ -66,18 +67,18 @@ The complete REST API specification is published in our public Postman showcase 
 ```plaintext
 graziaformisano_backend/
 ├── assets/
-│   └── banner.*                 # Project architecture visual banner
+│   └── banner.svg               # Architectural visual banner
 ├── docs/
 │   └── postman_collection.json  # Full Postman API collection v2.1
 ├── src/
 │   ├── app/
 │   │   ├── middlewares/         # Global error handlers, auth & validation guards
-│   │   ├── modules/             # Domain-driven feature modules
-│   │   └── routes/              # Centralized route aggregator
+│   │   ├── modules/             # Domain feature modules
+│   │   └── routes/              # Centralized route registration
 │   ├── config/                  # Environment & external service configurations
-│   └── server.ts                # Application bootstrapper & HTTP server
+│   └── server.ts                # Application bootstrapper
 ├── prisma/
-│   └── schema.prisma            # Database schema definition
+│   └── schema.prisma            # Prisma database schema definition
 ├── .env.example                 # Sanitized environment template
 ├── package.json
 └── tsconfig.json
@@ -98,13 +99,12 @@ cd graziaformisano_backend
 npm install
 ```
 
-### 2. Environment Configuration
-Copy the provided `.env.example` file to create your local `.env`:
+### 2. Configure Environment Variables
 ```bash
 cp .env.example .env
 ```
 
-### 3. Initialize Prisma Client
+### 3. Generate Prisma Client
 ```bash
 npx prisma generate
 ```
@@ -118,7 +118,7 @@ npm run dev
 
 ## 👨‍💻 Engineering & Authorship
 
-Developed and maintained by **Md. Shahjalal**.
+Developed and engineered by **Md. Shahjalal**.
 
 * **GitHub**: [@shahjalal-labs](https://github.com/shahjalal-labs)
 * **Email**: [muhommodshahjalal@gmail.com](mailto:muhommodshahjalal@gmail.com)
